@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Modern School Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                800: '#1b6b1b',
+                900: '#228B22',
+                950: '#165916',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Sticky Navigation -->
+    <header class="sticky top-0 z-40 bg-slate-900 text-white transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <div class="bg-amber-500 text-slate-950 p-2 rounded-full font-bold text-xl w-10 h-10 flex items-center justify-center group-hover:rotate-12 transition-transform">C</div>
+                <span class="font-bold text-xl tracking-tight group-hover:text-amber-400 transition-colors">CITADEL ACADEMY</span>
+            </a>
+
+            <nav class="hidden lg:flex space-x-6 font-medium">
+                <a href="index.html" class="hover:text-amber-400 transition-colors pb-1">Home</a>
+                <a href="about.html" class="text-amber-400 hover:text-amber-400 transition-colors border-b-2 border-amber-400 pb-1">About Us</a>
+                <a href="academics.html" class="hover:text-amber-400 transition-colors pb-1">Academics</a>
+                <a href="admissions.html" class="hover:text-amber-400 transition-colors pb-1">Admissions</a>
+                <a href="staff.html" class="hover:text-amber-400 transition-colors pb-1">Staff</a>
+                <a href="news.html" class="hover:text-amber-400 transition-colors pb-1">News & Events</a>
+                <a href="gallery.html" class="hover:text-amber-400 transition-colors pb-1">Gallery</a>
+                <a href="contact.html" class="hover:text-amber-400 transition-colors pb-1">Contact Us</a>
+            </nav>
+
+            <button id="mobile-menu-btn" class="lg:hidden text-2xl focus:outline-none hover:text-amber-400 transition-colors" aria-label="Toggle Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-800 border-t border-slate-700 py-4 px-6 space-y-4 absolute left-0 right-0 shadow-lg">
+            <a href="index.html" class="block hover:text-amber-400 transition-colors">Home</a>
+            <a href="about.html" class="block text-amber-400 font-semibold">About Us</a>
+            <a href="academics.html" class="block hover:text-amber-400 transition-colors">Academics</a>
+            <a href="admissions.html" class="block hover:text-amber-400 transition-colors">Admissions</a>
+            <a href="staff.html" class="block hover:text-amber-400 transition-colors">Staff</a>
+            <a href="news.html" class="block hover:text-amber-400 transition-colors">News & Events</a>
+            <a href="gallery.html" class="block hover:text-amber-400 transition-colors">Gallery</a>
+            <a href="contact.html" class="block hover:text-amber-400 transition-colors">Contact Us</a>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-slate-900 text-white py-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center"></div>
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">About Our School</h1>
+            <p class="text-slate-300 max-w-xl mx-auto">Discover our history, our values, and the leadership driving our success.</p>
+        </div>
+    </section>
+
+    <main class="flex-grow container mx-auto px-6 py-16 space-y-20">
+        
+        <!-- History Section -->
+        <section class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-6 border-l-4 border-amber-500 pl-4">Our Rich History</h2>
+                <p class="text-slate-600 mb-4">Placeholder text describing the founding of the school. Established with a vision to provide quality education, Citadel Academy has grown from a small institution to a leading center of academic excellence.</p>
+                <p class="text-slate-600">Over the decades, we have adapted to the changing educational landscape while remaining true to our core values of integrity, hard work, and discipline.</p>
+            </div>
+            <div class="rounded-2xl overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School History" class="w-full h-64 object-cover">
+            </div>
+        </section>
+
+        <!-- Mission & Vision -->
+        <section class="grid md:grid-cols-2 gap-8">
+            <div class="bg-slate-900 text-white p-8 rounded-2xl shadow-lg border border-slate-800 relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-slate-800 text-8xl font-bold opacity-20">01</div>
+                <h3 class="text-2xl font-bold text-amber-400 mb-4 flex items-center">
+                    <i class="fa-solid fa-eye mr-2"></i> Our Vision
+                </h3>
+                <p class="text-slate-300 relative z-10">Placeholder text for the school's vision statement. To be a world-class institution that empowers students to reach their full potential and become responsible global citizens.</p>
+            </div>
+            
+            <div class="bg-slate-900 text-white p-8 rounded-2xl shadow-lg border border-slate-800 relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-slate-800 text-8xl font-bold opacity-20">02</div>
+                <h3 class="text-2xl font-bold text-amber-400 mb-4 flex items-center">
+                    <i class="fa-solid fa-bullseye mr-2"></i> Our Mission
+                </h3>
+                <p class="text-slate-300 relative z-10">Placeholder text for the school's mission statement. To provide a rigorous and supportive learning environment that fosters critical thinking, creativity, and moral integrity.</p>
+            </div>
+        </section>
+
+        <!-- Principal's Message -->
+        <section class="bg-white p-8 md:p-12 rounded-2xl shadow-md border border-slate-100 grid md:grid-cols-3 gap-8 items-center">
+            <div class="md:col-span-1 text-center">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Principal" class="w-48 h-48 rounded-full mx-auto object-cover border-4 border-amber-500 shadow-lg">
+                <h4 class="mt-4 font-bold text-slate-900 text-xl">Dr. Jane Doe</h4>
+                <span class="text-slate-500 text-sm">School Principal</span>
+            </div>
+            <div class="md:col-span-2">
+                <h3 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                    <i class="fa-solid fa-quote-left text-amber-500 mr-2 text-3xl"></i> Message from the Principal
+                </h3>
+                <p class="text-slate-600 italic mb-4">"Placeholder text for the principal's welcome message. Welcome to Citadel Academy, where we believe every child has a unique spark waiting to be ignited..."</p>
+                <p class="text-slate-600">We are committed to partnering with parents to ensure the success of our students. Thank you for choosing us as your educational home.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+        <div class="container mx-auto px-6 grid md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Citadel Academy</h4>
+                <p class="text-sm">Placeholder text for school mission or brief description. Nurturing leaders of tomorrow.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="about.html" class="hover:text-amber-400 transition-colors">About Us</a></li>
+                    <li><a href="academics.html" class="hover:text-amber-400 transition-colors">Academics</a></li>
+                    <li><a href="admissions.html" class="hover:text-amber-400 transition-colors">Admissions</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Portals</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Student Portal</a></li>
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Staff Portal</a></li>
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Parent Portal</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Connect</h4>
+                <div class="flex space-x-4 text-xl">
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="container mx-auto px-6 mt-8 pt-8 border-t border-slate-800 text-center text-sm">
+            &copy; 2026 Citadel Academy. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

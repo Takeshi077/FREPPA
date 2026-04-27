@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academics | Modern School Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                800: '#1b6b1b',
+                900: '#228B22',
+                950: '#165916',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Sticky Navigation -->
+    <header class="sticky top-0 z-40 bg-slate-900 text-white transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-3 group">
+                <div class="bg-amber-500 text-slate-950 p-2 rounded-full font-bold text-xl w-10 h-10 flex items-center justify-center group-hover:rotate-12 transition-transform">C</div>
+                <span class="font-bold text-xl tracking-tight group-hover:text-amber-400 transition-colors">CITADEL ACADEMY</span>
+            </a>
+
+            <nav class="hidden lg:flex space-x-6 font-medium">
+                <a href="index.html" class="hover:text-amber-400 transition-colors pb-1">Home</a>
+                <a href="about.html" class="hover:text-amber-400 transition-colors pb-1">About Us</a>
+                <a href="academics.html" class="text-amber-400 hover:text-amber-400 transition-colors border-b-2 border-amber-400 pb-1">Academics</a>
+                <a href="admissions.html" class="hover:text-amber-400 transition-colors pb-1">Admissions</a>
+                <a href="staff.html" class="hover:text-amber-400 transition-colors pb-1">Staff</a>
+                <a href="news.html" class="hover:text-amber-400 transition-colors pb-1">News & Events</a>
+                <a href="gallery.html" class="hover:text-amber-400 transition-colors pb-1">Gallery</a>
+                <a href="contact.html" class="hover:text-amber-400 transition-colors pb-1">Contact Us</a>
+            </nav>
+
+            <button id="mobile-menu-btn" class="lg:hidden text-2xl focus:outline-none hover:text-amber-400 transition-colors" aria-label="Toggle Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-800 border-t border-slate-700 py-4 px-6 space-y-4 absolute left-0 right-0 shadow-lg">
+            <a href="index.html" class="block hover:text-amber-400 transition-colors">Home</a>
+            <a href="about.html" class="block hover:text-amber-400 transition-colors">About Us</a>
+            <a href="academics.html" class="block text-amber-400 font-semibold">Academics</a>
+            <a href="admissions.html" class="block hover:text-amber-400 transition-colors">Admissions</a>
+            <a href="staff.html" class="block hover:text-amber-400 transition-colors">Staff</a>
+            <a href="news.html" class="block hover:text-amber-400 transition-colors">News & Events</a>
+            <a href="gallery.html" class="block hover:text-amber-400 transition-colors">Gallery</a>
+            <a href="contact.html" class="block hover:text-amber-400 transition-colors">Contact Us</a>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-slate-900 text-white py-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center"></div>
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Academic Excellence</h1>
+            <p class="text-slate-300 max-w-xl mx-auto">Explore our comprehensive curriculum and dedication to intellectual growth.</p>
+        </div>
+    </section>
+
+    <main class="flex-grow container mx-auto px-6 py-16 space-y-20">
+        
+        <!-- Curriculum Overview -->
+        <section class="bg-white p-8 rounded-2xl shadow-md border border-slate-100">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6 border-l-4 border-amber-500 pl-4">Our Curriculum</h2>
+            <p class="text-slate-600 mb-6">Placeholder text describing the curriculum. We offer a broad and balanced education that combines national standards with global best practices. Our approach focuses on STEM, Humanities, and the Arts.</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-xl text-slate-900 mb-2 flex items-center"><i class="fa-solid fa-flask-vial text-amber-500 mr-2"></i> Science & Tech</h3>
+                    <p class="text-slate-600 text-sm">Mathematics, Physics, Chemistry, Biology, ICT.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-xl text-slate-900 mb-2 flex items-center"><i class="fa-solid fa-book text-amber-500 mr-2"></i> Humanities</h3>
+                    <p class="text-slate-600 text-sm">English, Literature, History, Geography, Civic Education.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-xl text-slate-900 mb-2 flex items-center"><i class="fa-solid fa-palette text-amber-500 mr-2"></i> Creative Arts</h3>
+                    <p class="text-slate-600 text-sm">Fine Arts, Music, Drama, Design Technology.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timetable Section -->
+        <section>
+            <h2 class="text-3xl font-bold text-slate-900 mb-6 border-l-4 border-amber-500 pl-4">Sample Daily Routine</h2>
+            <div class="overflow-x-auto rounded-xl shadow-md border border-slate-200">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white">
+                            <th class="p-4 font-semibold">Time</th>
+                            <th class="p-4 font-semibold">Activity</th>
+                            <th class="p-4 font-semibold">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-900">07:30 AM - 08:00 AM</td>
+                            <td class="p-4">Morning Assembly</td>
+                            <td class="p-4 text-slate-600">Registration and daily announcements.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-900">08:00 AM - 10:00 AM</td>
+                            <td class="p-4">Morning Classes</td>
+                            <td class="p-4 text-slate-600">Core subjects (Maths/English).</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-900">10:00 AM - 10:30 AM</td>
+                            <td class="p-4">Short Break</td>
+                            <td class="p-4 text-slate-600">Refreshment and socialization.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-900">10:30 AM - 01:30 PM</td>
+                            <td class="p-4">Mid-day Classes</td>
+                            <td class="p-4 text-slate-600">Electives and practical sessions.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-900">01:30 PM - 02:30 PM</td>
+                            <td class="p-4">Lunch Break</td>
+                            <td class="p-4 text-slate-600">Hot meals served in the dining hall.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+        <div class="container mx-auto px-6 grid md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Citadel Academy</h4>
+                <p class="text-sm">Placeholder text for school mission or brief description. Nurturing leaders of tomorrow.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="about.html" class="hover:text-amber-400 transition-colors">About Us</a></li>
+                    <li><a href="academics.html" class="hover:text-amber-400 transition-colors">Academics</a></li>
+                    <li><a href="admissions.html" class="hover:text-amber-400 transition-colors">Admissions</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Portals</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Student Portal</a></li>
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Staff Portal</a></li>
+                    <li><a href="#" class="hover:text-amber-400 transition-colors">Parent Portal</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-lg mb-4">Connect</h4>
+                <div class="flex space-x-4 text-xl">
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="container mx-auto px-6 mt-8 pt-8 border-t border-slate-800 text-center text-sm">
+            &copy; 2026 Citadel Academy. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
