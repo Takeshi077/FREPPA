@@ -4,8 +4,8 @@
   "description": "FREPPA GROUP OF SCHOOL website",
   "main": "index.html",
   "scripts": {
-    "dev": "npx http-server -p 8081",
-    "start": "npx http-server -p 8081"
+    "dev": "npx http-server -p 8099",
+    "start": "npx http-server -p 8099"
   },
   "keywords": [],
   "author": "",
