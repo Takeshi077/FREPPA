@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard | FREPPA GROUP OF SCHOOLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: { colors: { slate: { 800: '#1b6b1b', 900: '#228B22', 950: '#165916' } } } }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+    <style>
+        body { font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+        .slide-enter { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-950 text-white flex flex-col fixed h-full z-30 transition-all duration-300" id="sidebar">
+        <div class="p-4 border-b border-slate-800">
+            <a href="index.html" class="flex items-center space-x-2">
+                <img src="freppa logo.svg.png" alt="Logo" class="w-8 h-8">
+                <span class="font-bold text-sm">FREPPA DASHBOARD</span>
+            </a>
+        </div>
+        <div class="p-4 border-b border-slate-800">
+            <p class="text-xs text-slate-400">Logged in as</p>
+            <p id="sidebar-name" class="font-semibold text-amber-400 text-sm"></p>
+            <p id="sidebar-role" class="text-xs text-slate-400 capitalize">Teacher</p>
+        </div>
+        <nav class="flex-grow p-4 space-y-1">
+            <a href="#subjects-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-slate-800 text-amber-400 font-medium">
+                <i class="fa-solid fa-book-open w-5"></i><span>My Subjects</span>
+            </a>
+            <a href="#results-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fa-solid fa-table w-5"></i><span>Manage Results</span>
+            </a>
+            <a href="#bulk-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fa-solid fa-upload w-5"></i><span>Bulk Upload</span>
+            </a>
+            <button onclick="logout()" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-red-900 transition-colors w-full text-left mt-8">
+                <i class="fa-solid fa-sign-out-alt w-5"></i><span>Logout</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar toggle -->
+    <button id="sidebar-toggle" class="lg:hidden fixed top-4 left-4 z-40 bg-slate-900 text-white p-2 rounded-lg shadow-lg">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 flex-grow p-6 md:p-8 transition-all duration-300">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Teacher Dashboard</h1>
+                <p class="text-slate-500" id="header-subtitle">Manage your subjects and student results</p>
+            </div>
+        </div>
+
+        <!-- Error/Success messages -->
+        <div id="global-error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6"></div>
+        <div id="global-success" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-6"></div>
+
+        <!-- My Subjects Section -->
+        <section id="subjects-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-book-open text-amber-500 mr-2"></i> My Subjects
+            </h2>
+            <div id="subjects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="col-span-full text-center py-8 text-slate-400">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+                    <p class="mt-2">Loading subjects...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manage Results Section -->
+        <section id="results-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-table text-amber-500 mr-2"></i> Manage Results
+            </h2>
+
+            <!-- Subject selector -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 mb-6">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Select Subject</label>
+                <select id="subject-select" class="w-full md:w-96 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                    <option value="">-- Choose a subject --</option>
+                </select>
+            </div>
+
+            <!-- Results table -->
+            <div id="results-table-container" class="hidden bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <span class="font-semibold text-slate-900" id="results-table-title">Students</span>
+                    <span id="term-badge" class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full"></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-white text-sm">
+                                <th class="p-3">S/N</th>
+                                <th class="p-3">Admission No</th>
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3 w-20">CA (0-40)</th>
+                                <th class="p-3 w-20">Exam (0-60)</th>
+                                <th class="p-3 w-20">Total</th>
+                                <th class="p-3 w-16">Grade</th>
+                                <th class="p-3">Remarks</th>
+                                <th class="p-3 w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody" class="divide-y divide-slate-200 text-sm">
+                            <tr><td colspan="9" class="p-6 text-center text-slate-400">Select a subject to view students.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bulk Upload Section -->
+        <section id="bulk-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-upload text-amber-500 mr-2"></i> Bulk Upload Results
+            </h2>
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <p class="text-sm text-slate-600 mb-4">
+                    Upload an Excel or CSV file with columns:
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Admission Number</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Subject Code</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">CA Score</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Exam Score</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Remarks</code> (optional).
+                </p>
+                <form id="bulk-form" class="space-y-4">
+                    <input type="file" id="bulk-file" accept=".xlsx,.xls,.csv" required
+                           class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-600 cursor-pointer">
+                    <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-6 py-2 rounded-lg transition-all text-sm">
+                        <i class="fa-solid fa-upload mr-1"></i> Upload & Process
+                    </button>
+                </form>
+                <div id="bulk-results" class="mt-4"></div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        if (!requireRole('teacher')) throw new Error('Redirecting');
+
+        const user = getUser();
+        document.getElementById('sidebar-name').textContent = user.full_name;
+        document.getElementById('sidebar-role').textContent = 'Teacher';
+
+        let currentSubjectId = null;
+        let currentStudents = [];
+
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Load subjects
+        async function loadSubjects() {
+            try {
+                const data = await apiFetch('/api/teacher/subjects');
+                const grid = document.getElementById('subjects-grid');
+                const select = document.getElementById('subject-select');
+
+                grid.innerHTML = '';
+                select.innerHTML = '<option value="">-- Choose a subject --</option>';
+
+                if (!data.subjects || data.subjects.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No subjects assigned to you yet.</div>';
+                    return;
+                }
+
+                data.subjects.forEach(sub => {
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-xl shadow-md border border-slate-100 p-5 hover:shadow-lg transition-all cursor-pointer subject-card"
+                             data-id="${sub.id}">
+                            <div class="text-amber-500 text-2xl mb-2"><i class="fa-solid fa-book"></i></div>
+                            <h3 class="font-bold text-slate-900">${sub.subject_name}</h3>
+                            <p class="text-xs text-slate-500">${sub.subject_code}</p>
+                            <p class="text-xs text-slate-400 mt-1">${sub.class_name} - ${sub.section}</p>
+                        </div>`;
+
+                    select.innerHTML += `<option value="${sub.id}">${sub.subject_name} (${sub.subject_code}) - ${sub.class_name}</option>`;
+                });
+
+                document.querySelectorAll('.subject-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.getElementById('subject-select').value = card.dataset.id;
+                        loadStudents(card.dataset.id);
+                        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+
+            } catch (e) {
+                document.getElementById('global-error').textContent = e.message;
+                document.getElementById('global-error').classList.remove('hidden');
+            }
+        }
+
+        // Load students for a subject
+        async function loadStudents(subjectId) {
+            currentSubjectId = subjectId;
+            const tbody = document.getElementById('results-tbody');
+            const container = document.getElementById('results-table-container');
+            const title = document.getElementById('results-table-title');
+            const badge = document.getElementById('term-badge');
+
+            tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading...</td></tr>';
+            container.classList.remove('hidden');
+
+            try {
+                const data = await apiFetch(`/api/teacher/subject/${subjectId}/students`);
+                currentStudents = data.students || [];
+                title.textContent = `Students (${currentStudents.length})`;
+
+                if (data.term) badge.textContent = data.term.term_name + ' | ' + (data.session?.session_name || '');
+                else badge.textContent = 'Current Term';
+
+                if (currentStudents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-400">No students found in this class.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                currentStudents.forEach((s, idx) => {
+                    const r = s.result || {};
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="p-3 text-slate-500">${idx + 1}</td>
+                        <td class="p-3 font-medium text-slate-900">${s.admission_number}</td>
+                        <td class="p-3 font-medium text-slate-900">${s.full_name}</td>
+                        <td class="p-3">
+                            <input type="number" class="ca-input w-16 px-2 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
+                                   min="0" max="40" step="0.5" value="${r.ca_score ?? ''}"
+                                   data-student-id="${s.id}" data-field="ca">
+                        </td>
+                        <td class="p-3">
+                            <input type="number" class="exam-input w-16 px-2 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
+                                   min="0" max="60" step="0.5" value="${r.exam_score ?? ''}"
+                                   data-student-id="${s.id}" data-field="exam">
+                        </td>
+                        <td class="p-3 font-semibold text-slate-900 total-display">${r.total_score ?? '-'}</td>
+                        <td class="p-3">
+                            <span class="grade-badge inline-block px-2 py-0.5 rounded text-xs font-bold ${getGradeClass(r.grade)}">${r.grade || '-'}</span>
+                        </td>
+                        <td class="p-3">
+                            <input type="text" class="remarks-input w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                                   value="${r.remarks || ''}" placeholder="Optional remarks"
+                                   data-student-id="${s.id}" data-field="remarks">
+                        </td>
+                        <td class="p-3">
+                            <button class="save-btn bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-3 py-1.5 rounded-lg text-xs transition-all save-btn"
+                                    data-student-id="${s.id}">
+                                <i class="fa-solid fa-save mr-1"></i> Save
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+
+                    // Real-time total & grade calculation
+                    const caInput = tr.querySelector('.ca-input');
+                    const examInput = tr.querySelector('.exam-input');
+                    const totalDisplay = tr.querySelector('.total-display');
+                    const gradeBadge = tr.querySelector('.grade-badge');
+
+                    const updatePreview = () => {
+                        const ca = parseFloat(caInput.value) || 0;
+                        const ex = parseFloat(examInput.value) || 0;
+                        const total = ca + ex;
+                        totalDisplay.textContent = total.toFixed(2);
+                        let grade = '-';
+                        if (total >= 70) grade = 'A';
+                        else if (total >= 60) grade = 'B';
+                        else if (total >= 50) grade = 'C';
+                        else if (total >= 45) grade = 'D';
+                        else if (total >= 40) grade = 'E';
+                        else if (total > 0) grade = 'F';
+                        gradeBadge.textContent = grade;
+                        gradeBadge.className = `grade-badge inline-block px-2 py-0.5 rounded text-xs font-bold ${getGradeClass(grade)}`;
+                    };
+
+                    caInput.addEventListener('input', updatePreview);
+                    examInput.addEventListener('input', updatePreview);
+                });
+
+                // Save handlers
+                document.querySelectorAll('.save-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const studentId = parseInt(this.dataset.studentId);
+                        const tr = this.closest('tr');
+                        const ca = parseFloat(tr.querySelector('.ca-input').value) || 0;
+                        const exam = parseFloat(tr.querySelector('.exam-input').value) || 0;
+                        const remarks = tr.querySelector('.remarks-input').value;
+
+                        if (ca < 0 || ca > 40) { alert('CA score must be between 0 and 40.'); return; }
+                        if (exam < 0 || exam > 60) { alert('Exam score must be between 0 and 60.'); return; }
+
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
+
+                        try {
+                            const result = await apiFetch('/api/teacher/result/update', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    student_id: studentId,
+                                    subject_id: currentSubjectId,
+                                    term_id: data.term?.id,
+                                    session_id: data.session?.id,
+                                    ca_score: ca,
+                                    exam_score: exam,
+                                    remarks
+                                })
+                            });
+                            showSuccess(document.getElementById('global-success'));
+                            document.getElementById('global-success').textContent = 'Result saved for ' + tr.querySelector('td:nth-child(3)').textContent;
+                            setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+                        } catch (e) {
+                            showError(document.getElementById('global-error'));
+                            document.getElementById('global-error').textContent = e.message;
+                            setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
+                        } finally {
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fa-solid fa-save mr-1"></i> Save';
+                        }
+                    });
+                });
+
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        // Subject select change
+        document.getElementById('subject-select').addEventListener('change', function() {
+            if (this.value) loadStudents(this.value);
+        });
+
+        // Bulk upload
+        document.getElementById('bulk-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('bulk-file');
+            const resultsEl = document.getElementById('bulk-results');
+
+            if (!fileInput.files[0]) {
+                resultsEl.innerHTML = '<div class="text-red-600 text-sm">Please select a file.</div>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            resultsEl.innerHTML = '<div class="text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Processing...</div>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/teacher/result/bulk-upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                let html = `<div class="text-sm font-semibold ${data.errors.length > 0 ? 'text-amber-600' : 'text-green-600'}">${data.message}</div>`;
+                if (data.errors && data.errors.length > 0) {
+                    html += '<div class="mt-2 text-xs text-red-600"><ul>';
+                    data.errors.forEach(e => { html += `<li>Row ${e.row}: ${e.error}</li>`; });
+                    html += '</ul></div>';
+                }
+                resultsEl.innerHTML = html;
+                fileInput.value = '';
+                if (currentSubjectId) loadStudents(currentSubjectId);
+            } catch (e) {
+                resultsEl.innerHTML = `<div class="text-red-600 text-sm">${e.message}</div>`;
+            }
+        });
+
+        // Init
+        loadSubjects();
+    </script>
+</body>
+</html>

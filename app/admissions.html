@@ -45,6 +45,10 @@
                 <a href="news.html" class="hover:text-amber-400 transition-colors pb-1">News & Events</a>
                 <a href="gallery.html" class="hover:text-amber-400 transition-colors pb-1">Gallery</a>
                 <a href="contact.html" class="hover:text-amber-400 transition-colors pb-1">Contact Us</a>
+                <a href="login.html" class="nav-login-link hover:text-amber-400 transition-colors pb-1">Login</a>
+                <a href="student-dashboard.html" class="nav-dashboard-link hidden hover:text-amber-400 transition-colors pb-1">Dashboard</a>
+                <a href="#" class="nav-logout-link hidden hover:text-amber-400 transition-colors pb-1" data-auth-action="logout">Logout</a>
+                <span class="nav-username hidden text-amber-400 font-semibold text-sm pb-1"></span>
             </nav>
 
             <button id="mobile-menu-btn" class="lg:hidden text-2xl focus:outline-none hover:text-amber-400 transition-colors" aria-label="Toggle Menu">
@@ -61,6 +65,9 @@
             <a href="news.html" class="block hover:text-amber-400 transition-colors">News & Events</a>
             <a href="gallery.html" class="block hover:text-amber-400 transition-colors">Gallery</a>
             <a href="contact.html" class="block hover:text-amber-400 transition-colors">Contact Us</a>
+            <a href="login.html" class="nav-login-link block hover:text-amber-400 transition-colors">Login</a>
+            <a href="student-dashboard.html" class="nav-dashboard-link hidden block hover:text-amber-400 transition-colors">Dashboard</a>
+            <a href="#" class="nav-logout-link hidden block hover:text-amber-400 transition-colors" data-auth-action="logout">Logout</a>
         </div>
     </header>
 
@@ -183,5 +190,6 @@
 
     <!-- Custom JS -->
     <script src="script.js"></script>
+    <script src="js/auth-nav.js"></script>
 </body>
 </html>
