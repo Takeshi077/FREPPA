@@ -3,7 +3,11 @@ const pool = require('../config/db');
 
 exports.createUser = async (req, res) => {
   try {
-    const { full_name, email, password, role, phone, address } = req.body;
+    const {
+      full_name, email, password, role, phone, address,
+      staff_id, department, qualification,
+      admission_number, class_id, parent_id, date_of_birth, gender
+    } = req.body;
 
     if (!full_name || !email || !password || !role) {
       return res.status(400).json({ error: 'Full name, email, password, and role are required.' });
@@ -11,6 +15,10 @@ exports.createUser = async (req, res) => {
 
     if (!['admin', 'teacher', 'student', 'parent'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role.' });
+    }
+
+    if (role === 'student' && (!admission_number || !class_id)) {
+      return res.status(400).json({ error: 'Admission number and class are required for students.' });
     }
 
     const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
@@ -21,13 +29,41 @@ exports.createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    const [result] = await pool.query(
-      'INSERT INTO users (full_name, email, password_hash, role, phone, address) VALUES (?, ?, ?, ?, ?, ?)',
-      [full_name, email, password_hash, role, phone || null, address || null]
-    );
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
 
-    res.status(201).json({ message: 'User created successfully.', id: result.insertId });
+      const [result] = await conn.query(
+        'INSERT INTO users (full_name, email, password_hash, role, phone, address) VALUES (?, ?, ?, ?, ?, ?)',
+        [full_name, email, password_hash, role, phone || null, address || null]
+      );
+      const userId = result.insertId;
+
+      if (role === 'teacher') {
+        const teacherStaffId = staff_id || `TCH${String(userId).padStart(4, '0')}`;
+        await conn.query(
+          'INSERT INTO teachers (user_id, staff_id, department, qualification) VALUES (?, ?, ?, ?)',
+          [userId, teacherStaffId, department || null, qualification || null]
+        );
+      } else if (role === 'student') {
+        await conn.query(
+          'INSERT INTO students (user_id, admission_number, class_id, parent_id, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?)',
+          [userId, admission_number, class_id, parent_id || null, date_of_birth || null, gender || null]
+        );
+      }
+
+      await conn.commit();
+      res.status(201).json({ message: 'User created successfully.', id: userId });
+    } catch (err2) {
+      await conn.rollback();
+      throw err2;
+    } finally {
+      conn.release();
+    }
   } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Duplicate entry. Staff ID or admission number already exists.' });
+    }
     console.error('Create user error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }

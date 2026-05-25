@@ -68,7 +68,7 @@
             </div>
             <!-- Create User Modal -->
             <div id="create-user-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+                <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-screen overflow-y-auto">
                     <h3 class="text-lg font-bold text-slate-900 mb-4">Create New User</h3>
                     <form id="create-user-form" class="space-y-3">
                         <input type="text" id="cu-name" placeholder="Full Name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
@@ -81,6 +81,29 @@
                             <option value="admin">Admin</option>
                         </select>
                         <input type="text" id="cu-phone" placeholder="Phone (optional)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+
+                        <!-- Teacher-specific fields -->
+                        <div id="cu-teacher-fields" class="space-y-3 hidden">
+                            <input type="text" id="cu-staff-id" placeholder="Staff ID (leave blank to auto-generate)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="text" id="cu-department" placeholder="Department (optional)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="text" id="cu-qualification" placeholder="Qualification (optional)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+
+                        <!-- Student-specific fields -->
+                        <div id="cu-student-fields" class="space-y-3 hidden">
+                            <input type="text" id="cu-admission" placeholder="Admission Number" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <select id="cu-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
+                            <select id="cu-parent" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                <option value="">No parent (optional)</option>
+                            </select>
+                            <input type="date" id="cu-dob" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <select id="cu-gender" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                <option value="">Select gender (optional)</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+
                         <div class="flex space-x-2">
                             <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm">Create</button>
                             <button type="button" onclick="hideElement(document.getElementById('create-user-modal'))" class="bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
@@ -262,22 +285,54 @@
             } catch (e) { document.getElementById('error-message').textContent = e.message; document.getElementById('error-message').classList.remove('hidden'); }
         }
 
-        window.showCreateUserForm = () => showElement(document.getElementById('create-user-modal'));
+        window.showCreateUserForm = () => {
+            showElement(document.getElementById('create-user-modal'));
+            populateParentSelect();
+            populateClassSelect(document.getElementById('cu-class'));
+        };
+
+        document.getElementById('cu-role').addEventListener('change', function() {
+            const teacherFields = document.getElementById('cu-teacher-fields');
+            const studentFields = document.getElementById('cu-student-fields');
+            teacherFields.classList.add('hidden');
+            studentFields.classList.add('hidden');
+            if (this.value === 'teacher') {
+                teacherFields.classList.remove('hidden');
+            } else if (this.value === 'student') {
+                studentFields.classList.remove('hidden');
+            }
+        });
+
         document.getElementById('create-user-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const role = document.getElementById('cu-role').value;
+            const body = {
+                full_name: document.getElementById('cu-name').value,
+                email: document.getElementById('cu-email').value,
+                password: document.getElementById('cu-password').value,
+                role: role,
+                phone: document.getElementById('cu-phone').value
+            };
+            if (role === 'teacher') {
+                body.staff_id = document.getElementById('cu-staff-id').value || undefined;
+                body.department = document.getElementById('cu-department').value || undefined;
+                body.qualification = document.getElementById('cu-qualification').value || undefined;
+            } else if (role === 'student') {
+                body.admission_number = document.getElementById('cu-admission').value;
+                body.class_id = document.getElementById('cu-class').value;
+                body.parent_id = document.getElementById('cu-parent').value || undefined;
+                body.date_of_birth = document.getElementById('cu-dob').value || undefined;
+                body.gender = document.getElementById('cu-gender').value || undefined;
+            }
             try {
                 await apiFetch('/api/admin/users', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        full_name: document.getElementById('cu-name').value,
-                        email: document.getElementById('cu-email').value,
-                        password: document.getElementById('cu-password').value,
-                        role: document.getElementById('cu-role').value,
-                        phone: document.getElementById('cu-phone').value
-                    })
+                    body: JSON.stringify(body)
                 });
                 hideElement(document.getElementById('create-user-modal'));
                 this.reset();
+                document.getElementById('cu-teacher-fields').classList.add('hidden');
+                document.getElementById('cu-student-fields').classList.add('hidden');
                 document.getElementById('success-message').textContent = 'User created successfully!';
                 document.getElementById('success-message').classList.remove('hidden');
                 setTimeout(() => hideElement(document.getElementById('success-message')), 3000);
@@ -497,6 +552,29 @@
                 if (!data.logs || data.logs.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No audit logs yet.</td></tr>';
                 }
+            } catch (e) { console.error(e); }
+        }
+
+        // Populate parent select for create user form
+        async function populateParentSelect() {
+            try {
+                const data = await apiFetch('/api/admin/users?role=parent');
+                const sel = document.getElementById('cu-parent');
+                sel.innerHTML = '<option value="">No parent (optional)</option>';
+                (data.users || []).forEach(u => {
+                    sel.innerHTML += `<option value="${u.id}">${u.full_name} (${u.email})</option>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // Populate class select
+        async function populateClassSelect(sel) {
+            try {
+                const data = await apiFetch('/api/admin/classes');
+                sel.innerHTML = '<option value="">-- Select class --</option>';
+                (data.classes || []).forEach(c => {
+                    sel.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section || ''} (${c.academic_year})</option>`;
+                });
             } catch (e) { console.error(e); }
         }
 
