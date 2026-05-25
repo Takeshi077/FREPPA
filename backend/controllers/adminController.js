@@ -288,6 +288,132 @@ exports.promoteStudents = async (req, res) => {
   }
 };
 
+exports.updateTeacher = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { full_name, email, phone, staff_id, department, qualification } = req.body;
+
+    const [teachers] = await pool.query(
+      'SELECT t.user_id FROM teachers t WHERE t.id = ?', [id]
+    );
+    if (teachers.length === 0) {
+      return res.status(404).json({ error: 'Teacher not found.' });
+    }
+    const userId = teachers[0].user_id;
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      if (full_name || email || phone) {
+        const updates = [];
+        const params = [];
+        if (full_name) { updates.push('full_name = ?'); params.push(full_name); }
+        if (email) { updates.push('email = ?'); params.push(email); }
+        if (phone !== undefined) { updates.push('phone = ?'); params.push(phone); }
+        if (updates.length > 0) {
+          params.push(userId);
+          await conn.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+        }
+      }
+
+      const tUpdates = [];
+      const tParams = [];
+      if (staff_id !== undefined) { tUpdates.push('staff_id = ?'); tParams.push(staff_id); }
+      if (department !== undefined) { tUpdates.push('department = ?'); tParams.push(department); }
+      if (qualification !== undefined) { tUpdates.push('qualification = ?'); tParams.push(qualification); }
+      if (tUpdates.length > 0) {
+        tParams.push(id);
+        await conn.query(`UPDATE teachers SET ${tUpdates.join(', ')} WHERE id = ?`, tParams);
+      }
+
+      await conn.commit();
+      res.json({ message: 'Teacher updated successfully.' });
+    } catch (err2) {
+      await conn.rollback();
+      throw err2;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Staff ID already exists.' });
+    }
+    console.error('Update teacher error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.deleteTeacher = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [teachers] = await pool.query(
+      'SELECT t.user_id FROM teachers t WHERE t.id = ?', [id]
+    );
+    if (teachers.length === 0) {
+      return res.status(404).json({ error: 'Teacher not found.' });
+    }
+    const userId = teachers[0].user_id;
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      await conn.query('UPDATE subjects SET teacher_id = NULL WHERE teacher_id = ?', [id]);
+
+      await conn.query('DELETE FROM teachers WHERE id = ?', [id]);
+
+      await conn.query('DELETE FROM users WHERE id = ?', [userId]);
+
+      await conn.commit();
+      res.json({ message: 'Teacher deleted successfully.' });
+    } catch (err2) {
+      await conn.rollback();
+      throw err2;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    console.error('Delete teacher error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.updateSubject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { subject_name, subject_code, class_id, teacher_id } = req.body;
+
+    const [existing] = await pool.query('SELECT id FROM subjects WHERE id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Subject not found.' });
+    }
+
+    const updates = [];
+    const params = [];
+    if (subject_name) { updates.push('subject_name = ?'); params.push(subject_name); }
+    if (subject_code) { updates.push('subject_code = ?'); params.push(subject_code); }
+    if (class_id) { updates.push('class_id = ?'); params.push(class_id); }
+    if (teacher_id !== undefined) { updates.push('teacher_id = ?'); params.push(teacher_id || null); }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update.' });
+    }
+
+    params.push(id);
+    await pool.query(`UPDATE subjects SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    res.json({ message: 'Subject updated successfully.' });
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Subject code already exists.' });
+    }
+    console.error('Update subject error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.getTeachers = async (req, res) => {
   try {
     const [teachers] = await pool.query(

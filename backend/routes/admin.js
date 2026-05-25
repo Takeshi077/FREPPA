@@ -19,7 +19,10 @@ const {
   getTeachers,
   getStudents,
   createSession,
-  createTerm
+  createTerm,
+  updateTeacher,
+  deleteTeacher,
+  updateSubject
 } = require('../controllers/adminController');
 
 router.use(authenticateToken, requireRole('admin'));
@@ -29,6 +32,8 @@ router.get('/users', getUsers);
 router.put('/users/:id/toggle-status', toggleUserStatus);
 
 router.get('/teachers', getTeachers);
+router.put('/teachers/:id', updateTeacher);
+router.delete('/teachers/:id', deleteTeacher);
 router.get('/students', getStudents);
 
 router.get('/classes', getClasses);
@@ -36,6 +41,7 @@ router.post('/classes', createClass);
 
 router.get('/subjects', getSubjects);
 router.post('/subjects', createSubject);
+router.put('/subjects/:id', updateSubject);
 router.put('/subjects/assign-teacher', assignTeacher);
 
 router.get('/terms', getTerms);

@@ -111,6 +111,25 @@
                     </form>
                 </div>
             </div>
+            <!-- Edit Teacher Modal -->
+            <div id="edit-teacher-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Teacher</h3>
+                    <form id="edit-teacher-form" class="space-y-3">
+                        <input type="hidden" id="et-teacher-id">
+                        <input type="text" id="et-name" placeholder="Full Name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="email" id="et-email" placeholder="Email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="et-phone" placeholder="Phone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="et-staff-id" placeholder="Staff ID" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="et-department" placeholder="Department" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="et-qualification" placeholder="Qualification" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <div class="flex space-x-2">
+                            <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm">Save</button>
+                            <button type="button" onclick="hideElement(document.getElementById('edit-teacher-modal'))" class="bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Tab: Classes -->
@@ -156,8 +175,8 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead><tr class="bg-slate-900 text-white"><th class="p-3">Subject</th><th class="p-3">Code</th><th class="p-3">Class</th><th class="p-3">Teacher</th></tr></thead>
-                        <tbody id="subjects-tbody" class="divide-y divide-slate-200"><tr><td colspan="4" class="p-4 text-center text-slate-400">Loading...</td></tr></tbody>
+                        <thead><tr class="bg-slate-900 text-white"><th class="p-3">Subject</th><th class="p-3">Code</th><th class="p-3">Class</th><th class="p-3">Teacher</th><th class="p-3">Actions</th></tr></thead>
+                        <tbody id="subjects-tbody" class="divide-y divide-slate-200"><tr><td colspan="5" class="p-4 text-center text-slate-400">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -174,6 +193,25 @@
                         <div class="flex space-x-2">
                             <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm">Create</button>
                             <button type="button" onclick="hideElement(document.getElementById('create-subject-modal'))" class="bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Edit Subject Modal -->
+            <div id="edit-subject-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Subject</h3>
+                    <form id="edit-subject-form" class="space-y-3">
+                        <input type="hidden" id="es-subject-id">
+                        <input type="text" id="es-name" placeholder="Subject Name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="es-code" placeholder="Subject Code" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <select id="es-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
+                        <select id="es-teacher" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">No teacher assigned</option>
+                        </select>
+                        <div class="flex space-x-2">
+                            <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm">Save</button>
+                            <button type="button" onclick="hideElement(document.getElementById('edit-subject-modal'))" class="bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -277,8 +315,12 @@
                             <td class="p-3"><span class="capitalize bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${u.role}</span></td>
                             <td class="p-3 text-slate-600">${u.phone || '-'}</td>
                             <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
-                            <td class="p-3">
+                            <td class="p-3 flex flex-wrap gap-1">
                                 <button onclick="toggleUser(${u.id})" class="text-xs font-semibold ${u.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">${u.is_active ? 'Deactivate' : 'Activate'}</button>
+                                ${u.role === 'teacher' ? `
+                                <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                                ` : ''}
                             </td>
                         </tr>`;
                 });
