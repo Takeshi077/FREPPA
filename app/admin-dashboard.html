@@ -91,7 +91,7 @@
 
                         <!-- Student-specific fields -->
                         <div id="cu-student-fields" class="space-y-3 hidden">
-                            <input type="text" id="cu-admission" placeholder="Admission Number" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="text" id="cu-admission" placeholder="Admission Number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                             <select id="cu-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
                             <select id="cu-parent" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                                 <option value="">No parent (optional)</option>
@@ -362,6 +362,7 @@
             } else if (role === 'student') {
                 body.admission_number = document.getElementById('cu-admission').value;
                 body.class_id = document.getElementById('cu-class').value;
+                if (!body.admission_number || !body.class_id) { alert('Admission number and class are required for students.'); return; }
                 body.parent_id = document.getElementById('cu-parent').value || undefined;
                 body.date_of_birth = document.getElementById('cu-dob').value || undefined;
                 body.gender = document.getElementById('cu-gender').value || undefined;
