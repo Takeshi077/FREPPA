@@ -492,28 +492,66 @@
         });
 
         // ==================== CLASSES ====================
+        let expandedClassId = null;
+        let allStudents = [];
+
         async function loadClasses() {
             try {
-                const data = await apiFetch('/api/admin/classes');
+                const [classData, studentData] = await Promise.all([
+                    apiFetch('/api/admin/classes'),
+                    apiFetch('/api/admin/students')
+                ]);
+                allStudents = studentData.students || [];
                 const tbody = document.getElementById('classes-tbody');
                 tbody.innerHTML = '';
-                (data.classes || []).forEach(c => {
-                    tbody.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3 font-medium">${c.class_name}</td><td class="p-3 text-slate-600">${c.section || '-'}</td><td class="p-3 text-slate-600">${c.academic_year}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-xs ${c.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${c.is_active ? 'Yes' : 'No'}</span></td></tr>`;
+
+                (classData.classes || []).forEach(c => {
+                    const count = c.student_count || 0;
+                    const isExpanded = expandedClassId === c.id;
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-100 cursor-pointer transition-colors class-row" data-class-id="${c.id}">
+                            <td class="p-3 font-medium text-slate-900">
+                                <i class="fa-solid fa-chevron-right mr-2 text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}"></i>
+                                ${c.class_name}
+                            </td>
+                            <td class="p-3 text-slate-600">${c.section || '-'}</td>
+                            <td class="p-3 text-slate-600">${c.academic_year}</td>
+                            <td class="p-3 text-center font-semibold text-slate-900">${count}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded text-xs ${c.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${c.is_active ? 'Yes' : 'No'}</span></td>
+                        </tr>`;
+
+                    if (isExpanded) {
+                        tbody.innerHTML += `<tr class="expanded-students" data-parent-id="${c.id}"><td colspan="5" class="p-0 bg-slate-50"><div class="p-4 border-t border-slate-200">${renderStudentList(c.id)}</div></td></tr>`;
+                    }
                 });
 
-                // Populate selects
-                const sel = document.getElementById('cs-class');
-                sel.innerHTML = '';
-                const promoteFrom = document.getElementById('promote-from');
-                const promoteTo = document.getElementById('promote-to');
-                promoteFrom.innerHTML = '<option value="">-- Select --</option>';
-                promoteTo.innerHTML = '<option value="">-- Select --</option>';
-                (data.classes || []).forEach(c => {
-                    sel.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
-                    promoteFrom.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
-                    promoteTo.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
+                document.querySelectorAll('.class-row').forEach(row => {
+                    row.addEventListener('click', function() {
+                        const classId = parseInt(this.dataset.classId);
+                        expandedClassId = expandedClassId === classId ? null : classId;
+                        loadClasses();
+                    });
                 });
             } catch (e) { console.error(e); }
+        }
+
+        function renderStudentList(classId) {
+            const students = allStudents.filter(s => s.class_id === classId);
+            if (students.length === 0) {
+                return '<p class="text-sm text-slate-400 text-center py-2">No students in this class.</p>';
+            }
+            let html = `<div class="overflow-x-auto"><table class="w-full text-left border-collapse text-xs">
+                <thead><tr class="bg-slate-200 text-slate-700"><th class="p-2">#</th><th class="p-2">Name</th><th class="p-2">Admission No</th><th class="p-2">Email</th></tr></thead><tbody>`;
+            students.forEach((s, idx) => {
+                html += `<tr class="hover:bg-slate-100 border-t border-slate-100">
+                    <td class="p-2 text-slate-400">${idx + 1}</td>
+                    <td class="p-2 font-medium text-slate-900">${s.full_name}</td>
+                    <td class="p-2 text-slate-600">${s.admission_number}</td>
+                    <td class="p-2 text-slate-500">${s.email}</td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            return html;
         }
 
         window.showCreateClassForm = () => showElement(document.getElementById('create-class-modal'));
