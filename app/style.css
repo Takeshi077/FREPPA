@@ -1,13 +1,8 @@
-/* Custom Styles for FREPPA GROUP OF SCHOOLS Website */
-
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-
 body {
     font-family: 'Outfit', sans-serif;
     scroll-behavior: smooth;
 }
 
-/* Custom Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -17,7 +12,6 @@ body {
     animation: fadeIn 0.6s ease-out forwards;
 }
 
-/* Hero Slider Custom Styles */
 .slide {
     display: none;
     opacity: 0;
@@ -29,7 +23,6 @@ body {
     opacity: 1;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -45,4 +38,147 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+}
+
+@media (max-width: 767px) {
+  .slide h1 {
+    font-size: 1.75rem;
+  }
+  .slide p {
+    font-size: 0.9rem;
+  }
+  .slide .flex-wrap a {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .logo-text {
+    font-size: 0.65rem;
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .logo-text-dashboard {
+    font-size: 0.7rem;
+  }
+}
+
+header nav a,
+header nav button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+#mobile-menu a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+header #mobile-menu {
+  top: 100%;
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .announcement-bar {
+    font-size: 0.7rem;
+    line-height: 1.3;
+    padding: 0.5rem 0.75rem;
+  }
+  .page-header {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+  .content-section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  section.py-16 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  section.py-20 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  footer .grid {
+    gap: 1.5rem;
+  }
+  .tab-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+  }
+  #sidebar {
+    width: 260px;
+  }
+  #sidebar .font-bold.text-sm {
+    font-size: 0.65rem;
+  }
+  .dashboard-main {
+    padding: 1rem;
+  }
+  #sidebar nav a {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  #profile-card .flex {
+    flex-direction: column;
+    text-align: center;
+  }
+  #profile-card .flex .ml-4 {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  #results-table-container table {
+    font-size: 0.75rem;
+  }
+  #results-table-container table th,
+  #results-table-container table td {
+    padding: 0.5rem;
+    white-space: nowrap;
+  }
+  #results-table-container input[type="number"] {
+    width: 3.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  #filter-session,
+  #filter-term,
+  #child-select {
+    width: 100%;
+  }
+  #filter-btn,
+  #print-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+footer .grid li a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
 }
