@@ -112,7 +112,12 @@ exports.toggleUserStatus = async (req, res) => {
 exports.getClasses = async (req, res) => {
   try {
     const [classes] = await pool.query(
-      'SELECT id, class_name, section, academic_year, is_active FROM classes ORDER BY academic_year DESC, class_name'
+      `SELECT c.id, c.class_name, c.section, c.academic_year, c.is_active,
+              COUNT(s.id) AS student_count
+       FROM classes c
+       LEFT JOIN students s ON c.id = s.class_id
+       GROUP BY c.id
+       ORDER BY c.academic_year DESC, c.class_name`
     );
     res.json({ classes });
   } catch (err) {
