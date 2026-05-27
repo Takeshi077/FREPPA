@@ -80,7 +80,7 @@ exports.getUsers = async (req, res) => {
       params.push(role);
     }
 
-    query += ' ORDER BY created_at DESC';
+    query += " ORDER BY FIELD(role, 'teacher', 'student', 'parent', 'admin'), full_name ASC";
 
     const [users] = await pool.query(query, params);
     res.json({ users });
