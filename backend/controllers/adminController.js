@@ -181,6 +181,25 @@ exports.createSubject = async (req, res) => {
   }
 };
 
+exports.deleteSubject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [existing] = await pool.query('SELECT id FROM subjects WHERE id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Subject not found.' });
+    }
+    const [results] = await pool.query('SELECT id FROM results WHERE subject_id = ? LIMIT 1', [id]);
+    if (results.length > 0) {
+      return res.status(409).json({ error: 'Cannot delete subject with existing results. Remove the results first.' });
+    }
+    await pool.query('DELETE FROM subjects WHERE id = ?', [id]);
+    res.json({ message: 'Subject deleted successfully.' });
+  } catch (err) {
+    console.error('Delete subject error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.assignTeacher = async (req, res) => {
   try {
     const { subject_id, teacher_id } = req.body;
