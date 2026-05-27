@@ -14,14 +14,22 @@ const mysql = require('mysql2/promise');
     { name: 'Civic Education',   code: 'CIV', teacherId: 3 },
   ];
 
-  // Delete existing subjects for these classes
-  await c.query('DELETE FROM subjects WHERE class_id IN (?)', [classIds]);
-  console.log('Cleared existing subjects for JSS 1 – SSS 2');
+  // Get existing subject names per class to avoid duplicates
+  const [existing] = await c.query(
+    'SELECT class_id, subject_name FROM subjects WHERE class_id IN (?)',
+    [classIds]
+  );
+  const existingSet = new Set(existing.map(r => `${r.class_id}:${r.subject_name}`));
 
-  // Insert common core for each class
+  // Insert common core for each class, skipping existing
   let count = 0;
   for (const classId of classIds) {
     for (const sub of subjects) {
+      const key = `${classId}:${sub.name}`;
+      if (existingSet.has(key)) {
+        console.log(`  Skipping ${sub.name} for class ${classId} (already exists)`);
+        continue;
+      }
       const code = sub.code + (classId <= 3 ? '10' + classId : '20' + (classId - 3));
       await c.query(
         'INSERT INTO subjects (subject_name, subject_code, class_id, teacher_id) VALUES (?, ?, ?, ?)',
@@ -30,7 +38,7 @@ const mysql = require('mysql2/promise');
       count++;
     }
   }
-  console.log(`Inserted ${count} subjects (4 per class across 5 classes)`);
+  console.log(`\nInserted ${count} new subjects`);
 
   // Verify
   const [rows] = await c.query(
