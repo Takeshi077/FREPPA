@@ -532,6 +532,19 @@
                         loadClasses();
                     });
                 });
+
+                // Populate selects
+                const sel = document.getElementById('cs-class');
+                sel.innerHTML = '';
+                const promoteFrom = document.getElementById('promote-from');
+                const promoteTo = document.getElementById('promote-to');
+                promoteFrom.innerHTML = '<option value="">-- Select --</option>';
+                promoteTo.innerHTML = '<option value="">-- Select --</option>';
+                (classData.classes || []).forEach(c => {
+                    sel.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
+                    promoteFrom.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
+                    promoteTo.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section}</option>`;
+                });
             } catch (e) { console.error(e); }
         }
 
