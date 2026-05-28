@@ -136,7 +136,9 @@
                     Upload an Excel or CSV file with columns:
                     <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Admission Number</code>,
                     <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Subject Code</code>,
-                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">CA Score</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">1st Test</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">2nd Test</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">3rd Test</code>,
                     <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Exam Score</code>,
                     <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Remarks</code> (optional).
                 </p>
@@ -246,14 +248,24 @@
                         <td class="p-3 font-medium text-slate-900">${s.admission_number}</td>
                         <td class="p-3 font-medium text-slate-900">${s.full_name}</td>
                         <td class="p-3">
-                            <input type="number" class="ca-input w-16 px-2 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
-                                   min="0" max="40" step="0.5" value="${r.ca_score ?? ''}"
-                                   data-student-id="${s.id}" data-field="ca">
+                            <input type="number" class="test1-input w-14 px-1 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
+                                   min="0" max="10" step="0.5" value="${r.test1 ?? ''}"
+                                   data-student-id="${s.id}">
+                        </td>
+                        <td class="p-3">
+                            <input type="number" class="test2-input w-14 px-1 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
+                                   min="0" max="10" step="0.5" value="${r.test2 ?? ''}"
+                                   data-student-id="${s.id}">
+                        </td>
+                        <td class="p-3">
+                            <input type="number" class="test3-input w-14 px-1 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
+                                   min="0" max="10" step="0.5" value="${r.test3 ?? ''}"
+                                   data-student-id="${s.id}">
                         </td>
                         <td class="p-3">
                             <input type="number" class="exam-input w-16 px-2 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
-                                   min="0" max="60" step="0.5" value="${r.exam_score ?? ''}"
-                                   data-student-id="${s.id}" data-field="exam">
+                                   min="0" max="70" step="0.5" value="${r.exam_score ?? ''}"
+                                   data-student-id="${s.id}">
                         </td>
                         <td class="p-3 font-semibold text-slate-900 total-display">${r.total_score ?? '-'}</td>
                         <td class="p-3">
@@ -262,10 +274,10 @@
                         <td class="p-3">
                             <input type="text" class="remarks-input w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"
                                    value="${r.remarks || ''}" placeholder="Optional remarks"
-                                   data-student-id="${s.id}" data-field="remarks">
+                                   data-student-id="${s.id}">
                         </td>
                         <td class="p-3">
-                            <button class="save-btn bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-3 py-1.5 rounded-lg text-xs transition-all save-btn"
+                            <button class="save-btn bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-3 py-1.5 rounded-lg text-xs transition-all"
                                     data-student-id="${s.id}">
                                 <i class="fa-solid fa-save mr-1"></i> Save
                             </button>
@@ -274,15 +286,19 @@
                     tbody.appendChild(tr);
 
                     // Real-time total & grade calculation
-                    const caInput = tr.querySelector('.ca-input');
+                    const test1Input = tr.querySelector('.test1-input');
+                    const test2Input = tr.querySelector('.test2-input');
+                    const test3Input = tr.querySelector('.test3-input');
                     const examInput = tr.querySelector('.exam-input');
                     const totalDisplay = tr.querySelector('.total-display');
                     const gradeBadge = tr.querySelector('.grade-badge');
 
                     const updatePreview = () => {
-                        const ca = parseFloat(caInput.value) || 0;
+                        const t1 = parseFloat(test1Input.value) || 0;
+                        const t2 = parseFloat(test2Input.value) || 0;
+                        const t3 = parseFloat(test3Input.value) || 0;
                         const ex = parseFloat(examInput.value) || 0;
-                        const total = ca + ex;
+                        const total = t1 + t2 + t3 + ex;
                         totalDisplay.textContent = total.toFixed(2);
                         let grade = '-';
                         if (total >= 70) grade = 'A';
@@ -295,7 +311,9 @@
                         gradeBadge.className = `grade-badge inline-block px-2 py-0.5 rounded text-xs font-bold ${getGradeClass(grade)}`;
                     };
 
-                    caInput.addEventListener('input', updatePreview);
+                    test1Input.addEventListener('input', updatePreview);
+                    test2Input.addEventListener('input', updatePreview);
+                    test3Input.addEventListener('input', updatePreview);
                     examInput.addEventListener('input', updatePreview);
                 });
 
@@ -304,12 +322,14 @@
                     btn.addEventListener('click', async function() {
                         const studentId = parseInt(this.dataset.studentId);
                         const tr = this.closest('tr');
-                        const ca = parseFloat(tr.querySelector('.ca-input').value) || 0;
+                        const test1 = parseFloat(tr.querySelector('.test1-input').value) || 0;
+                        const test2 = parseFloat(tr.querySelector('.test2-input').value) || 0;
+                        const test3 = parseFloat(tr.querySelector('.test3-input').value) || 0;
                         const exam = parseFloat(tr.querySelector('.exam-input').value) || 0;
                         const remarks = tr.querySelector('.remarks-input').value;
 
-                        if (ca < 0 || ca > 40) { alert('CA score must be between 0 and 40.'); return; }
-                        if (exam < 0 || exam > 60) { alert('Exam score must be between 0 and 60.'); return; }
+                        if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 10 || test3 < 0 || test3 > 10) { alert('Each test score must be between 0 and 10.'); return; }
+                        if (exam < 0 || exam > 70) { alert('Exam score must be between 0 and 70.'); return; }
 
                         this.disabled = true;
                         this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
@@ -322,7 +342,9 @@
                                     subject_id: currentSubjectId,
                                     term_id: data.term?.id,
                                     session_id: data.session?.id,
-                                    ca_score: ca,
+                                    test1,
+                                    test2,
+                                    test3,
                                     exam_score: exam,
                                     remarks
                                 })
