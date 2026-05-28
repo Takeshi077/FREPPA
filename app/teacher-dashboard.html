@@ -54,6 +54,9 @@
         <i class="fa-solid fa-bars"></i>
     </button>
 
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
+
     <!-- Main Content -->
     <div class="lg:ml-64 flex-grow p-4 md:p-8 transition-all duration-300 dashboard-main">
         <!-- Header -->
@@ -97,24 +100,27 @@
 
             <!-- Results table -->
             <div id="results-table-container" class="hidden bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                    <span class="font-semibold text-slate-900" id="results-table-title">Students</span>
-                    <span id="term-badge" class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full"></span>
+                <div class="p-4 bg-slate-50 border-b border-slate-100 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-semibold text-slate-900" id="results-table-title">Students</span>
+                        <span id="term-badge" class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full"></span>
+                    </div>
+                    <span class="text-xs text-slate-400 block lg:hidden font-medium"><i class="fa-solid fa-angles-left-right mr-1 animate-pulse"></i> Swipe to scroll</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-900 text-white text-sm">
                                 <th class="p-3">S/N</th>
-                                <th class="p-3">Admission No</th>
+                                <th class="p-3"><span class="hidden md:inline">Admission No</span><span class="inline md:hidden">Adm. No</span></th>
                                 <th class="p-3">Student Name</th>
-                                <th class="p-3 w-16">1st Test (10)</th>
-                                <th class="p-3 w-16">2nd Test (10)</th>
-                                <th class="p-3 w-16">3rd Test (10)</th>
-                                <th class="p-3 w-20">Exam (0-70)</th>
+                                <th class="p-3 w-16"><span class="hidden md:inline">1st Test (10)</span><span class="inline md:hidden">T1</span></th>
+                                <th class="p-3 w-16"><span class="hidden md:inline">2nd Test (10)</span><span class="inline md:hidden">T2</span></th>
+                                <th class="p-3 w-16"><span class="hidden md:inline">3rd Test (10)</span><span class="inline md:hidden">T3</span></th>
+                                <th class="p-3 w-20"><span class="hidden md:inline">Exam (0-70)</span><span class="inline md:hidden">Exam</span></th>
                                 <th class="p-3 w-20">Total</th>
                                 <th class="p-3 w-16">Grade</th>
-                                <th class="p-3">Remarks</th>
+                                <th class="p-3 w-48 min-w-[150px]">Remarks</th>
                                 <th class="p-3 w-24">Action</th>
                             </tr>
                         </thead>
@@ -167,9 +173,25 @@
         let currentStudents = [];
 
         // Sidebar toggle
-        document.getElementById('sidebar-toggle').addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
             sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // Close sidebar when clicking links on mobile
+        sidebar.querySelectorAll('nav a, nav button').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+            });
         });
 
         // Load subjects
