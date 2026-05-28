@@ -34,9 +34,21 @@ exports.getSubjects = async (req, res) => {
   }
 };
 
+exports.getSessionsTerms = async (req, res) => {
+  try {
+    const [sessions] = await pool.query('SELECT id, session_name, is_current FROM sessions ORDER BY id DESC');
+    const [terms] = await pool.query('SELECT id, term_name, is_current FROM terms ORDER BY id');
+    res.json({ sessions, terms });
+  } catch (err) {
+    console.error('Get sessions/terms error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.getStudentsBySubject = async (req, res) => {
   try {
     const { subjectId } = req.params;
+    const { term_id, session_id } = req.query;
 
     const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
     if (teacherRows.length === 0) {
@@ -63,11 +75,15 @@ exports.getStudentsBySubject = async (req, res) => {
       [classId]
     );
 
-    const [currentTerm] = await pool.query('SELECT id, term_name FROM terms WHERE is_current = 1 LIMIT 1');
-    const [currentSession] = await pool.query('SELECT id, session_name FROM sessions WHERE is_current = 1 LIMIT 1');
+    const [selectedTerm] = term_id
+      ? await pool.query('SELECT id, term_name FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id, term_name FROM terms WHERE is_current = 1 LIMIT 1');
+    const [selectedSession] = session_id
+      ? await pool.query('SELECT id, session_name FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id, session_name FROM sessions WHERE is_current = 1 LIMIT 1');
 
-    const termId = currentTerm.length > 0 ? currentTerm[0].id : null;
-    const sessionId = currentSession.length > 0 ? currentSession[0].id : null;
+    const termId = selectedTerm.length > 0 ? selectedTerm[0].id : null;
+    const sessionId = selectedSession.length > 0 ? selectedSession[0].id : null;
 
     const studentsWithResults = await Promise.all(students.map(async (student) => {
       let result = null;
@@ -88,8 +104,8 @@ exports.getStudentsBySubject = async (req, res) => {
     res.json({
       subjectId: parseInt(subjectId),
       classId,
-      term: currentTerm[0] || null,
-      session: currentSession[0] || null,
+      term: selectedTerm[0] || null,
+      session: selectedSession[0] || null,
       students: studentsWithResults
     });
   } catch (err) {
