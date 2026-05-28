@@ -305,28 +305,49 @@
         });
 
         // ==================== USERS ====================
+        let allUsers = [];
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-tbody');
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No users found.</td></tr>';
+                return;
+            }
+            users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-medium text-slate-900">${u.full_name}</td>
+                        <td class="p-3 text-slate-600">${u.email}</td>
+                        <td class="p-3"><span class="capitalize bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${u.role}</span></td>
+                        <td class="p-3 text-slate-600">${u.phone || '-'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+                        <td class="p-3 flex flex-wrap gap-1">
+                            <button onclick="toggleUser(${u.id})" class="text-xs font-semibold ${u.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">${u.is_active ? 'Deactivate' : 'Activate'}</button>
+                            ${u.role === 'teacher' ? `
+                            <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        window.filterUsers = () => {
+            const q = document.getElementById('user-search').value.toLowerCase().trim();
+            if (!q) { renderUsers(allUsers); return; }
+            renderUsers(allUsers.filter(u =>
+                u.full_name.toLowerCase().includes(q) ||
+                u.email.toLowerCase().includes(q) ||
+                u.role.toLowerCase().includes(q)
+            ));
+        };
+
         async function loadUsers() {
             try {
                 const data = await apiFetch('/api/admin/users');
-                const tbody = document.getElementById('users-tbody');
-                tbody.innerHTML = '';
-                (data.users || []).forEach(u => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3 font-medium text-slate-900">${u.full_name}</td>
-                            <td class="p-3 text-slate-600">${u.email}</td>
-                            <td class="p-3"><span class="capitalize bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${u.role}</span></td>
-                            <td class="p-3 text-slate-600">${u.phone || '-'}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
-                            <td class="p-3 flex flex-wrap gap-1">
-                                <button onclick="toggleUser(${u.id})" class="text-xs font-semibold ${u.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">${u.is_active ? 'Deactivate' : 'Activate'}</button>
-                                ${u.role === 'teacher' ? `
-                                <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
-                                ` : ''}
-                            </td>
-                        </tr>`;
-                });
+                allUsers = data.users || [];
+                renderUsers(allUsers);
             } catch (e) { document.getElementById('error-message').textContent = e.message; document.getElementById('error-message').classList.remove('hidden'); }
         }
 
