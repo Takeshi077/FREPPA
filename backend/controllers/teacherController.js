@@ -232,19 +232,27 @@ exports.bulkUpload = async (req, res) => {
       const row = data[i];
       const admissionNumber = row['Admission Number'] || row['admission_number'];
       const subjectCode = row['Subject Code'] || row['subject_code'];
-      const caScore = parseFloat(row['CA Score'] || row['ca_score']);
+      const test1 = parseFloat(row['1st Test'] || row['test1'] || 0);
+      const test2 = parseFloat(row['2nd Test'] || row['test2'] || 0);
+      const test3 = parseFloat(row['3rd Test'] || row['test3'] || 0);
       const examScore = parseFloat(row['Exam Score'] || row['exam_score']);
       const remarksRow = row['Remarks'] || row['remarks'] || null;
 
-      if (!admissionNumber || !subjectCode || isNaN(caScore) || isNaN(examScore)) {
+      if (!admissionNumber || !subjectCode || isNaN(examScore)) {
         errors.push({ row: i + 1, error: 'Missing required fields or invalid scores.' });
         continue;
       }
 
-      if (caScore < 0 || caScore > 40 || examScore < 0 || examScore > 60) {
-        errors.push({ row: i + 1, error: 'Scores out of range (CA: 0-40, Exam: 0-60).' });
+      if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 10 || test3 < 0 || test3 > 10) {
+        errors.push({ row: i + 1, error: 'Test scores out of range (0-10).' });
         continue;
       }
+      if (examScore < 0 || examScore > 70) {
+        errors.push({ row: i + 1, error: 'Exam score out of range (0-70).' });
+        continue;
+      }
+
+      const caScore = test1 + test2 + test3;
 
       const [subjectRows] = await pool.query(
         'SELECT id, class_id FROM subjects WHERE subject_code = ? AND teacher_id = ?',
@@ -274,11 +282,12 @@ exports.bulkUpload = async (req, res) => {
 
       try {
         await pool.query(
-          `INSERT INTO results (student_id, subject_id, term_id, session_id, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE ca_score = VALUES(ca_score), exam_score = VALUES(exam_score),
+          `INSERT INTO results (student_id, subject_id, term_id, session_id, test1, test2, test3, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE test1 = VALUES(test1), test2 = VALUES(test2), test3 = VALUES(test3),
+           ca_score = VALUES(ca_score), exam_score = VALUES(exam_score),
            grade = VALUES(grade), remarks = VALUES(remarks), updated_by_teacher_id = VALUES(updated_by_teacher_id)`,
-          [studentRows[0].id, subjectRows[0].id, termId, sessionId, caScore, examScore, grade, remarksRow, teacherId]
+          [studentRows[0].id, subjectRows[0].id, termId, sessionId, test1, test2, test3, caScore, examScore, grade, remarksRow, teacherId]
         );
         results.push({ row: i + 1, admissionNumber, status: 'success' });
       } catch (dbErr) {
