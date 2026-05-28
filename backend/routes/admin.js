@@ -42,9 +42,9 @@ router.post('/classes', createClass);
 
 router.get('/subjects', getSubjects);
 router.post('/subjects', createSubject);
+router.put('/subjects/assign-teacher', assignTeacher);
 router.put('/subjects/:id', updateSubject);
 router.delete('/subjects/:id', deleteSubject);
-router.put('/subjects/assign-teacher', assignTeacher);
 
 router.get('/terms', getTerms);
 router.put('/terms/set-current', setCurrentTerm);
