@@ -73,7 +73,7 @@ exports.getStudentsBySubject = async (req, res) => {
       let result = null;
       if (termId && sessionId) {
         const [results] = await pool.query(
-          `SELECT id, ca_score, exam_score, total_score, grade, remarks
+          `SELECT id, test1, test2, test3, ca_score, exam_score, total_score, grade, remarks
            FROM results
            WHERE student_id = ? AND subject_id = ? AND term_id = ? AND session_id = ?`,
           [student.id, subjectId, termId, sessionId]
