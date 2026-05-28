@@ -100,18 +100,27 @@ exports.getStudentsBySubject = async (req, res) => {
 
 exports.updateResult = async (req, res) => {
   try {
-    const { student_id, subject_id, term_id, session_id, ca_score, exam_score, remarks } = req.body;
+    const { student_id, subject_id, term_id, session_id, test1, test2, test3, exam_score, remarks } = req.body;
 
     if (!student_id || !subject_id || !term_id || !session_id) {
       return res.status(400).json({ error: 'Missing required fields.' });
     }
 
-    if (ca_score < 0 || ca_score > 40) {
-      return res.status(400).json({ error: 'CA score must be between 0 and 40.' });
+    const t1 = parseFloat(test1 || 0);
+    const t2 = parseFloat(test2 || 0);
+    const t3 = parseFloat(test3 || 0);
+    const exam = parseFloat(exam_score || 0);
+
+    if (t1 < 0 || t1 > 10 || t2 < 0 || t2 > 10 || t3 < 0 || t3 > 10) {
+      return res.status(400).json({ error: 'Each test score must be between 0 and 10.' });
     }
-    if (exam_score < 0 || exam_score > 60) {
-      return res.status(400).json({ error: 'Exam score must be between 0 and 60.' });
+    if (exam < 0 || exam > 70) {
+      return res.status(400).json({ error: 'Exam score must be between 0 and 70.' });
     }
+
+    const ca_score = t1 + t2 + t3;
+    const total = ca_score + exam;
+    const grade = calculateGrade(total);
 
     const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
     if (teacherRows.length === 0) {
@@ -127,11 +136,8 @@ exports.updateResult = async (req, res) => {
       return res.status(403).json({ error: 'You are not assigned to this subject.' });
     }
 
-    const total = parseFloat(ca_score) + parseFloat(exam_score);
-    const grade = calculateGrade(total);
-
     const [existing] = await pool.query(
-      'SELECT id, ca_score, exam_score, total_score, grade, remarks FROM results WHERE student_id = ? AND subject_id = ? AND term_id = ? AND session_id = ?',
+      'SELECT id, test1, test2, test3, ca_score, exam_score, total_score, grade, remarks FROM results WHERE student_id = ? AND subject_id = ? AND term_id = ? AND session_id = ?',
       [student_id, subject_id, term_id, session_id]
     );
 
@@ -139,9 +145,9 @@ exports.updateResult = async (req, res) => {
       const oldData = existing[0];
       await pool.query(
         `UPDATE results
-         SET ca_score = ?, exam_score = ?, grade = ?, remarks = ?, updated_by_teacher_id = ?
+         SET test1 = ?, test2 = ?, test3 = ?, ca_score = ?, exam_score = ?, grade = ?, remarks = ?, updated_by_teacher_id = ?
          WHERE id = ?`,
-        [ca_score, exam_score, grade, remarks || null, teacherId, existing[0].id]
+        [t1, t2, t3, ca_score, exam, grade, remarks || null, teacherId, existing[0].id]
       );
 
       await pool.query(
@@ -151,22 +157,22 @@ exports.updateResult = async (req, res) => {
           existing[0].id,
           teacherId,
           JSON.stringify(oldData),
-          JSON.stringify({ ca_score, exam_score, total, grade, remarks }),
+          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks }),
           req.ip
         ]
       );
 
       const [updated] = await pool.query(
-        'SELECT id, ca_score, exam_score, total_score, grade, remarks, updated_at FROM results WHERE id = ?',
+        'SELECT id, test1, test2, test3, ca_score, exam_score, total_score, grade, remarks, updated_at FROM results WHERE id = ?',
         [existing[0].id]
       );
 
       res.json({ message: 'Result updated successfully.', result: updated[0] });
     } else {
       const [insertResult] = await pool.query(
-        `INSERT INTO results (student_id, subject_id, term_id, session_id, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [student_id, subject_id, term_id, session_id, ca_score, exam_score, grade, remarks || null, teacherId]
+        `INSERT INTO results (student_id, subject_id, term_id, session_id, test1, test2, test3, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [student_id, subject_id, term_id, session_id, t1, t2, t3, ca_score, exam, grade, remarks || null, teacherId]
       );
 
       await pool.query(
@@ -175,13 +181,13 @@ exports.updateResult = async (req, res) => {
         [
           insertResult.insertId,
           teacherId,
-          JSON.stringify({ ca_score, exam_score, total, grade, remarks }),
+          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks }),
           req.ip
         ]
       );
 
       const [created] = await pool.query(
-        'SELECT id, ca_score, exam_score, total_score, grade, remarks, updated_at FROM results WHERE id = ?',
+        'SELECT id, test1, test2, test3, ca_score, exam_score, total_score, grade, remarks, updated_at FROM results WHERE id = ?',
         [insertResult.insertId]
       );
 
