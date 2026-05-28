@@ -130,6 +130,7 @@ header #mobile-menu {
   }
   .dashboard-main {
     padding: 1rem;
+    padding-top: 4.5rem;
   }
   #sidebar nav a {
     font-size: 0.85rem;
