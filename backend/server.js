@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: ['http://127.0.0.1:8099', 'http://localhost:8099', 'http://127.0.0.1:3000', 'http://localhost:3000', 'null'],
+  origin: true,
   credentials: true
 }));
 
@@ -41,7 +41,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error.' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
+  const { networkInterfaces } = require('os');
+  const nets = networkInterfaces();
+  let ip = 'localhost';
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        ip = net.address;
+        break;
+      }
+    }
+  }
   console.log(`FREPPA backend server running on http://localhost:${PORT}`);
+  console.log(`On your network: http://${ip}:${PORT}`);
   console.log(`Serving static files from: ${path.join(__dirname, '..', 'app')}`);
 });
