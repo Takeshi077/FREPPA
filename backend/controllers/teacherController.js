@@ -223,7 +223,7 @@ exports.bulkUpload = async (req, res) => {
 
     const workbook = XLSX.readFile(req.file.path);
     const sheetName = workbook.SheetNames[0];
-    const data = XLSX.utils.sheet_to_json(workbook.SheetNames[sheetName]);
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
     const results = [];
     const errors = [];
