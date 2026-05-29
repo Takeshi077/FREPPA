@@ -338,27 +338,39 @@
             }
 
             const groups = {};
-            const levelOrder = ['SECONDARY', 'PRIMARY', 'KINDERGARTEN', 'NURSERY', null];
+            const levelOrder = ['ADMINS', 'TEACHERS', 'SECONDARY', 'PRIMARY', 'KINDERGARTEN', 'NURSERY', 'PARENTS'];
 
             users.forEach(u => {
+                if (u.role === 'admin') {
+                    if (!groups.ADMINS) groups.ADMINS = [];
+                    groups.ADMINS.push(u);
+                    return;
+                }
+                if (u.role === 'teacher') {
+                    if (!groups.TEACHERS) groups.TEACHERS = [];
+                    groups.TEACHERS.push(u);
+                    return;
+                }
                 const level = getLevel(u.section);
-                const key = level !== null ? level : 'STAFF & PARENTS';
+                const key = level !== null ? level : 'PARENTS';
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(u);
             });
 
-            levelOrder.forEach(level => {
-                const key = level !== null ? level : 'STAFF & PARENTS';
+            const colors = {
+                ADMINS: 'bg-purple-100 text-purple-800',
+                TEACHERS: 'bg-orange-100 text-orange-800',
+                SECONDARY: 'bg-indigo-100 text-indigo-800',
+                PRIMARY: 'bg-emerald-100 text-emerald-800',
+                KINDERGARTEN: 'bg-amber-100 text-amber-800',
+                NURSERY: 'bg-sky-100 text-sky-800',
+                PARENTS: 'bg-slate-200 text-slate-700'
+            };
+
+            levelOrder.forEach(key => {
                 const group = groups[key];
                 if (!group) return;
 
-                const colors = {
-                    SECONDARY: 'bg-indigo-100 text-indigo-800',
-                    PRIMARY: 'bg-emerald-100 text-emerald-800',
-                    KINDERGARTEN: 'bg-amber-100 text-amber-800',
-                    NURSERY: 'bg-sky-100 text-sky-800',
-                    'STAFF & PARENTS': 'bg-slate-200 text-slate-700'
-                };
                 const bgColor = colors[key] || 'bg-slate-200 text-slate-700';
 
                 tbody.innerHTML += `<tr class="${bgColor}"><td colspan="6" class="p-2 px-3 font-bold text-xs uppercase tracking-wider">${key}</td></tr>`;
