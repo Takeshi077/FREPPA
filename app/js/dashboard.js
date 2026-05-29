@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = 'https://freppa-production.up.railway.app';
 
 function getToken() {
     return localStorage.getItem('token');
