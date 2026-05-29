@@ -72,15 +72,20 @@ exports.createUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const { role } = req.query;
-    let query = 'SELECT id, full_name, email, role, phone, is_active, created_at FROM users WHERE 1=1';
+    let query = `SELECT u.id, u.full_name, u.email, u.role, u.phone, u.is_active, u.created_at,
+                        c.class_name, c.section
+                 FROM users u
+                 LEFT JOIN students s ON u.id = s.user_id AND u.role = 'student'
+                 LEFT JOIN classes c ON s.class_id = c.id
+                 WHERE 1=1`;
     const params = [];
 
     if (role) {
-      query += ' AND role = ?';
+      query += ' AND u.role = ?';
       params.push(role);
     }
 
-    query += " ORDER BY FIELD(role, 'teacher', 'student', 'parent', 'admin'), full_name ASC";
+    query += " ORDER BY FIELD(u.role, 'teacher', 'student', 'parent', 'admin'), c.section, c.class_name, u.full_name ASC";
 
     const [users] = await pool.query(query, params);
     res.json({ users });

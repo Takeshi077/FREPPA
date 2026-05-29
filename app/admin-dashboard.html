@@ -319,6 +319,16 @@
         // ==================== USERS ====================
         let allUsers = [];
 
+        function getLevel(section) {
+            if (!section) return null;
+            const s = section.toLowerCase();
+            if (s.includes('secondary') || s.includes('junior') || s.includes('senior')) return 'SECONDARY';
+            if (s.includes('primary')) return 'PRIMARY';
+            if (s.includes('kindergarten')) return 'KINDERGARTEN';
+            if (s.includes('nursery')) return 'NURSERY';
+            return null;
+        }
+
         function renderUsers(users) {
             const tbody = document.getElementById('users-tbody');
             tbody.innerHTML = '';
@@ -326,22 +336,51 @@
                 tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No users found.</td></tr>';
                 return;
             }
+
+            const groups = {};
+            const levelOrder = ['SECONDARY', 'PRIMARY', 'KINDERGARTEN', 'NURSERY', null];
+
             users.forEach(u => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-medium text-slate-900">${u.full_name}</td>
-                        <td class="p-3 text-slate-600">${u.email}</td>
-                        <td class="p-3"><span class="capitalize bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${u.role}</span></td>
-                        <td class="p-3 text-slate-600">${u.phone || '-'}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
-                        <td class="p-3 flex flex-wrap gap-1">
-                            <button onclick="toggleUser(${u.id})" class="text-xs font-semibold ${u.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">${u.is_active ? 'Deactivate' : 'Activate'}</button>
-                            ${u.role === 'teacher' ? `
-                            <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
-                            ` : ''}
-                        </td>
-                    </tr>`;
+                const level = getLevel(u.section);
+                const key = level !== null ? level : 'STAFF & PARENTS';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(u);
+            });
+
+            levelOrder.forEach(level => {
+                const key = level !== null ? level : 'STAFF & PARENTS';
+                const group = groups[key];
+                if (!group) return;
+
+                const colors = {
+                    SECONDARY: 'bg-indigo-100 text-indigo-800',
+                    PRIMARY: 'bg-emerald-100 text-emerald-800',
+                    KINDERGARTEN: 'bg-amber-100 text-amber-800',
+                    NURSERY: 'bg-sky-100 text-sky-800',
+                    'STAFF & PARENTS': 'bg-slate-200 text-slate-700'
+                };
+                const bgColor = colors[key] || 'bg-slate-200 text-slate-700';
+
+                tbody.innerHTML += `<tr class="${bgColor}"><td colspan="6" class="p-2 px-3 font-bold text-xs uppercase tracking-wider">${key}</td></tr>`;
+
+                group.forEach(u => {
+                    const levelClass = u.class_name ? ` <span class="text-xs text-slate-400">(${u.class_name})</span>` : '';
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-medium text-slate-900">${u.full_name}${levelClass}</td>
+                            <td class="p-3 text-slate-600">${u.email}</td>
+                            <td class="p-3"><span class="capitalize bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${u.role}</span></td>
+                            <td class="p-3 text-slate-600">${u.phone || '-'}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td class="p-3 flex flex-wrap gap-1">
+                                <button onclick="toggleUser(${u.id})" class="text-xs font-semibold ${u.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">${u.is_active ? 'Deactivate' : 'Activate'}</button>
+                                ${u.role === 'teacher' ? `
+                                <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                                ` : ''}
+                            </td>
+                        </tr>`;
+                });
             });
         }
 
