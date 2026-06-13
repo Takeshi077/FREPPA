@@ -84,36 +84,51 @@ INSERT INTO students (user_id, admission_number, class_id, parent_id, date_of_bi
 -- =============================================
 -- SAMPLE RESULTS (First Term, 2025/2026)
 -- =============================================
-INSERT INTO results (student_id, subject_id, term_id, session_id, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
+INSERT INTO results (student_id, subject_id, term_id, session_id, test1, test2, test3, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
 VALUES
 -- Student 1 (JSS 1) - English
-(1, 1, 1, 2, 35.00, 52.00, 'B', 'Good performance, keep it up', 3),
+(1, 1, 1, 2, 12.00, 12.00, 11.00, 35.00, 52.00, 'B', 'Good performance, keep it up', 3),
 -- Student 1 (JSS 1) - Mathematics
-(1, 2, 1, 2, 30.00, 45.00, 'C', 'Needs improvement in algebra', 4),
+(1, 2, 1, 2, 10.00, 10.00, 10.00, 30.00, 45.00, 'C', 'Needs improvement in algebra', 4),
 -- Student 1 (JSS 1) - Basic Science
-(1, 3, 1, 2, 38.00, 55.00, 'B', 'Excellent in practicals', 5),
+(1, 3, 1, 2, 13.00, 13.00, 12.00, 38.00, 55.00, 'B', 'Excellent in practicals', 5),
 -- Student 2 (JSS 1) - English
-(2, 1, 1, 2, 32.00, 48.00, 'C', 'Good effort', 3),
+(2, 1, 1, 2, 11.00, 11.00, 10.00, 32.00, 48.00, 'C', 'Good effort', 3),
 -- Student 2 (JSS 1) - Mathematics
-(2, 2, 1, 2, 28.00, 40.00, 'D', 'Needs more practice', 4),
+(2, 2, 1, 2, 9.00, 9.00, 10.00, 28.00, 40.00, 'D', 'Needs more practice', 4),
 -- Student 2 (JSS 1) - Basic Science
-(2, 3, 1, 2, 36.00, 50.00, 'B', 'Very good', 5),
+(2, 3, 1, 2, 12.00, 12.00, 12.00, 36.00, 50.00, 'B', 'Very good', 5),
 -- Student 3 (JSS 2) - English
-(3, 4, 1, 2, 34.00, 50.00, 'B', 'Good comprehension skills', 3),
+(3, 4, 1, 2, 12.00, 11.00, 11.00, 34.00, 50.00, 'B', 'Good comprehension skills', 3),
 -- Student 3 (JSS 2) - Mathematics
-(3, 5, 1, 2, 25.00, 35.00, 'D', 'Needs improvement', 4),
+(3, 5, 1, 2, 8.00, 8.00, 9.00, 25.00, 35.00, 'D', 'Needs improvement', 4),
 -- Student 3 (JSS 2) - Basic Science
-(3, 6, 1, 2, 30.00, 42.00, 'C', 'Satisfactory', 5),
+(3, 6, 1, 2, 10.00, 10.00, 10.00, 30.00, 42.00, 'C', 'Satisfactory', 5),
 -- Student 4 (SSS 1) - English
-(4, 7, 1, 2, 36.00, 55.00, 'B', 'Very good essays', 3),
+(4, 7, 1, 2, 12.00, 12.00, 12.00, 36.00, 55.00, 'B', 'Very good essays', 3),
 -- Student 4 (SSS 1) - Mathematics
-(4, 8, 1, 2, 32.00, 48.00, 'C', 'Fair performance', 4),
+(4, 8, 1, 2, 11.00, 11.00, 10.00, 32.00, 48.00, 'C', 'Fair performance', 4),
 -- Student 4 (SSS 1) - Physics
-(4, 9, 1, 2, 28.00, 40.00, 'D', 'Needs to study more', 5),
+(4, 9, 1, 2, 9.00, 9.00, 10.00, 28.00, 40.00, 'D', 'Needs to study more', 5),
 -- Student 4 (SSS 1) - Chemistry
-(4, 10, 1, 2, 34.00, 50.00, 'B', 'Good lab work', 5);
+(4, 10, 1, 2, 12.00, 11.00, 11.00, 34.00, 50.00, 'B', 'Good lab work', 5);
 
 -- =============================================
--- UPDATE GRADES BASED ON TOTAL SCORE
+-- SAMPLE DOMAIN SCORES (First Term, 2025/2026)
 -- =============================================
--- (Using trigger approach - grades are auto-set in application code)
+INSERT INTO result_domains (student_id, term_id, session_id, punctuality, attentiveness, neatness, honesty, politeness, self_control, handwriting, sports, drawing, verbal_fluency, craft_skills, thinking_ability, social_skills)
+VALUES
+(1, 1, 2, 'A', 'B', 'A', 'A', 'B', 'B', 'B', 'A', 'B', 'B', 'B', 'B', 'A'),
+(2, 1, 2, 'B', 'A', 'C', 'A', 'B', 'B', 'A', 'B', 'A', 'B', 'B', 'A', 'A'),
+(3, 1, 2, 'B', 'B', 'B', 'B', 'B', 'C', 'C', 'B', 'B', 'B', 'C', 'B', 'B'),
+(4, 1, 2, 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'A', 'B', 'A', 'A');
+
+-- =============================================
+-- SAMPLE REPORT CARDS (First Term, 2025/2026)
+-- =============================================
+INSERT INTO report_cards (student_id, term_id, session_id, grand_total, subject_count, average, class_position, total_students, teacher_remark, principal_remark, next_term_begins, times_present, times_absent, is_finalized, finalized_at)
+VALUES
+(1, 1, 2, 220.00, 3, 73.33, 1, 2, 'Excellent performance. Keep up the good work.', 'Very proud of your achievements this term.', '2025-09-15', 86, 2, 1, NOW()),
+(2, 1, 2, 198.00, 3, 66.00, 2, 2, 'Good effort this term. Focus more on mathematics.', 'You have shown improvement. Keep striving.', '2025-09-15', 84, 4, 1, NOW()),
+(3, 1, 2, 201.00, 3, 67.00, 1, 1, 'Satisfactory performance. Needs to work on mathematics.', 'Keep working hard.', '2025-09-15', 83, 5, 1, NOW()),
+(4, 1, 2, 283.00, 4, 70.75, 1, 1, 'Very good term overall. Physics needs more attention.', 'Well done. Keep it up.', '2025-09-15', 85, 3, 1, NOW());
