@@ -159,6 +159,115 @@
             </div>
         </section>
 
+        <!-- Domains Section -->
+        <section id="domains-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-face-smile text-amber-500 mr-2"></i> Student Domains
+            </h2>
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <p class="text-sm text-slate-600 mb-4">Rate students on affective and psychomotor traits (A = Excellent, B = Very Good, C = Good, D = Fair, E = Needs Improvement).</p>
+                <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Session</label>
+                        <select id="domain-filter-session" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Session</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Term</label>
+                        <select id="domain-filter-term" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Term</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Subject</label>
+                        <select id="domain-subject-select" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">-- Choose --</option>
+                        </select>
+                    </div>
+                    <button id="load-domain-students" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-users mr-1"></i> Load Students
+                    </button>
+                </div>
+                <div id="domain-students-container" class="hidden overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-900 text-white">
+                                <th class="p-3">Student</th>
+                                <th class="p-3 w-20">Punctuality</th>
+                                <th class="p-3 w-20">Attentiveness</th>
+                                <th class="p-3 w-20">Neatness</th>
+                                <th class="p-3 w-20">Honesty</th>
+                                <th class="p-3 w-20">Politeness</th>
+                                <th class="p-3 w-20">S. Control</th>
+                                <th class="p-3 w-20">Handwriting</th>
+                                <th class="p-3 w-20">Sports</th>
+                                <th class="p-3 w-20">Drawing</th>
+                                <th class="p-3 w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="domain-tbody" class="divide-y divide-slate-200">
+                            <tr><td colspan="11" class="p-6 text-center text-slate-400">Select a subject and load students.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-calendar-check text-amber-500 mr-2"></i> Attendance
+            </h2>
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Session</label>
+                        <select id="att-filter-session" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Session</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Term</label>
+                        <select id="att-filter-term" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Term</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Subject</label>
+                        <select id="att-subject-select" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">-- Choose --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Date</label>
+                        <input type="date" id="att-date" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <button id="load-attendance" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-calendar-day mr-1"></i> Load
+                    </button>
+                    <button id="save-attendance" class="bg-green-700 text-white hover:bg-green-800 font-bold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-save mr-1"></i> Save
+                    </button>
+                </div>
+                <div id="attendance-container" class="hidden overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-900 text-white">
+                                <th class="p-3">S/N</th>
+                                <th class="p-3">Admission No</th>
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3 w-28">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-tbody" class="divide-y divide-slate-200">
+                            <tr><td colspan="4" class="p-6 text-center text-slate-400">Select a subject, date, and load.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- Bulk Upload Section -->
         <section id="bulk-section" class="mb-10">
             <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
@@ -499,6 +608,215 @@
                 resultsEl.innerHTML = `<div class="text-red-600 text-sm">${e.message}</div>`;
             }
         });
+
+        // ==================== DOMAINS ====================
+        const domainFields = [
+            'punctuality', 'attentiveness', 'neatness', 'honesty', 'politeness',
+            'self_control', 'handwriting', 'sports', 'drawing', 'verbal_fluency',
+            'craft_skills', 'thinking_ability', 'social_skills'
+        ];
+
+        async function loadDomainStudents() {
+            const subjectId = document.getElementById('domain-subject-select').value;
+            if (!subjectId) { alert('Please select a subject.'); return; }
+
+            const container = document.getElementById('domain-students-container');
+            const tbody = document.getElementById('domain-tbody');
+            container.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="11" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading...</td></tr>';
+
+            try {
+                const sessionId = document.getElementById('domain-filter-session').value;
+                const termId = document.getElementById('domain-filter-term').value;
+                let url = `/api/teacher/subject/${subjectId}/students`;
+                const params = [];
+                if (sessionId) params.push(`session_id=${sessionId}`);
+                if (termId) params.push(`term_id=${termId}`);
+                if (params.length) url += '?' + params.join('&');
+
+                const data = await apiFetch(url);
+                const students = data.students || [];
+                const termIdVal = data.term?.id;
+                const sessionIdVal = data.session?.id;
+
+                const domainUrl = termIdVal && sessionIdVal
+                    ? `/api/teacher/domains?term_id=${termIdVal}&session_id=${sessionIdVal}`
+                    : '/api/teacher/domains';
+                let existingDomains = {};
+                try {
+                    const domainData = await apiFetch(domainUrl);
+                    (domainData.domains || []).forEach(d => { existingDomains[d.student_id] = d; });
+                } catch (e) { /* no domains yet */ }
+
+                tbody.innerHTML = '';
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="11" class="p-6 text-center text-slate-400">No students found.</td></tr>';
+                    return;
+                }
+
+                students.forEach((s, idx) => {
+                    const d = existingDomains[s.id] || {};
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50';
+                    tr.innerHTML = `<td class="p-3 font-medium text-slate-900">${s.full_name}</td>`;
+                    const shortFields = ['punctuality', 'attentiveness', 'neatness', 'honesty', 'politeness', 'self_control', 'handwriting', 'sports', 'drawing'];
+                    shortFields.forEach(f => {
+                        tr.innerHTML += `<td class="p-3"><select class="domain-select w-16 px-1 py-1 border border-slate-300 rounded text-center text-xs focus:ring-2 focus:ring-amber-500 outline-none" data-student-id="${s.id}" data-field="${f}">
+                            <option value="">-</option>
+                            <option value="A" ${(d[f] || '') === 'A' ? 'selected' : ''}>A</option>
+                            <option value="B" ${(d[f] || '') === 'B' ? 'selected' : ''}>B</option>
+                            <option value="C" ${(d[f] || '') === 'C' ? 'selected' : ''}>C</option>
+                            <option value="D" ${(d[f] || '') === 'D' ? 'selected' : ''}>D</option>
+                            <option value="E" ${(d[f] || '') === 'E' ? 'selected' : ''}>E</option>
+                        </select></td>`;
+                    });
+                    tr.innerHTML += `<td class="p-3"><button class="save-domain-btn bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-3 py-1.5 rounded-lg text-xs transition-all" data-student-id="${s.id}"><i class="fa-solid fa-save mr-1"></i> Save</button></td>`;
+                    tbody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.save-domain-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const studentId = parseInt(this.dataset.studentId);
+                        const selects = this.closest('tr').querySelectorAll('.domain-select');
+                        const domains = {};
+                        selects.forEach(sel => {
+                            if (sel.value) domains[sel.dataset.field] = sel.value;
+                        });
+
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                        try {
+                            await apiFetch('/api/teacher/domains', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    student_id: studentId,
+                                    term_id: data.term?.id,
+                                    session_id: data.session?.id,
+                                    domains
+                                })
+                            });
+                            showSuccess(document.getElementById('global-success'));
+                            document.getElementById('global-success').textContent = 'Domains saved for ' + this.closest('tr').querySelector('td:first-child').textContent;
+                            setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+                        } catch (e) {
+                            showError(document.getElementById('global-error'));
+                            document.getElementById('global-error').textContent = e.message;
+                            setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
+                        } finally {
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fa-solid fa-save mr-1"></i> Save';
+                        }
+                    });
+                });
+
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        // ==================== ATTENDANCE ====================
+        async function loadAttendance() {
+            const subjectId = document.getElementById('att-subject-select').value;
+            const date = document.getElementById('att-date').value;
+            if (!subjectId || !date) { alert('Select a subject and date.'); return; }
+
+            const container = document.getElementById('attendance-container');
+            const tbody = document.getElementById('attendance-tbody');
+            container.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading...</td></tr>';
+
+            try {
+                const sessionId = document.getElementById('att-filter-session').value;
+                const termId = document.getElementById('att-filter-term').value;
+
+                const subjectsData = await apiFetch('/api/teacher/subjects');
+                const subject = (subjectsData.subjects || []).find(s => s.id == subjectId);
+                if (!subject) throw new Error('Subject not found.');
+
+                const classId = subject.class_id;
+                let attUrl = `/api/attendance/list?class_id=${classId}&date=${date}`;
+                if (termId) attUrl += `&term_id=${termId}`;
+                if (sessionId) attUrl += `&session_id=${sessionId}`;
+
+                const attData = await apiFetch(attUrl);
+                const records = attData.attendance || [];
+
+                tbody.innerHTML = '';
+                if (records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">No students in this class.</td></tr>';
+                    return;
+                }
+
+                records.forEach((r, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50';
+                    tr.innerHTML = `
+                        <td class="p-3 text-slate-500">${idx + 1}</td>
+                        <td class="p-3 font-medium text-slate-900">${r.admission_number}</td>
+                        <td class="p-3 font-medium text-slate-900">${r.full_name}</td>
+                        <td class="p-3">
+                            <select class="att-status-select w-28 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none" data-student-id="${r.student_id}">
+                                <option value="present" ${r.status === 'present' ? 'selected' : ''}>Present</option>
+                                <option value="absent" ${r.status === 'absent' ? 'selected' : ''}>Absent</option>
+                                <option value="excused" ${r.status === 'excused' ? 'selected' : ''}>Excused</option>
+                            </select>
+                        </td>`;
+                    tbody.appendChild(tr);
+                });
+
+                window._attendanceClassId = classId;
+                window._attendanceSubjectId = subjectId;
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        document.getElementById('save-attendance').addEventListener('click', async function() {
+            const date = document.getElementById('att-date').value;
+            if (!date || !window._attendanceClassId) { alert('Load attendance first.'); return; }
+
+            const sessionId = document.getElementById('att-filter-session').value;
+            const termId = document.getElementById('att-filter-term').value;
+
+            const records = [];
+            document.querySelectorAll('.att-status-select').forEach(sel => {
+                records.push({
+                    student_id: parseInt(sel.dataset.studentId),
+                    status: sel.value
+                });
+            });
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const body = { records, date, class_id: window._attendanceClassId };
+                if (termId) body.term_id = termId;
+                if (sessionId) body.session_id = sessionId;
+
+                await apiFetch('/api/attendance/save', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+                showSuccess(document.getElementById('global-success'));
+                document.getElementById('global-success').textContent = 'Attendance saved successfully!';
+                setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+            } catch (e) {
+                showError(document.getElementById('global-error'));
+                document.getElementById('global-error').textContent = e.message;
+                setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fa-solid fa-save mr-1"></i> Save';
+            }
+        });
+
+        // Domain subject select
+        document.getElementById('load-domain-students').addEventListener('click', loadDomainStudents);
+
+        // Attendance subject select
+        document.getElementById('load-attendance').addEventListener('click', loadAttendance);
 
         // Init
         loadSessionsTerms();
