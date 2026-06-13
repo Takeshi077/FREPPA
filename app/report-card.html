@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Card | FREPPA GROUP OF SCHOOLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: { colors: { slate: { 800: '#1b6b1b', 900: '#228B22', 950: '#165916' } } } }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; }
+            .page-break { page-break-before: always; }
+        }
+        @media screen {
+            .print-only { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <header class="bg-slate-900 text-white no-print">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="student-dashboard.html" class="flex items-center space-x-3 group">
+                <img src="freppa logo.svg.png" alt="Logo" class="w-8 h-8 object-contain">
+                <span class="font-bold text-sm md:text-lg tracking-tight logo-text-dashboard">FREPPA REPORT CARD</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <span id="nav-username" class="text-sm text-amber-400 font-medium hidden"></span>
+                <button onclick="logout()" class="text-sm text-slate-300 hover:text-amber-400 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-3 md:px-4 py-6 md:py-8">
+        <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6 no-print"></div>
+        <div id="loading-message" class="text-center py-12 text-slate-400"><i class="fa-solid fa-spinner fa-spin text-2xl"></i><p class="mt-2">Loading report card...</p></div>
+
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-6 no-print">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Session</label>
+                <select id="filter-session" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Term</label>
+                <select id="filter-term" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"></select>
+            </div>
+            <button id="load-btn" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-5 py-2 rounded-lg transition-all">
+                <i class="fa-solid fa-magnifying-glass mr-1"></i> Load Report
+            </button>
+            <button id="print-btn" class="bg-slate-900 text-white hover:bg-slate-800 font-bold px-5 py-2 rounded-lg transition-all">
+                <i class="fa-solid fa-print mr-1"></i> Print
+            </button>
+            <button id="pdf-btn" class="bg-green-700 text-white hover:bg-green-800 font-bold px-5 py-2 rounded-lg transition-all">
+                <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+            </button>
+        </div>
+
+        <!-- Report Card -->
+        <div id="report-content" class="hidden max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-slate-100 p-6 md:p-10">
+            <div id="report-inner"></div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        if (!requireRole('student', 'parent')) throw new Error('Redirecting');
+
+        const user = getUser();
+        const isParent = user.role === 'parent';
+        document.getElementById('nav-username').textContent = user.full_name;
+        document.getElementById('nav-username').classList.remove('hidden');
+
+        let currentChildId = null;
+
+        function getDomainLabel(val) {
+            if (!val) return '-';
+            const labels = { A: 'Excellent', B: 'V. Good', C: 'Good', D: 'Fair', E: 'Needs Imp.' };
+            return labels[val.toUpperCase()] || val;
+        }
+
+        function getGradeColor(grade) {
+            if (!grade) return 'text-slate-400';
+            const g = grade.toUpperCase();
+            if (g === 'A') return 'text-green-700';
+            if (g === 'B') return 'text-blue-700';
+            if (g === 'C') return 'text-amber-700';
+            if (g === 'D') return 'text-orange-700';
+            if (g === 'E') return 'text-red-600';
+            if (g === 'F') return 'text-red-900';
+            return 'text-slate-400';
+        }
+
+        function renderReport(data) {
+            const s = data.student;
+            const term = data.term;
+            const session = data.session;
+            const results = data.results || [];
+            const domain = data.domains || {};
+            const summary = data.summary;
+            const attendance = data.attendance || { present: 0, absent: 0, excused: 0 };
+            const meta = data.report_meta || {};
+
+            const domainFields = [
+                { label: 'Punctuality', key: 'punctuality' },
+                { label: 'Attentiveness', key: 'attentiveness' },
+                { label: 'Neatness', key: 'neatness' },
+                { label: 'Honesty', key: 'honesty' },
+                { label: 'Politeness', key: 'politeness' },
+                { label: 'Self Control', key: 'self_control' },
+                { label: 'Handwriting', key: 'handwriting' },
+                { label: 'Sports', key: 'sports' },
+                { label: 'Drawing', key: 'drawing' },
+                { label: 'Verbal Fluency', key: 'verbal_fluency' },
+                { label: 'Craft Skills', key: 'craft_skills' },
+                { label: 'Thinking Ability', key: 'thinking_ability' },
+                { label: 'Social Skills', key: 'social_skills' },
+            ];
+
+            let domainHtml = '';
+            domainFields.forEach((f, i) => {
+                const val = domain[f.key] || '-';
+                const label = getDomainLabel(domain[f.key]);
+                domainHtml += `<div class="flex items-center justify-between px-3 py-1.5 bg-slate-50 rounded-lg">
+                    <span class="text-sm text-slate-700">${f.label}</span>
+                    <span class="font-bold text-sm ${getGradeColor(val)}" title="${label}">${val}</span>
+                </div>`;
+            });
+
+            let rows = '';
+            results.forEach((r, i) => {
+                rows += `<tr class="hover:bg-slate-50 border-t border-slate-100">
+                    <td class="p-3 text-center text-slate-500">${i + 1}</td>
+                    <td class="p-3 font-medium text-slate-900">${r.subject_name}</td>
+                    <td class="p-3 text-center">${r.test1 ?? '-'}</td>
+                    <td class="p-3 text-center">${r.test2 ?? '-'}</td>
+                    <td class="p-3 text-center">${r.test3 ?? '-'}</td>
+                    <td class="p-3 text-center font-medium">${r.ca_score ?? '-'}</td>
+                    <td class="p-3 text-center">${r.exam_score ?? '-'}</td>
+                    <td class="p-3 text-center font-bold text-slate-900">${r.total_score ?? '-'}</td>
+                    <td class="p-3 text-center"><span class="inline-block px-2 py-0.5 rounded text-xs font-bold ${getGradeClass(r.grade)}">${r.grade || '-'}</span></td>
+                </tr>`;
+            });
+
+            const grandTotal = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
+            const avg = results.length > 0 ? (grandTotal / results.length) : 0;
+
+            document.getElementById('report-inner').innerHTML = `
+                <!-- School Header -->
+                <div class="text-center border-b-2 border-green-700 pb-4 mb-6">
+                    <div class="flex justify-center mb-2">
+                        <img src="freppa logo.svg.png" alt="School Logo" class="h-16 w-16 object-contain">
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-bold text-green-700">FREPPA GROUP OF SCHOOLS</h1>
+                    <p class="text-xs text-slate-500">Plot 4, Freppa Avenue, Off Lagos Road, Ibadan, Oyo State</p>
+                    <p class="text-xs text-slate-500">Phone: 08012345678 | Email: info@freppagroupofschools.edu</p>
+                </div>
+
+                <h2 class="text-center text-lg font-bold text-slate-900 mb-4 underline underline-offset-4 decoration-amber-500">REPORT CARD</h2>
+
+                <!-- Student Info -->
+                <div class="grid grid-cols-2 gap-x-6 gap-y-1 mb-6 text-sm bg-slate-50 p-4 rounded-xl">
+                    <div><span class="font-semibold text-slate-700">Student Name:</span> ${s?.full_name || '-'}</div>
+                    <div><span class="font-semibold text-slate-700">Admission No:</span> ${s?.admission_number || '-'}</div>
+                    <div><span class="font-semibold text-slate-700">Class:</span> ${s?.class_name || '-'} ${s?.section ? '- ' + s.section : ''}</div>
+                    <div><span class="font-semibold text-slate-700">Gender:</span> ${s?.gender ? (s.gender.charAt(0).toUpperCase() + s.gender.slice(1)) : '-'}</div>
+                    <div><span class="font-semibold text-slate-700">Term:</span> ${term?.term_name || '-'}</div>
+                    <div><span class="font-semibold text-slate-700">Session:</span> ${session?.session_name || '-'}</div>
+                </div>
+
+                <!-- Results Table -->
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-green-700 text-white">
+                                <th class="p-3 text-center w-10">#</th>
+                                <th class="p-3">Subject</th>
+                                <th class="p-3 text-center w-14">T1<br><span class="text-xs font-normal">(10)</span></th>
+                                <th class="p-3 text-center w-14">T2<br><span class="text-xs font-normal">(10)</span></th>
+                                <th class="p-3 text-center w-14">T3<br><span class="text-xs font-normal">(10)</span></th>
+                                <th class="p-3 text-center w-16">CA<br><span class="text-xs font-normal">(30)</span></th>
+                                <th class="p-3 text-center w-16">Exam<br><span class="text-xs font-normal">(70)</span></th>
+                                <th class="p-3 text-center w-16">Total<br><span class="text-xs font-normal">(100)</span></th>
+                                <th class="p-3 text-center w-14">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            ${rows || '<tr><td colspan="9" class="p-6 text-center text-slate-400">No results found.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary -->
+                <div class="grid grid-cols-4 gap-3 mb-6 text-center">
+                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-2xl font-bold text-amber-700">${summary?.subject_count || 0}</p>
+                        <p class="text-xs text-slate-600 font-semibold">Subjects</p>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-2xl font-bold text-amber-700">${grandTotal.toFixed(2)}</p>
+                        <p class="text-xs text-slate-600 font-semibold">Grand Total</p>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-2xl font-bold text-amber-700">${avg.toFixed(2)}</p>
+                        <p class="text-xs text-slate-600 font-semibold">Average</p>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-2xl font-bold text-amber-700">${meta.class_position || '-'}<span class="text-sm font-normal text-slate-500">/${meta.total_students || '-'}</span></p>
+                        <p class="text-xs text-slate-600 font-semibold">Position</p>
+                    </div>
+                </div>
+
+                <!-- Domains -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-slate-900 mb-3 text-sm uppercase tracking-wider">Affective & Psychomotor Domain</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        ${domainHtml}
+                    </div>
+                    <div class="mt-2 text-xs text-slate-400 flex gap-4">
+                        <span>A = Excellent</span>
+                        <span>B = Very Good</span>
+                        <span>C = Good</span>
+                        <span>D = Fair</span>
+                        <span>E = Needs Improvement</span>
+                    </div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-slate-900 mb-2 text-sm uppercase tracking-wider">Attendance</h3>
+                    <div class="flex gap-6 text-sm">
+                        <span><strong>Present:</strong> ${attendance.present}</span>
+                        <span><strong>Absent:</strong> ${attendance.absent}</span>
+                        <span><strong>Excused:</strong> ${attendance.excused}</span>
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div class="space-y-4 mb-6">
+                    <div class="border-t border-slate-200 pt-4">
+                        <p class="text-sm font-semibold text-slate-700">Class Teacher's Remark:</p>
+                        <p class="text-sm text-slate-600 mt-1">${meta.teacher_remark || '_____________________________'}</p>
+                    </div>
+                    <div class="border-t border-slate-200 pt-4">
+                        <p class="text-sm font-semibold text-slate-700">Principal's Remark:</p>
+                        <p class="text-sm text-slate-600 mt-1">${meta.principal_remark || '_____________________________'}</p>
+                    </div>
+                    <div class="border-t border-slate-200 pt-4">
+                        <p class="text-sm font-semibold text-slate-700">Next Term Begins:</p>
+                        <p class="text-sm text-slate-600 mt-1">${meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________'}</p>
+                    </div>
+                </div>
+
+                <!-- Signatures -->
+                <div class="grid grid-cols-2 gap-4 mt-8 pt-4 border-t border-slate-200 text-sm">
+                    <div>
+                        <p class="font-semibold text-slate-700">Class Teacher's Signature:</p>
+                        <div class="mt-8 border-b border-slate-300 w-48"></div>
+                        <p class="text-xs text-slate-400 mt-1">Date: _____________</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-slate-700">Principal's Signature:</p>
+                        <div class="mt-8 border-b border-slate-300 w-48 ml-auto"></div>
+                        <p class="text-xs text-slate-400 mt-1">Date: _____________</p>
+                    </div>
+                </div>
+
+                <div class="text-center text-xs text-slate-400 mt-8 pt-4 border-t border-slate-200">
+                    This is a computer-generated report card from FREPPA Group of Schools Portal
+                </div>
+            `;
+        }
+
+        async function loadReport() {
+            const sessionId = document.getElementById('filter-session').value;
+            const termId = document.getElementById('filter-term').value;
+            const loading = document.getElementById('loading-message');
+            const content = document.getElementById('report-content');
+            const error = document.getElementById('error-message');
+
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            error.classList.add('hidden');
+
+            try {
+                let endpoint;
+                if (isParent && currentChildId) {
+                    endpoint = `/api/report/child/${currentChildId}/card?term_id=${termId}&session_id=${sessionId}`;
+                } else {
+                    endpoint = `/api/report/card?term_id=${termId}&session_id=${sessionId}`;
+                }
+                const data = await apiFetch(endpoint);
+                renderReport(data);
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+            } catch (e) {
+                loading.classList.add('hidden');
+                error.textContent = e.message;
+                error.classList.remove('hidden');
+            }
+        }
+
+        async function downloadPDF() {
+            const sessionId = document.getElementById('filter-session').value;
+            const termId = document.getElementById('filter-term').value;
+
+            try {
+                let url;
+                if (isParent && currentChildId) {
+                    url = `${API_BASE}/api/report/child/${currentChildId}/card/pdf?term_id=${termId}&session_id=${sessionId}`;
+                } else {
+                    url = `${API_BASE}/api/report/card/pdf?term_id=${termId}&session_id=${sessionId}`;
+                }
+                const token = getToken();
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Failed to generate PDF');
+                }
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+            } catch (e) {
+                document.getElementById('error-message').textContent = e.message;
+                document.getElementById('error-message').classList.remove('hidden');
+            }
+        }
+
+        async function loadFilters() {
+            try {
+                const data = await apiFetch('/api/student/results');
+                const sessionSelect = document.getElementById('filter-session');
+                const termSelect = document.getElementById('filter-term');
+
+                sessionSelect.innerHTML = '<option value="">-- Select --</option>';
+                termSelect.innerHTML = '<option value="">-- Select --</option>';
+
+                (data.sessions || []).forEach(s => {
+                    sessionSelect.innerHTML += `<option value="${s.id}" ${s.is_current ? 'selected' : ''}>${s.session_name}</option>`;
+                });
+                (data.terms || []).forEach(t => {
+                    termSelect.innerHTML += `<option value="${t.id}" ${t.is_current ? 'selected' : ''}>${t.term_name}</option>`;
+                });
+
+                const selSession = sessionSelect.value;
+                const selTerm = termSelect.value;
+                if (selSession && selTerm) {
+                    loadReport();
+                }
+            } catch (e) {
+                console.error('Failed to load filters:', e);
+            }
+        }
+
+        document.getElementById('load-btn').addEventListener('click', loadReport);
+        document.getElementById('print-btn').addEventListener('click', () => window.print());
+        document.getElementById('pdf-btn').addEventListener('click', downloadPDF);
+
+        document.getElementById('filter-session').addEventListener('change', () => {
+            if (document.getElementById('filter-session').value && document.getElementById('filter-term').value) {
+                loadReport();
+            }
+        });
+        document.getElementById('filter-term').addEventListener('change', () => {
+            if (document.getElementById('filter-session').value && document.getElementById('filter-term').value) {
+                loadReport();
+            }
+        });
+
+        loadFilters();
+    </script>
+</body>
+</html>
