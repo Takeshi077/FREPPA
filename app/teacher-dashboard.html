@@ -366,6 +366,11 @@
                     return;
                 }
 
+                const domainSelect = document.getElementById('domain-subject-select');
+                const attSelect = document.getElementById('att-subject-select');
+                domainSelect.innerHTML = '<option value="">-- Choose --</option>';
+                attSelect.innerHTML = '<option value="">-- Choose --</option>';
+
                 data.subjects.forEach(sub => {
                     grid.innerHTML += `
                         <div class="bg-white rounded-xl shadow-md border border-slate-100 p-5 hover:shadow-lg transition-all cursor-pointer subject-card"
@@ -377,6 +382,8 @@
                         </div>`;
 
                     select.innerHTML += `<option value="${sub.id}">${sub.subject_name} (${sub.subject_code}) - ${sub.class_name}</option>`;
+                    domainSelect.innerHTML += `<option value="${sub.id}">${sub.subject_name} - ${sub.class_name}</option>`;
+                    attSelect.innerHTML += `<option value="${sub.id}">${sub.subject_name} - ${sub.class_name}</option>`;
                 });
 
                 document.querySelectorAll('.subject-card').forEach(card => {
