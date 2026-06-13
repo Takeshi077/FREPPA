@@ -215,6 +215,87 @@ exports.updateResult = async (req, res) => {
   }
 };
 
+exports.getDomainScores = async (req, res) => {
+  try {
+    const { student_id, term_id, session_id } = req.query;
+
+    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ error: 'Teacher profile not found.' });
+    }
+
+    let query = 'SELECT * FROM result_domains WHERE 1=1';
+    const params = [];
+    if (student_id) { query += ' AND student_id = ?'; params.push(student_id); }
+    if (term_id) { query += ' AND term_id = ?'; params.push(term_id); }
+    if (session_id) { query += ' AND session_id = ?'; params.push(session_id); }
+
+    const [domains] = await pool.query(query, params);
+    res.json({ domains });
+  } catch (err) {
+    console.error('Get domain scores error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.saveDomainScores = async (req, res) => {
+  try {
+    const { student_id, term_id, session_id, domains } = req.body;
+
+    if (!student_id || !term_id || !session_id || !domains) {
+      return res.status(400).json({ error: 'student_id, term_id, session_id, and domains are required.' });
+    }
+
+    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ error: 'Teacher profile not found.' });
+    }
+
+    const allowedFields = [
+      'punctuality', 'attentiveness', 'neatness', 'honesty', 'politeness',
+      'self_control', 'handwriting', 'sports', 'drawing', 'verbal_fluency',
+      'craft_skills', 'thinking_ability', 'social_skills'
+    ];
+
+    const sets = [];
+    const values = [];
+    allowedFields.forEach(field => {
+      if (domains[field] !== undefined) {
+        const val = domains[field].toUpperCase();
+        if (!['A', 'B', 'C', 'D', 'E', null].includes(val)) {
+          return res.status(400).json({ error: `Invalid value for ${field}. Must be A, B, C, D, or E.` });
+        }
+        sets.push(`${field} = ?`);
+        values.push(val || null);
+      }
+    });
+
+    if (sets.length === 0) {
+      return res.status(400).json({ error: 'No domain fields provided.' });
+    }
+
+    values.push(student_id, term_id, session_id);
+
+    await pool.query(
+      `INSERT INTO result_domains (student_id, term_id, session_id${allowedFields.filter(f => domains[f] !== undefined).map(f => `, ${f}`).join('')})
+       VALUES (?, ?, ?${allowedFields.filter(f => domains[f] !== undefined).map(() => ', ?').join('')})
+       ON DUPLICATE KEY UPDATE ${sets.join(', ')}`,
+      [student_id, term_id, session_id, ...allowedFields.filter(f => domains[f] !== undefined).map(f => domains[f] || null),
+       ...allowedFields.filter(f => domains[f] !== undefined).map(f => domains[f] || null)]
+    );
+
+    const [updated] = await pool.query(
+      'SELECT * FROM result_domains WHERE student_id = ? AND term_id = ? AND session_id = ?',
+      [student_id, term_id, session_id]
+    );
+
+    res.json({ message: 'Domain scores saved successfully.', domains: updated[0] || null });
+  } catch (err) {
+    console.error('Save domain scores error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.bulkUpload = async (req, res) => {
   try {
     if (!req.file) {

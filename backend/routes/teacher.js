@@ -8,7 +8,9 @@ const {
   getStudentsBySubject,
   updateResult,
   bulkUpload,
-  getSessionsTerms
+  getSessionsTerms,
+  getDomainScores,
+  saveDomainScores
 } = require('../controllers/teacherController');
 
 const storage = multer.diskStorage({
@@ -40,5 +42,8 @@ router.get('/subjects', getSubjects);
 router.get('/subject/:subjectId/students', getStudentsBySubject);
 router.post('/result/update', updateResult);
 router.post('/result/bulk-upload', upload.single('file'), bulkUpload);
+
+router.get('/domains', getDomainScores);
+router.post('/domains', saveDomainScores);
 
 module.exports = router;

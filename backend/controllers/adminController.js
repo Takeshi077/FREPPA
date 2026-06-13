@@ -493,6 +493,204 @@ exports.createSession = async (req, res) => {
   }
 };
 
+exports.getClassPositions = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id } = req.query;
+
+    const [currentTerm] = term_id
+      ? await pool.query('SELECT id, term_name FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id, term_name FROM terms WHERE is_current = 1 LIMIT 1');
+    const [currentSession] = session_id
+      ? await pool.query('SELECT id, session_name FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id, session_name FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const finalTermId = currentTerm[0]?.id;
+    const finalSessionId = currentSession[0]?.id;
+
+    let query = `
+      SELECT s.id AS student_id, u.full_name, s.admission_number,
+             ROUND(SUM(r.total_score), 2) AS grand_total,
+             COUNT(r.subject_id) AS subjects_taken,
+             ROUND(AVG(r.total_score), 2) AS average,
+             RANK() OVER (ORDER BY SUM(r.total_score) DESC) AS position
+      FROM results r
+      JOIN students s ON r.student_id = s.id
+      JOIN users u ON s.user_id = u.id
+      WHERE r.term_id = ? AND r.session_id = ?
+    `;
+    const params = [finalTermId, finalSessionId];
+
+    if (class_id) {
+      query += ' AND s.class_id = ?';
+      params.push(class_id);
+    }
+
+    query += ' GROUP BY s.id, u.full_name, s.admission_number ORDER BY position';
+
+    const [rankings] = await pool.query(query, params);
+    const totalStudents = rankings.length;
+
+    res.json({
+      term: currentTerm[0] || null,
+      session: currentSession[0] || null,
+      total_students: totalStudents,
+      rankings,
+    });
+  } catch (err) {
+    console.error('Get class positions error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.generateReportCards = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id } = req.body;
+
+    const [currentTerm] = term_id
+      ? await pool.query('SELECT id FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id FROM terms WHERE is_current = 1 LIMIT 1');
+    const [currentSession] = session_id
+      ? await pool.query('SELECT id FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const finalTermId = currentTerm[0]?.id;
+    const finalSessionId = currentSession[0]?.id;
+
+    if (!finalTermId || !finalSessionId) {
+      return res.status(400).json({ error: 'No active term or session set.' });
+    }
+
+    const [students] = class_id
+      ? await pool.query('SELECT id FROM students WHERE class_id = ?', [class_id])
+      : await pool.query('SELECT id FROM students');
+
+    if (students.length === 0) {
+      return res.status(404).json({ error: 'No students found.' });
+    }
+
+    const [allRankings] = await pool.query(`
+      SELECT s.id AS student_id, s.class_id,
+             ROUND(SUM(r.total_score), 2) AS grand_total,
+             COUNT(r.id) AS subject_count,
+             ROUND(AVG(r.total_score), 2) AS average,
+             RANK() OVER (PARTITION BY s.class_id ORDER BY SUM(r.total_score) DESC) AS position
+      FROM results r
+      JOIN students s ON r.student_id = s.id
+      WHERE r.term_id = ? AND r.session_id = ?
+      GROUP BY s.id, s.class_id
+    `, [finalTermId, finalSessionId]);
+
+    const rankingMap = {};
+    allRankings.forEach(r => { rankingMap[r.student_id] = r; });
+
+    const [classCounts] = await pool.query(`
+      SELECT s.class_id, COUNT(DISTINCT s.id) AS total
+      FROM results r
+      JOIN students s ON r.student_id = s.id
+      WHERE r.term_id = ? AND r.session_id = ?
+      GROUP BY s.class_id
+    `, [finalTermId, finalSessionId]);
+
+    const countMap = {};
+    classCounts.forEach(c => { countMap[c.class_id] = c.total; });
+
+    let generated = 0;
+    for (const student of students) {
+      const rank = rankingMap[student.id];
+      if (!rank) continue;
+
+      await pool.query(
+        `INSERT INTO report_cards (student_id, term_id, session_id, grand_total, subject_count, average, class_position, total_students)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE grand_total = VALUES(grand_total), subject_count = VALUES(subject_count),
+         average = VALUES(average), class_position = VALUES(class_position), total_students = VALUES(total_students)`,
+        [student.id, finalTermId, finalSessionId, rank.grand_total, rank.subject_count, rank.average, rank.position, countMap[rank.class_id] || 0]
+      );
+      generated++;
+    }
+
+    res.json({ message: `${generated} report cards generated/updated successfully.` });
+  } catch (err) {
+    console.error('Generate report cards error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.finalizeReportCards = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id, teacher_remark, principal_remark, next_term_begins } = req.body;
+
+    const [currentTerm] = term_id
+      ? await pool.query('SELECT id FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id FROM terms WHERE is_current = 1 LIMIT 1');
+    const [currentSession] = session_id
+      ? await pool.query('SELECT id FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const finalTermId = currentTerm[0]?.id;
+    const finalSessionId = currentSession[0]?.id;
+
+    let query = 'UPDATE report_cards SET is_finalized = 1, finalized_at = NOW()';
+    const params = [];
+    if (teacher_remark) { query += ', teacher_remark = ?'; params.push(teacher_remark); }
+    if (principal_remark) { query += ', principal_remark = ?'; params.push(principal_remark); }
+    if (next_term_begins) { query += ', next_term_begins = ?'; params.push(next_term_begins); }
+
+    query += ' WHERE term_id = ? AND session_id = ?';
+    params.push(finalTermId, finalSessionId);
+
+    if (class_id) {
+      query += ' AND student_id IN (SELECT id FROM students WHERE class_id = ?)';
+      params.push(class_id);
+    }
+
+    const [result] = await pool.query(query, params);
+    res.json({ message: `${result.affectedRows} report cards finalized.` });
+  } catch (err) {
+    console.error('Finalize report cards error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.getReportCards = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id } = req.query;
+
+    const [currentTerm] = term_id
+      ? await pool.query('SELECT id FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id FROM terms WHERE is_current = 1 LIMIT 1');
+    const [currentSession] = session_id
+      ? await pool.query('SELECT id FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const finalTermId = currentTerm[0]?.id;
+    const finalSessionId = currentSession[0]?.id;
+
+    let query = `
+      SELECT rc.*, u.full_name, s.admission_number, c.class_name, c.section
+      FROM report_cards rc
+      JOIN students s ON rc.student_id = s.id
+      JOIN users u ON s.user_id = u.id
+      JOIN classes c ON s.class_id = c.id
+      WHERE rc.term_id = ? AND rc.session_id = ?
+    `;
+    const params = [finalTermId, finalSessionId];
+
+    if (class_id) {
+      query += ' AND s.class_id = ?';
+      params.push(class_id);
+    }
+
+    query += ' ORDER BY c.class_name, rc.class_position';
+
+    const [reports] = await pool.query(query, params);
+    res.json({ reports });
+  } catch (err) {
+    console.error('Get report cards error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.createTerm = async (req, res) => {
   try {
     const { term_name } = req.body;

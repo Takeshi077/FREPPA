@@ -23,7 +23,11 @@ const {
   updateTeacher,
   deleteTeacher,
   updateSubject,
-  deleteSubject
+  deleteSubject,
+  getClassPositions,
+  generateReportCards,
+  finalizeReportCards,
+  getReportCards
 } = require('../controllers/adminController');
 
 router.use(authenticateToken, requireRole('admin'));
@@ -57,5 +61,10 @@ router.post('/sessions', createSession);
 router.post('/students/promote', promoteStudents);
 
 router.get('/audit-log', getAuditLog);
+
+router.get('/class-positions', getClassPositions);
+router.post('/report-cards/generate', generateReportCards);
+router.put('/report-cards/finalize', finalizeReportCards);
+router.get('/report-cards', getReportCards);
 
 module.exports = router;
