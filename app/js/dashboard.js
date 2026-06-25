@@ -54,11 +54,23 @@ async function apiFetch(path, options = {}) {
         return null;
     }
 
-    const data = await res.json();
-    if (!res.ok) {
-        throw new Error(data.error || `Request failed with status ${res.status}`);
+    let text;
+    try {
+        text = await res.text();
+        const data = JSON.parse(text);
+        if (!res.ok) {
+            throw new Error(data.error || `Request failed with status ${res.status}`);
+        }
+        return data;
+    } catch (e) {
+        if (e instanceof SyntaxError) {
+            throw new Error(
+                `Invalid JSON response (${res.status}). ` +
+                (text || '').substring(0, 200)
+            );
+        }
+        throw e;
     }
-    return data;
 }
 
 function logout() {

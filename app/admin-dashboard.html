@@ -967,26 +967,31 @@
 
         // ==================== REPORT CARDS ====================
         async function populateRCFilters() {
-            const [termsData, sessionsData, classesData] = await Promise.all([
-                apiFetch('/api/admin/terms'),
-                apiFetch('/api/admin/sessions'),
-                apiFetch('/api/admin/classes')
-            ]);
-            const termSel = document.getElementById('rc-filter-term');
-            const sessionSel = document.getElementById('rc-filter-session');
-            const classSel = document.getElementById('rc-filter-class');
+            try {
+                const [termsData, sessionsData, classesData] = await Promise.all([
+                    apiFetch('/api/admin/terms'),
+                    apiFetch('/api/admin/sessions'),
+                    apiFetch('/api/admin/classes')
+                ]);
+                const termSel = document.getElementById('rc-filter-term');
+                const sessionSel = document.getElementById('rc-filter-session');
+                const classSel = document.getElementById('rc-filter-class');
 
-            termSel.innerHTML = ''; sessionSel.innerHTML = ''; classSel.innerHTML = '<option value="">All Classes</option>';
+                termSel.innerHTML = ''; sessionSel.innerHTML = ''; classSel.innerHTML = '<option value="">All Classes</option>';
 
-            (termsData.terms || []).forEach(t => {
-                termSel.innerHTML += `<option value="${t.id}" ${t.is_current ? 'selected' : ''}>${t.term_name}</option>`;
-            });
-            (sessionsData.sessions || []).forEach(s => {
-                sessionSel.innerHTML += `<option value="${s.id}" ${s.is_current ? 'selected' : ''}>${s.session_name}</option>`;
-            });
-            (classesData.classes || []).forEach(c => {
-                classSel.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section || ''}</option>`;
-            });
+                (termsData.terms || []).forEach(t => {
+                    termSel.innerHTML += `<option value="${t.id}" ${t.is_current ? 'selected' : ''}>${t.term_name}</option>`;
+                });
+                (sessionsData.sessions || []).forEach(s => {
+                    sessionSel.innerHTML += `<option value="${s.id}" ${s.is_current ? 'selected' : ''}>${s.session_name}</option>`;
+                });
+                (classesData.classes || []).forEach(c => {
+                    classSel.innerHTML += `<option value="${c.id}">${c.class_name} - ${c.section || ''}</option>`;
+                });
+            } catch (e) {
+                document.getElementById('error-message').textContent = 'Failed to load report card filters: ' + e.message;
+                document.getElementById('error-message').classList.remove('hidden');
+            }
         }
 
         document.getElementById('load-rc-btn').addEventListener('click', async function() {
