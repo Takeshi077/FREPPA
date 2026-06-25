@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = localStorage.getItem('api_base') || window.location.origin;
 
 function getToken() {
     return localStorage.getItem('token');
@@ -76,6 +76,7 @@ async function apiFetch(path, options = {}) {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('api_base');
     window.location.href = 'login.html';
 }
 

@@ -129,6 +129,7 @@
 
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('api_base', API_BASE);
 
                 successEl.textContent = 'Login successful! Redirecting...';
                 successEl.classList.remove('hidden');
