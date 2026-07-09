@@ -127,11 +127,11 @@ exports.updateResult = async (req, res) => {
     const t3 = parseFloat(test3 || 0);
     const exam = parseFloat(exam_score || 0);
 
-    if (t1 < 0 || t1 > 10 || t2 < 0 || t2 > 10 || t3 < 0 || t3 > 10) {
-      return res.status(400).json({ error: 'Each test score must be between 0 and 10.' });
+    if (t1 < 0 || t1 > 10 || t2 < 0 || t2 > 20 || t3 < 0 || t3 > 20) {
+      return res.status(400).json({ error: 'Test scores: test1 0-10, test2 & test3 0-20.' });
     }
-    if (exam < 0 || exam > 70) {
-      return res.status(400).json({ error: 'Exam score must be between 0 and 70.' });
+    if (exam < 0 || exam > 50) {
+      return res.status(400).json({ error: 'Exam score must be between 0 and 50.' });
     }
 
     const ca_score = t1 + t2 + t3;
@@ -340,12 +340,12 @@ exports.bulkUpload = async (req, res) => {
         continue;
       }
 
-      if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 10 || test3 < 0 || test3 > 10) {
-        errors.push({ row: i + 1, error: 'Test scores out of range (0-10).' });
+      if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 20 || test3 < 0 || test3 > 20) {
+        errors.push({ row: i + 1, error: 'Test scores out of range (0-10 for test1, 0-20 for test2 & test3).' });
         continue;
       }
-      if (examScore < 0 || examScore > 70) {
-        errors.push({ row: i + 1, error: 'Exam score out of range (0-70).' });
+      if (examScore < 0 || examScore > 50) {
+        errors.push({ row: i + 1, error: 'Exam score out of range (0-50).' });
         continue;
       }
 

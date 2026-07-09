@@ -320,8 +320,8 @@ exports.getReportPDF = async (req, res) => {
 
 <table class="results-table">
   <thead><tr>
-    <th>S/N</th><th style="text-align:left;">Subject</th><th>T1<br>(10)</th><th>T2<br>(10)</th><th>T3<br>(10)</th>
-    <th>CA<br>(30)</th><th>Exam<br>(70)</th><th>Total<br>(100)</th><th>Grade</th>
+    <th>S/N</th><th style="text-align:left;">Subject</th><th>T1<br>(10)</th><th>T2<br>(20)</th><th>T3<br>(20)</th>
+    <th>CA<br>(50)</th><th>Exam<br>(50)</th><th>Total<br>(100)</th><th>Grade</th>
   </tr></thead>
   <tbody>${rows}</tbody>
 </table>

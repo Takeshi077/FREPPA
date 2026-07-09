@@ -144,7 +144,7 @@
                                 <th class="p-3 w-16"><span class="hidden md:inline">1st Test (10)</span><span class="inline md:hidden">T1</span></th>
                                 <th class="p-3 w-16"><span class="hidden md:inline">2nd Test (10)</span><span class="inline md:hidden">T2</span></th>
                                 <th class="p-3 w-16"><span class="hidden md:inline">3rd Test (10)</span><span class="inline md:hidden">T3</span></th>
-                                <th class="p-3 w-20"><span class="hidden md:inline">Exam (0-70)</span><span class="inline md:hidden">Exam</span></th>
+                                <th class="p-3 w-20"><span class="hidden md:inline">Exam (0-50)</span><span class="inline md:hidden">Exam</span></th>
                                 <th class="p-3 w-20">Total</th>
                                 <th class="p-3 w-16">Grade</th>
                                 <th class="p-3 w-48 min-w-[150px]">Remarks</th>
@@ -448,17 +448,17 @@
                         </td>
                         <td class="p-3">
                             <input type="number" class="test2-input w-14 px-1 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
-                                   min="0" max="10" step="0.5" value="${r.test2 ?? ''}"
+                                   min="0" max="20" step="0.5" value="${r.test2 ?? ''}"
                                    data-student-id="${s.id}">
                         </td>
                         <td class="p-3">
                             <input type="number" class="test3-input w-14 px-1 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
-                                   min="0" max="10" step="0.5" value="${r.test3 ?? ''}"
+                                   min="0" max="20" step="0.5" value="${r.test3 ?? ''}"
                                    data-student-id="${s.id}">
                         </td>
                         <td class="p-3">
                             <input type="number" class="exam-input w-16 px-2 py-1 border border-slate-300 rounded text-center focus:ring-2 focus:ring-amber-500 outline-none"
-                                   min="0" max="70" step="0.5" value="${r.exam_score ?? ''}"
+                                   min="0" max="50" step="0.5" value="${r.exam_score ?? ''}"
                                    data-student-id="${s.id}">
                         </td>
                         <td class="p-3 font-semibold text-slate-900 total-display">${r.total_score ?? '-'}</td>
@@ -522,8 +522,8 @@
                         const exam = parseFloat(tr.querySelector('.exam-input').value) || 0;
                         const remarks = tr.querySelector('.remarks-input').value;
 
-                        if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 10 || test3 < 0 || test3 > 10) { alert('Each test score must be between 0 and 10.'); return; }
-                        if (exam < 0 || exam > 70) { alert('Exam score must be between 0 and 70.'); return; }
+                        if (test1 < 0 || test1 > 10 || test2 < 0 || test2 > 20 || test3 < 0 || test3 > 20) { alert('Test scores: test1 0-10, test2 & test3 0-20.'); return; }
+                        if (exam < 0 || exam > 50) { alert('Exam score must be between 0 and 50.'); return; }
 
                         this.disabled = true;
                         this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
