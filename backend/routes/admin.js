@@ -22,6 +22,8 @@ const {
   createTerm,
   updateTeacher,
   deleteTeacher,
+  updateStudent,
+  deleteStudent,
   updateSubject,
   deleteSubject,
   getClassPositions,
@@ -40,6 +42,8 @@ router.get('/teachers', getTeachers);
 router.put('/teachers/:id', updateTeacher);
 router.delete('/teachers/:id', deleteTeacher);
 router.get('/students', getStudents);
+router.put('/students/:id', updateStudent);
+router.delete('/students/:id', deleteStudent);
 
 router.get('/classes', getClasses);
 router.post('/classes', createClass);

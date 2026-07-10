@@ -409,6 +409,97 @@ exports.deleteTeacher = async (req, res) => {
   }
 };
 
+exports.updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { full_name, email, phone, admission_number, class_id, parent_id, date_of_birth, gender } = req.body;
+
+    const [students] = await pool.query(
+      'SELECT s.user_id FROM students s WHERE s.id = ?', [id]
+    );
+    if (students.length === 0) {
+      return res.status(404).json({ error: 'Student not found.' });
+    }
+    const userId = students[0].user_id;
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      if (full_name || email || phone) {
+        const updates = [];
+        const params = [];
+        if (full_name) { updates.push('full_name = ?'); params.push(full_name); }
+        if (email) { updates.push('email = ?'); params.push(email); }
+        if (phone !== undefined) { updates.push('phone = ?'); params.push(phone); }
+        if (updates.length > 0) {
+          params.push(userId);
+          await conn.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+        }
+      }
+
+      const sUpdates = [];
+      const sParams = [];
+      if (admission_number !== undefined) { sUpdates.push('admission_number = ?'); sParams.push(admission_number); }
+      if (class_id) { sUpdates.push('class_id = ?'); sParams.push(class_id); }
+      if (parent_id !== undefined) { sUpdates.push('parent_id = ?'); sParams.push(parent_id || null); }
+      if (date_of_birth !== undefined) { sUpdates.push('date_of_birth = ?'); sParams.push(date_of_birth || null); }
+      if (gender !== undefined) { sUpdates.push('gender = ?'); sParams.push(gender || null); }
+      if (sUpdates.length > 0) {
+        sParams.push(id);
+        await conn.query(`UPDATE students SET ${sUpdates.join(', ')} WHERE id = ?`, sParams);
+      }
+
+      await conn.commit();
+      res.json({ message: 'Student updated successfully.' });
+    } catch (err2) {
+      await conn.rollback();
+      throw err2;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Admission number already exists.' });
+    }
+    console.error('Update student error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [students] = await pool.query(
+      'SELECT s.user_id FROM students s WHERE s.id = ?', [id]
+    );
+    if (students.length === 0) {
+      return res.status(404).json({ error: 'Student not found.' });
+    }
+    const userId = students[0].user_id;
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      await conn.query('DELETE FROM students WHERE id = ?', [id]);
+      await conn.query('DELETE FROM users WHERE id = ?', [userId]);
+
+      await conn.commit();
+      res.json({ message: 'Student deleted successfully.' });
+    } catch (err2) {
+      await conn.rollback();
+      throw err2;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    console.error('Delete student error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.updateSubject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -462,7 +553,7 @@ exports.getTeachers = async (req, res) => {
 exports.getStudents = async (req, res) => {
   try {
     const [students] = await pool.query(
-      `SELECT s.id, s.admission_number, s.class_id, c.class_name,
+      `SELECT s.id, s.admission_number, s.class_id, s.parent_id, s.date_of_birth, s.gender, c.class_name,
               u.id AS user_id, u.full_name, u.email, u.phone
        FROM students s
        JOIN users u ON s.user_id = u.id

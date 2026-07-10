@@ -143,6 +143,33 @@
                     </form>
                 </div>
             </div>
+            <!-- Edit Student Modal -->
+            <div id="edit-student-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto modal-content">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Student</h3>
+                    <form id="edit-student-form" class="space-y-3">
+                        <input type="hidden" id="estd-student-id">
+                        <input type="text" id="estd-name" placeholder="Full Name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="email" id="estd-email" placeholder="Email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="estd-phone" placeholder="Phone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="estd-admission" placeholder="Admission Number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <select id="estd-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
+                        <select id="estd-parent" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">No parent</option>
+                        </select>
+                        <input type="date" id="estd-dob" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <select id="estd-gender" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                            <button type="submit" class="w-full sm:w-auto bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm">Save</button>
+                            <button type="button" onclick="hideElement(document.getElementById('edit-student-modal'))" class="w-full sm:w-auto bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Tab: Classes -->
@@ -461,6 +488,9 @@
                                 ${u.role === 'teacher' ? `
                                 <button onclick="editTeacher(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="deleteTeacher(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                                ` : u.role === 'student' ? `
+                                <button onclick="editStudent(${u.id})" class="text-xs font-semibold text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteStudent(${u.id})" class="text-xs font-semibold text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
                                 ` : ''}
                             </td>
                         </tr>`;
@@ -596,6 +626,76 @@
                 if (!teacher) { alert('Teacher record not found.'); return; }
                 await apiFetch(`/api/admin/teachers/${teacher.id}`, { method: 'DELETE' });
                 document.getElementById('success-message').textContent = 'Teacher deleted successfully!';
+                document.getElementById('success-message').classList.remove('hidden');
+                setTimeout(() => hideElement(document.getElementById('success-message')), 3000);
+                loadUsers();
+            } catch (e) { alert(e.message); }
+        };
+
+        window.editStudent = async (userId) => {
+            try {
+                const data = await apiFetch(`/api/admin/students`);
+                const student = (data.students || []).find(s => s.user_id === userId);
+                if (!student) { alert('Student record not found.'); return; }
+                document.getElementById('estd-student-id').value = student.id;
+                document.getElementById('estd-name').value = student.full_name;
+                document.getElementById('estd-email').value = student.email;
+                document.getElementById('estd-phone').value = student.phone || '';
+                document.getElementById('estd-admission').value = student.admission_number || '';
+                document.getElementById('estd-dob').value = student.date_of_birth ? student.date_of_birth.split('T')[0] : '';
+                document.getElementById('estd-gender').value = student.gender || '';
+
+                const classSel = document.getElementById('estd-class');
+                const classesData = await apiFetch('/api/admin/classes');
+                classSel.innerHTML = '';
+                (classesData.classes || []).forEach(c => {
+                    classSel.innerHTML += `<option value="${c.id}" ${c.id === student.class_id ? 'selected' : ''}>${c.class_name} - ${c.section || ''}</option>`;
+                });
+
+                const parentSel = document.getElementById('estd-parent');
+                const usersData = await apiFetch('/api/admin/users?role=parent');
+                parentSel.innerHTML = '<option value="">No parent</option>';
+                (usersData.users || []).forEach(u => {
+                    parentSel.innerHTML += `<option value="${u.id}" ${u.id === student.parent_id ? 'selected' : ''}>${u.full_name} (${u.email})</option>`;
+                });
+
+                showElement(document.getElementById('edit-student-modal'));
+            } catch (e) { alert(e.message); }
+        };
+
+        document.getElementById('edit-student-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('estd-student-id').value;
+            try {
+                await apiFetch(`/api/admin/students/${studentId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        full_name: document.getElementById('estd-name').value,
+                        email: document.getElementById('estd-email').value,
+                        phone: document.getElementById('estd-phone').value || null,
+                        admission_number: document.getElementById('estd-admission').value || null,
+                        class_id: document.getElementById('estd-class').value,
+                        parent_id: document.getElementById('estd-parent').value || null,
+                        date_of_birth: document.getElementById('estd-dob').value || null,
+                        gender: document.getElementById('estd-gender').value || null
+                    })
+                });
+                hideElement(document.getElementById('edit-student-modal'));
+                document.getElementById('success-message').textContent = 'Student updated successfully!';
+                document.getElementById('success-message').classList.remove('hidden');
+                setTimeout(() => hideElement(document.getElementById('success-message')), 3000);
+                loadUsers();
+            } catch (e) { alert(e.message); }
+        });
+
+        window.deleteStudent = async (userId) => {
+            if (!confirm('Delete this student and their user account? This will also delete all related results, attendance, and report cards. This cannot be undone.')) return;
+            try {
+                const data = await apiFetch(`/api/admin/students`);
+                const student = (data.students || []).find(s => s.user_id === userId);
+                if (!student) { alert('Student record not found.'); return; }
+                await apiFetch(`/api/admin/students/${student.id}`, { method: 'DELETE' });
+                document.getElementById('success-message').textContent = 'Student deleted successfully!';
                 document.getElementById('success-message').classList.remove('hidden');
                 setTimeout(() => hideElement(document.getElementById('success-message')), 3000);
                 loadUsers();
