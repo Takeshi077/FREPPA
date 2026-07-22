@@ -1263,28 +1263,44 @@
                 }
 
                 grid.innerHTML = '';
-                students.forEach((s, i) => {
+                const grouped = {};
+                students.forEach(s => {
+                    const key = s.class_name + ' - ' + (s.section || '');
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(s);
+                });
+
+                const medals = [
+                    { bg: 'bg-amber-500', text: '#1', label: '1st', border: 'border-amber-300' },
+                    { bg: 'bg-slate-400', text: '#2', label: '2nd', border: 'border-slate-300' },
+                    { bg: 'bg-amber-700', text: '#3', label: '3rd', border: 'border-amber-600' },
+                ];
+
+                Object.entries(grouped).forEach(([className, students]) => {
+                    let rows = '';
+                    students.forEach((s, i) => {
+                        const m = medals[i] || medals[0];
+                        rows += `
+                            <div class="flex items-center gap-3 py-2 ${i < students.length - 1 ? 'border-b border-amber-100' : ''}">
+                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full ${m.bg} text-white text-xs font-bold shrink-0">${m.text}</span>
+                                <div class="flex-grow min-w-0">
+                                    <p class="font-semibold text-slate-900 text-sm truncate">${s.full_name}</p>
+                                    <p class="text-xs text-slate-500">${s.admission_number}</p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="text-sm font-bold text-amber-700">${s.grand_total || 0}</p>
+                                    <p class="text-xs text-slate-500">Avg: ${s.average || 0}</p>
+                                </div>
+                            </div>`;
+                    });
+
                     grid.innerHTML += `
-                        <div class="bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-md border border-amber-200 p-5 relative overflow-hidden">
-                            <div class="absolute top-3 right-3">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500 text-white text-sm font-bold">#1</span>
+                        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                            <div class="bg-slate-900 text-white px-4 py-2.5">
+                                <h3 class="font-bold text-sm">${className}</h3>
                             </div>
-                            <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">${s.class_name} - ${s.section || ''}</p>
-                            <h3 class="text-lg font-bold text-slate-900 mb-1 pr-10">${s.full_name}</h3>
-                            <p class="text-xs text-slate-500 mb-3">Admission: ${s.admission_number}</p>
-                            <div class="grid grid-cols-3 gap-2 text-center border-t border-amber-200 pt-3">
-                                <div>
-                                    <p class="text-lg font-bold text-amber-700">${s.grand_total || 0}</p>
-                                    <p class="text-xs text-slate-500">Total</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-bold text-amber-700">${s.average || 0}</p>
-                                    <p class="text-xs text-slate-500">Average</p>
-                                </div>
-                                <div>
-                                    <p class="text-lg font-bold text-amber-700">${s.subjects_taken || 0}</p>
-                                    <p class="text-xs text-slate-500">Subjects</p>
-                                </div>
+                            <div class="p-4 space-y-0">
+                                ${rows}
                             </div>
                         </div>`;
                 });

@@ -801,7 +801,7 @@ exports.getBestStudents = async (req, res) => {
     }
 
     const query = `
-      SELECT class_name, section, full_name, admission_number, grand_total, average, subjects_taken
+      SELECT class_name, section, full_name, admission_number, grand_total, average, subjects_taken, position
       FROM (
         SELECT c.class_name, c.section, u.full_name, s.admission_number,
                ROUND(SUM(r.total_score), 2) AS grand_total,
@@ -815,8 +815,8 @@ exports.getBestStudents = async (req, res) => {
         WHERE r.term_id = ? AND r.session_id = ?
         GROUP BY s.id, u.full_name, s.admission_number, c.class_name, c.section, s.class_id
       ) ranked
-      WHERE position = 1
-      ORDER BY class_name
+      WHERE position <= 3
+      ORDER BY class_name, position
     `;
 
     const [bestStudents] = await pool.query(query, [finalTermId, finalSessionId]);
