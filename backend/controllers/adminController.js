@@ -782,6 +782,56 @@ exports.getReportCards = async (req, res) => {
   }
 };
 
+exports.getBestStudents = async (req, res) => {
+  try {
+    const { term_id, session_id } = req.query;
+
+    const [currentTerm] = term_id
+      ? await pool.query('SELECT id, term_name FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id, term_name FROM terms WHERE is_current = 1 LIMIT 1');
+    const [currentSession] = session_id
+      ? await pool.query('SELECT id, session_name FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id, session_name FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const finalTermId = currentTerm[0]?.id;
+    const finalSessionId = currentSession[0]?.id;
+
+    if (!finalTermId || !finalSessionId) {
+      return res.json({ term: null, session: null, best_students: [] });
+    }
+
+    const query = `
+      SELECT class_name, section, full_name, admission_number, grand_total, average, subjects_taken
+      FROM (
+        SELECT c.class_name, c.section, u.full_name, s.admission_number,
+               ROUND(SUM(r.total_score), 2) AS grand_total,
+               ROUND(AVG(r.total_score), 2) AS average,
+               COUNT(r.subject_id) AS subjects_taken,
+               RANK() OVER (PARTITION BY s.class_id ORDER BY SUM(r.total_score) DESC) AS position
+        FROM results r
+        JOIN students s ON r.student_id = s.id
+        JOIN users u ON s.user_id = u.id
+        JOIN classes c ON s.class_id = c.id
+        WHERE r.term_id = ? AND r.session_id = ?
+        GROUP BY s.id, u.full_name, s.admission_number, c.class_name, c.section, s.class_id
+      ) ranked
+      WHERE position = 1
+      ORDER BY class_name
+    `;
+
+    const [bestStudents] = await pool.query(query, [finalTermId, finalSessionId]);
+
+    res.json({
+      term: currentTerm[0] || null,
+      session: currentSession[0] || null,
+      best_students: bestStudents,
+    });
+  } catch (err) {
+    console.error('Get best students error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 exports.createTerm = async (req, res) => {
   try {
     const { term_name } = req.body;

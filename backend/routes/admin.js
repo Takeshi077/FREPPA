@@ -29,7 +29,8 @@ const {
   getClassPositions,
   generateReportCards,
   finalizeReportCards,
-  getReportCards
+  getReportCards,
+  getBestStudents
 } = require('../controllers/adminController');
 
 router.use(authenticateToken, requireRole('admin'));
@@ -67,6 +68,7 @@ router.post('/students/promote', promoteStudents);
 router.get('/audit-log', getAuditLog);
 
 router.get('/class-positions', getClassPositions);
+router.get('/best-students', getBestStudents);
 router.post('/report-cards/generate', generateReportCards);
 router.put('/report-cards/finalize', finalizeReportCards);
 router.get('/report-cards', getReportCards);
