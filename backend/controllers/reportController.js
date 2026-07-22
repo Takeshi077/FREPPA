@@ -116,14 +116,14 @@ exports.getReportCardByChild = async (req, res) => {
     const { term_id, session_id } = req.query;
 
     const [studentRows] = await pool.query(
-      'SELECT id, class_id FROM students WHERE id = ? AND parent_id = ?',
+      'SELECT id, user_id, class_id FROM students WHERE id = ? AND parent_id = ?',
       [childId, req.user.id]
     );
     if (studentRows.length === 0) {
       return res.status(403).json({ error: 'You can only view reports for your own children.' });
     }
 
-    req.user.id = childId;
+    req.user.id = studentRows[0].user_id;
     req.query.term_id = term_id;
     req.query.session_id = session_id;
     return exports.getReportCard(req, res);

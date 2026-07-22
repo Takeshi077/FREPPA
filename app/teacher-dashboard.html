@@ -543,12 +543,10 @@
                                     remarks
                                 })
                             });
-                            showSuccess(document.getElementById('global-success'));
-                            document.getElementById('global-success').textContent = 'Result saved for ' + tr.querySelector('td:nth-child(3)').textContent;
+                            showSuccess('Result saved for ' + tr.querySelector('td:nth-child(3)').textContent, document.getElementById('global-success'));
                             setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
                         } catch (e) {
-                            showError(document.getElementById('global-error'));
-                            document.getElementById('global-error').textContent = e.message;
+                            showError(e.message, document.getElementById('global-error'));
                             setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
                         } finally {
                             this.disabled = false;
@@ -703,12 +701,10 @@
                                     domains
                                 })
                             });
-                            showSuccess(document.getElementById('global-success'));
-                            document.getElementById('global-success').textContent = 'Domains saved for ' + this.closest('tr').querySelector('td:first-child').textContent;
+                            showSuccess('Domains saved for ' + this.closest('tr').querySelector('td:first-child').textContent, document.getElementById('global-success'));
                             setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
                         } catch (e) {
-                            showError(document.getElementById('global-error'));
-                            document.getElementById('global-error').textContent = e.message;
+                            showError(e.message, document.getElementById('global-error'));
                             setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
                         } finally {
                             this.disabled = false;
@@ -806,12 +802,10 @@
                     method: 'POST',
                     body: JSON.stringify(body)
                 });
-                showSuccess(document.getElementById('global-success'));
-                document.getElementById('global-success').textContent = 'Attendance saved successfully!';
+                showSuccess('Attendance saved successfully!', document.getElementById('global-success'));
                 setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
             } catch (e) {
-                showError(document.getElementById('global-error'));
-                document.getElementById('global-error').textContent = e.message;
+                showError(e.message, document.getElementById('global-error'));
                 setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
             } finally {
                 this.disabled = false;
