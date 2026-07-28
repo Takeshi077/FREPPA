@@ -324,7 +324,7 @@ exports.getReportPDF = async (req, res) => {
   <p>Plot 4, Freppa Avenue, Off Lagos Road, Ibadan, Oyo State</p>
   <p>Phone: 08012345678 | Email: info@freppagroupofschools.edu</p>
 </div>
-<div class="title">REPORT CARD</div>
+
 <table class="info-table">
   <tr><td class="label">Student Name:</td><td>${student?.full_name || ''}</td>
       <td class="label">Admission No:</td><td>${student?.admission_number || ''}</td></tr>

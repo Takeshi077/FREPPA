@@ -141,7 +141,7 @@
                             <th class="p-2 font-bold">Total</th>
                             <th class="p-2">Grade</th>
                             <th class="p-2">Remarks</th>
-                            <th class="p-2">Term</th>
+                            <th class="p-2 print-hide">Term</th>
                         </tr>
                     </thead>
                     <tbody id="results-tbody" class="divide-y divide-slate-200">
@@ -249,7 +249,7 @@
                         <td class="p-2 font-bold text-slate-900">${r.total_score ?? '-'}</td>
                         <td class="p-2"><span class="inline-block px-1.5 py-0.5 rounded text-xs font-bold ${getGradeClass(r.grade)}">${r.grade || '-'}</span></td>
                         <td class="p-2 text-slate-600">${r.remarks || getRemark(r.grade)}</td>
-                        <td class="p-2 text-slate-400">${r.term_name}</td>
+                        <td class="p-2 text-slate-400 print-hide">${r.term_name}</td>
                     `;
                     tbody.appendChild(tr);
                 });
