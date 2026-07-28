@@ -124,6 +124,8 @@ exports.getReportCard = async (req, res) => {
         average: average.toFixed(2),
         position: rankings[0]?.position || null,
         total_students: countResult[0]?.count || 0,
+        teacher_remark: getTeacherRemark(average),
+        promotion_status: getPromotionStatus(average),
       },
       attendance: attendance[0] || { present: 0, absent: 0, excused: 0 },
       report_meta: report[0] || null,
