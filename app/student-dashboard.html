@@ -19,7 +19,47 @@
             .print-only { display: block !important; }
             .print-hide { display: none !important; }
             .print-block { display: block !important; }
-            body { background: white; font-size: 10px !important; line-height: 1.25 !important; }
+            
+            /* Squeeze spacing for single page print */
+            body { background: white; font-size: 9px !important; line-height: 1.2 !important; color: #222 !important; }
+            main { padding-top: 0 !important; padding-bottom: 0 !important; margin: 0 !important; }
+            
+            .mb-4 { margin-bottom: 0.2rem !important; }
+            .mt-4 { margin-top: 0.2rem !important; }
+            .py-3 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+            .px-4 { padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+            .p-4 { padding: 0.35rem !important; }
+            .p-6 { padding: 0.5rem !important; }
+            
+            /* School Header */
+            img.mx-auto { width: 1.5rem !important; height: 1.5rem !important; margin-bottom: 2px !important; }
+            h1.text-sm { font-size: 10px !important; }
+            p.text-xs { font-size: 7.5px !important; }
+            
+            /* Profile Card */
+            #avatar-letter { width: 1.75rem !important; height: 1.75rem !important; font-size: 0.8rem !important; }
+            #profile-name { font-size: 9px !important; }
+            #profile-detail { font-size: 7.5px !important; }
+            
+            /* Filters/Session Card */
+            #filter-session, #filter-term { padding: 2px 4px !important; font-size: 8px !important; height: auto !important; width: auto !important; border: 1px solid #ccc !important; }
+            label { font-size: 7.5px !important; margin-bottom: 1px !important; }
+            
+            /* Table formatting */
+            table th { padding: 3px 4px !important; font-size: 8px !important; }
+            table td { padding: 3px 4px !important; font-size: 8px !important; }
+            .p-2 { padding: 3px 4px !important; }
+            
+            /* Teacher Remarks Card */
+            #teacher-remark-card { padding: 0.4rem !important; border-left-width: 3px !important; }
+            #teacher-remark-text { font-size: 9px !important; }
+            #summary-promotion { font-size: 9px !important; }
+            .text-xs { font-size: 7.5px !important; }
+            
+            /* Hide shadows for cleaner print */
+            .shadow-sm, .shadow-md { box-shadow: none !important; }
+            .border { border-color: #e2e8f0 !important; }
+        }
             main { padding-top: 0 !important; padding-bottom: 0 !important; }
             .mb-4 { margin-bottom: 0.25rem !important; }
             .mt-4 { margin-top: 0.25rem !important; }
