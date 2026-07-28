@@ -10,6 +10,11 @@ function calculateGrade(total) {
   return 'F';
 }
 
+function calculateRemark(grade) {
+  const map = { A: 'Distinction', B: 'Very Good', C: 'Good', D: 'Average', E: 'Pass', F: 'Fail' };
+  return map[grade] || null;
+}
+
 exports.getSubjects = async (req, res) => {
   try {
     const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
@@ -137,6 +142,7 @@ exports.updateResult = async (req, res) => {
     const ca_score = t1 + t2 + t3;
     const total = ca_score + exam;
     const grade = calculateGrade(total);
+    const autoRemark = calculateRemark(grade);
 
     const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
     if (teacherRows.length === 0) {
@@ -163,7 +169,7 @@ exports.updateResult = async (req, res) => {
         `UPDATE results
          SET test1 = ?, test2 = ?, test3 = ?, ca_score = ?, exam_score = ?, grade = ?, remarks = ?, updated_by_teacher_id = ?
          WHERE id = ?`,
-        [t1, t2, t3, ca_score, exam, grade, remarks || null, teacherId, existing[0].id]
+        [t1, t2, t3, ca_score, exam, grade, autoRemark, teacherId, existing[0].id]
       );
 
       await pool.query(
@@ -173,7 +179,7 @@ exports.updateResult = async (req, res) => {
           existing[0].id,
           teacherId,
           JSON.stringify(oldData),
-          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks }),
+          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks: autoRemark }),
           req.ip
         ]
       );
@@ -188,7 +194,7 @@ exports.updateResult = async (req, res) => {
       const [insertResult] = await pool.query(
         `INSERT INTO results (student_id, subject_id, term_id, session_id, test1, test2, test3, ca_score, exam_score, grade, remarks, updated_by_teacher_id)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [student_id, subject_id, term_id, session_id, t1, t2, t3, ca_score, exam, grade, remarks || null, teacherId]
+        [student_id, subject_id, term_id, session_id, t1, t2, t3, ca_score, exam, grade, autoRemark, teacherId]
       );
 
       await pool.query(
@@ -197,7 +203,7 @@ exports.updateResult = async (req, res) => {
         [
           insertResult.insertId,
           teacherId,
-          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks }),
+          JSON.stringify({ test1: t1, test2: t2, test3: t3, exam_score: exam, ca_score, total, grade, remarks: autoRemark }),
           req.ip
         ]
       );
@@ -376,6 +382,7 @@ exports.bulkUpload = async (req, res) => {
 
       const total = caScore + examScore;
       const grade = calculateGrade(total);
+      const autoRemark = calculateRemark(grade);
 
       try {
         await pool.query(
@@ -384,7 +391,7 @@ exports.bulkUpload = async (req, res) => {
            ON DUPLICATE KEY UPDATE test1 = VALUES(test1), test2 = VALUES(test2), test3 = VALUES(test3),
            ca_score = VALUES(ca_score), exam_score = VALUES(exam_score),
            grade = VALUES(grade), remarks = VALUES(remarks), updated_by_teacher_id = VALUES(updated_by_teacher_id)`,
-          [studentRows[0].id, subjectRows[0].id, termId, sessionId, test1, test2, test3, caScore, examScore, grade, remarksRow, teacherId]
+          [studentRows[0].id, subjectRows[0].id, termId, sessionId, test1, test2, test3, caScore, examScore, grade, autoRemark, teacherId]
         );
         results.push({ row: i + 1, admissionNumber, status: 'success' });
       } catch (dbErr) {

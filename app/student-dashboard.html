@@ -150,6 +150,11 @@
         const isParent = user.role === 'parent';
         let selectedChildId = null;
 
+        function getRemark(grade) {
+            const map = { A: 'Distinction', B: 'Very Good', C: 'Good', D: 'Average', E: 'Pass', F: 'Fail' };
+            return map[grade] || '-';
+        }
+
         document.getElementById('nav-username').textContent = user.full_name;
         document.getElementById('nav-username').classList.remove('hidden');
 
@@ -233,7 +238,7 @@
                         <td class="p-2">${r.exam_score ?? '-'}</td>
                         <td class="p-2 font-bold text-slate-900">${r.total_score ?? '-'}</td>
                         <td class="p-2"><span class="inline-block px-1.5 py-0.5 rounded text-xs font-bold ${getGradeClass(r.grade)}">${r.grade || '-'}</span></td>
-                        <td class="p-2 text-slate-600">${r.remarks || '-'}</td>
+                        <td class="p-2 text-slate-600">${r.remarks || getRemark(r.grade)}</td>
                         <td class="p-2 text-slate-400">${r.term_name}</td>
                     `;
                     tbody.appendChild(tr);

@@ -1,5 +1,10 @@
 const pool = require('../config/db');
 
+function calculateRemark(grade) {
+  const map = { A: 'Distinction', B: 'Very Good', C: 'Good', D: 'Average', E: 'Pass', F: 'Fail' };
+  return map[grade] || null;
+}
+
 exports.getProfile = async (req, res) => {
   try {
     const [students] = await pool.query(
@@ -70,7 +75,8 @@ exports.getResults = async (req, res) => {
 
     query += ' ORDER BY s.session_name, t.id, sub.subject_name';
 
-    const [results] = await pool.query(query, params);
+    let [results] = await pool.query(query, params);
+    results = results.map(r => ({ ...r, remarks: r.remarks || calculateRemark(r.grade) }));
 
     const [sessions] = await pool.query('SELECT id, session_name, is_current FROM sessions ORDER BY id DESC');
     const [terms] = await pool.query('SELECT id, term_name, is_current FROM terms ORDER BY id');
@@ -159,7 +165,8 @@ exports.getChildResults = async (req, res) => {
 
     query += ' ORDER BY s.session_name, t.id, sub.subject_name';
 
-    const [results] = await pool.query(query, params);
+    let [results] = await pool.query(query, params);
+    results = results.map(r => ({ ...r, remarks: r.remarks || calculateRemark(r.grade) }));
 
     const [sessions] = await pool.query('SELECT id, session_name, is_current FROM sessions ORDER BY id DESC');
     const [terms] = await pool.query('SELECT id, term_name, is_current FROM terms ORDER BY id');

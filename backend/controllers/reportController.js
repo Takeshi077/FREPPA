@@ -9,6 +9,11 @@ function calculateGrade(total) {
   return 'F';
 }
 
+function calculateRemark(grade) {
+  const map = { A: 'Distinction', B: 'Very Good', C: 'Good', D: 'Average', E: 'Pass', F: 'Fail' };
+  return map[grade] || null;
+}
+
 exports.getReportCard = async (req, res) => {
   try {
     const { term_id, session_id } = req.query;
@@ -27,7 +32,7 @@ exports.getReportCard = async (req, res) => {
     const termId = term_id || (await getCurrentTermId());
     const sessionId = session_id || (await getCurrentSessionId());
 
-    const [results] = await pool.query(`
+    let [results] = await pool.query(`
       SELECT sub.subject_name, sub.subject_code,
              r.test1, r.test2, r.test3, r.ca_score, r.exam_score,
              r.total_score, r.grade, r.remarks
@@ -36,6 +41,11 @@ exports.getReportCard = async (req, res) => {
       WHERE r.student_id = ? AND r.term_id = ? AND r.session_id = ?
       ORDER BY sub.subject_name
     `, [studentId, termId, sessionId]);
+
+    results = results.map(r => ({
+      ...r,
+      remarks: r.remarks || calculateRemark(r.grade)
+    }));
 
     const [domains] = await pool.query(`
       SELECT * FROM result_domains
@@ -178,7 +188,7 @@ exports.getReportPDF = async (req, res) => {
     const termId = term_id || (await getCurrentTermId());
     const sessionId = session_id || (await getCurrentSessionId());
 
-    const [results] = await pool.query(`
+    let [results] = await pool.query(`
       SELECT sub.subject_name, sub.subject_code,
              r.test1, r.test2, r.test3, r.ca_score, r.exam_score,
              r.total_score, r.grade, r.remarks
@@ -187,6 +197,11 @@ exports.getReportPDF = async (req, res) => {
       WHERE r.student_id = ? AND r.term_id = ? AND r.session_id = ?
       ORDER BY sub.subject_name
     `, [studentId, termId, sessionId]);
+
+    results = results.map(r => ({
+      ...r,
+      remarks: r.remarks || calculateRemark(r.grade)
+    }));
 
     const [domains] = await pool.query(`
       SELECT * FROM result_domains
@@ -277,6 +292,7 @@ exports.getReportPDF = async (req, res) => {
         <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
         <td style="padding:6px 8px;text-align:center;font-size:11px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
         <td style="padding:6px 8px;text-align:center;font-size:11px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
+        <td style="padding:6px 8px;font-size:11px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
       </tr>`;
     });
 
@@ -321,7 +337,7 @@ exports.getReportPDF = async (req, res) => {
 <table class="results-table">
   <thead><tr>
     <th>S/N</th><th style="text-align:left;">Subject</th><th>T1<br>(10)</th><th>T2<br>(20)</th><th>T3<br>(20)</th>
-    <th>CA<br>(50)</th><th>Exam<br>(50)</th><th>Total<br>(100)</th><th>Grade</th>
+    <th>CA<br>(50)</th><th>Exam<br>(50)</th><th>Total<br>(100)</th><th>Grade</th><th>Remarks</th>
   </tr></thead>
   <tbody>${rows}</tbody>
 </table>
