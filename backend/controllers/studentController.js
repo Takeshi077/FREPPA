@@ -5,6 +5,13 @@ function calculateRemark(grade) {
   return map[grade] || null;
 }
 
+function getPromotionStatus(average) {
+  const avg = parseFloat(average);
+  if (avg >= 90) return 'Promoted with Distinction';
+  if (avg >= 40) return 'Promoted with Merit';
+  return 'Advised to Repeat';
+}
+
 exports.getProfile = async (req, res) => {
   try {
     const [students] = await pool.query(
