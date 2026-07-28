@@ -97,7 +97,7 @@
 
         <!-- Summary -->
         <div id="summary-card" class="hidden bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-2xl shadow-md p-6 mb-4 print-hide">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 text-center">
+            <div class="grid grid-cols-3 gap-2 md:gap-4 text-center">
                 <div>
                     <p class="text-2xl md:text-3xl font-bold" id="summary-subjects">0</p>
                     <p class="text-sm font-semibold opacity-75">Subjects</p>
@@ -109,10 +109,6 @@
                 <div>
                     <p class="text-2xl md:text-3xl font-bold" id="summary-average">0.00</p>
                     <p class="text-sm font-semibold opacity-75">Average</p>
-                </div>
-                <div>
-                    <p class="text-sm md:text-base font-bold" id="summary-promotion">-</p>
-                    <p class="text-sm font-semibold opacity-75">Promotion Status</p>
                 </div>
             </div>
         </div>
@@ -145,10 +141,18 @@
             </div>
         </div>
 
-        <!-- Teacher Remark -->
-        <div id="teacher-remark-card" class="hidden bg-white border-l-4 border-amber-500 rounded-xl shadow-sm p-4 mt-4 print-hide">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Teacher's Remark</p>
-            <p class="text-base font-medium text-slate-900" id="teacher-remark-text">-</p>
+        <!-- Teacher Remark & Promotion Status -->
+        <div id="teacher-remark-card" class="hidden bg-white border-l-4 border-amber-500 rounded-xl shadow-sm p-4 mt-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div class="flex-1">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Teacher's Remark</p>
+                    <p class="text-base font-medium text-slate-900" id="teacher-remark-text">-</p>
+                </div>
+                <div class="flex-1 md:text-right">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Promotion Status</p>
+                    <p class="text-base font-bold text-slate-900" id="summary-promotion">-</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -259,9 +263,9 @@
                     document.getElementById('summary-subjects').textContent = data.summary.total_subjects;
                     document.getElementById('summary-total').textContent = data.summary.total_score;
                     document.getElementById('summary-average').textContent = data.summary.average;
-                    document.getElementById('summary-promotion').textContent = data.summary.promotion_status || '-';
                     document.getElementById('summary-card').classList.remove('hidden');
                     document.getElementById('teacher-remark-text').textContent = data.summary.teacher_remark || '-';
+                    document.getElementById('summary-promotion').textContent = data.summary.promotion_status || '-';
                     document.getElementById('teacher-remark-card').classList.remove('hidden');
                 }
 

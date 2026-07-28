@@ -84,6 +84,20 @@ exports.getReportCard = async (req, res) => {
     const grandTotal = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
     const average = results.length > 0 ? (grandTotal / results.length) : 0;
 
+    function getTeacherRemark(avg) {
+      if (avg >= 90) return 'Excellent result. Keep up the great work.';
+      if (avg >= 75) return 'Very good result. You are doing well.';
+      if (avg >= 60) return 'Good result. You can put in more effort.';
+      if (avg >= 45) return 'Fair result. You need to work harder.';
+      if (avg >= 40) return 'Average result. Put in more effort to improve.';
+      return 'Unsatisfactory result. You need to work much harder.';
+    }
+    function getPromotionStatus(avg) {
+      if (avg >= 90) return 'Promoted with Distinction';
+      if (avg >= 40) return 'Promoted with Merit';
+      return 'Advised to Repeat';
+    }
+
     const [report] = await pool.query(`
       SELECT * FROM report_cards
       WHERE student_id = ? AND term_id = ? AND session_id = ?
@@ -231,7 +245,13 @@ exports.getReportPDF = async (req, res) => {
       if (avg >= 40) return 'Average result. Put in more effort to improve.';
       return 'Unsatisfactory result. You need to work much harder.';
     }
+    function getPromotionStatus(avg) {
+      if (avg >= 90) return 'Promoted with Distinction';
+      if (avg >= 40) return 'Promoted with Merit';
+      return 'Advised to Repeat';
+    }
     const teacherRemark = getTeacherRemark(average);
+    const promotionStatus = getPromotionStatus(average);
 
     const [report] = await pool.query(`
       SELECT * FROM report_cards
@@ -357,7 +377,7 @@ exports.getReportPDF = async (req, res) => {
   &nbsp;|&nbsp; Position: ${meta.class_position || '-'}/${meta.total_students || '-'}
 </div>
 
-<p style="font-size:11px;margin:6px 0;font-style:italic;color:#333;"><strong>Teacher's Remark:</strong> ${teacherRemark}</p>
+<p style="font-size:11px;margin:6px 0;font-style:italic;color:#333;"><strong>Teacher's Remark:</strong> ${teacherRemark} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Promotion Status:</strong> ${promotionStatus}</p>
 
 <h3 style="font-size:12px;margin:8px 0 4px;">Affective & Psychomotor Domain</h3>
 <table class="domains-table">${domainRows}</table>
