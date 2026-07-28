@@ -223,6 +223,16 @@ exports.getReportPDF = async (req, res) => {
     const grandTotal = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
     const average = results.length > 0 ? (grandTotal / results.length) : 0;
 
+    function getTeacherRemark(avg) {
+      if (avg >= 90) return 'Excellent result. Keep up the great work.';
+      if (avg >= 75) return 'Very good result. You are doing well.';
+      if (avg >= 60) return 'Good result. You can put in more effort.';
+      if (avg >= 45) return 'Fair result. You need to work harder.';
+      if (avg >= 40) return 'Average result. Put in more effort to improve.';
+      return 'Unsatisfactory result. You need to work much harder.';
+    }
+    const teacherRemark = getTeacherRemark(average);
+
     const [report] = await pool.query(`
       SELECT * FROM report_cards
       WHERE student_id = ? AND term_id = ? AND session_id = ?
@@ -342,10 +352,12 @@ exports.getReportPDF = async (req, res) => {
   <tbody>${rows}</tbody>
 </table>
 
-<div class="summary">
+    <div class="summary">
   Grand Total: ${grandTotal.toFixed(2)} &nbsp;|&nbsp; Subjects: ${results.length} &nbsp;|&nbsp; Average: ${average.toFixed(2)}
   &nbsp;|&nbsp; Position: ${meta.class_position || '-'}/${meta.total_students || '-'}
 </div>
+
+<p style="font-size:11px;margin:6px 0;font-style:italic;color:#333;"><strong>Teacher's Remark:</strong> ${teacherRemark}</p>
 
 <h3 style="font-size:12px;margin:8px 0 4px;">Affective & Psychomotor Domain</h3>
 <table class="domains-table">${domainRows}</table>
