@@ -17,6 +17,7 @@
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
+            .print-hide { display: none !important; }
             body { background: white; }
             .page-break { page-break-before: always; }
         }
@@ -254,12 +255,12 @@
 
                 <!-- Remarks -->
                 <div class="space-y-4 mb-6">
-                    <div class="border-t border-slate-200 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div class="border-t border-slate-200 pt-4 flex flex-row items-center justify-between">
                         <div>
                             <p class="text-sm font-semibold text-slate-700">Teacher's Remark:</p>
                             <p class="text-sm text-slate-600 mt-1">${summary?.teacher_remark || '-'}</p>
                         </div>
-                        <div class="sm:text-right">
+                        <div class="text-right">
                             <p class="text-sm font-semibold text-slate-700">Promotion Status:</p>
                             <p class="text-sm text-slate-600 mt-1">${summary?.promotion_status || '-'}</p>
                         </div>

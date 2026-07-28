@@ -191,15 +191,30 @@ exports.getReportHistory = async (req, res) => {
 exports.getReportPDF = async (req, res) => {
   try {
     const { term_id, session_id } = req.query;
+    const { childId } = req.params;
 
-    const [studentRows] = await pool.query(
-      'SELECT id, class_id FROM students WHERE user_id = ?',
-      [req.user.id]
-    );
-    if (studentRows.length === 0) {
-      return res.status(404).json({ error: 'Student profile not found.' });
+    let studentId;
+
+    if (childId) {
+      // Validate parent-child relationship
+      const [studentRows] = await pool.query(
+        'SELECT id, class_id FROM students WHERE id = ? AND parent_id = ?',
+        [childId, req.user.id]
+      );
+      if (studentRows.length === 0) {
+        return res.status(403).json({ error: 'You can only view reports for your own children.' });
+      }
+      studentId = studentRows[0].id;
+    } else {
+      const [studentRows] = await pool.query(
+        'SELECT id, class_id FROM students WHERE user_id = ?',
+        [req.user.id]
+      );
+      if (studentRows.length === 0) {
+        return res.status(404).json({ error: 'Student profile not found.' });
+      }
+      studentId = studentRows[0].id;
     }
-    const studentId = studentRows[0].id;
 
     const termId = term_id || (await getCurrentTermId());
     const sessionId = session_id || (await getCurrentSessionId());
@@ -379,7 +394,10 @@ exports.getReportPDF = async (req, res) => {
   &nbsp;|&nbsp; Position: ${meta.class_position || '-'}/${meta.total_students || '-'}
 </div>
 
-<p style="font-size:11px;margin:6px 0;font-style:italic;color:#333;"><strong>Teacher's Remark:</strong> ${teacherRemark} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Promotion Status:</strong> ${promotionStatus}</p>
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin:6px 0;font-style:italic;color:#333;border-bottom:1px solid #eee;padding-bottom:4px;">
+  <div><strong>Teacher's Remark:</strong> ${teacherRemark}</div>
+  <div><strong>Promotion Status:</strong> ${promotionStatus}</div>
+</div>
 
 <h3 style="font-size:12px;margin:8px 0 4px;">Affective & Psychomotor Domain</h3>
 <table class="domains-table">${domainRows}</table>
