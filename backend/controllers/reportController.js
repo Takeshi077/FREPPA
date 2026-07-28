@@ -312,7 +312,7 @@ exports.getReportPDF = async (req, res) => {
     let rowHtml = '<tr>';
     domainFields.forEach(f => {
       const val = domain[f.key] || '-';
-      rowHtml += `<td style="padding:4px 8px;font-size:10px;">${f.label}: <strong>${val}</strong></td>`;
+      rowHtml += `<td style="padding:2.5px 5px;font-size:7.5px;">${f.label}: <strong>${val}</strong></td>`;
       count++;
       if (count % 3 === 0) {
         domainRows += rowHtml + '</tr>';
@@ -321,7 +321,7 @@ exports.getReportPDF = async (req, res) => {
     });
     if (count % 3 !== 0) {
       while (count % 3 !== 0) {
-        rowHtml += '<td style="padding:4px 8px;font-size:10px;"></td>';
+        rowHtml += '<td style="padding:2.5px 5px;font-size:7.5px;"></td>';
         count++;
       }
       domainRows += rowHtml + '</tr>';
@@ -330,41 +330,42 @@ exports.getReportPDF = async (req, res) => {
     let rows = '';
     results.forEach((r, i) => {
       rows += `<tr>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${i + 1}</td>
-        <td style="padding:2px 4px;font-size:9px;border-bottom:1px solid #ddd;">${r.subject_name}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test1 ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test2 ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test3 ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.ca_score ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
-        <td style="padding:2px 4px;text-align:center;font-size:9px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
-        <td style="padding:2px 4px;font-size:9px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${i + 1}</td>
+        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${r.subject_name}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test1 ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test2 ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test3 ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.ca_score ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
+        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
       </tr>`;
     });
 
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
  <style>
-  body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 0; color: #222; font-size: 10px; }
-  .header { text-align: center; border-bottom: 1px solid #1b6b1b; padding-bottom: 4px; margin-bottom: 4px; }
-  .header h1 { color: #1b6b1b; margin: 0; font-size: 14px; }
-  .header p { margin: 1px 0; font-size: 8px; color: #555; }
-  .title { text-align: center; font-size: 12px; font-weight: bold; margin: 4px 0; text-decoration: underline; }
-  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-  .info-table td { padding: 1px 6px; font-size: 9px; }
-  .info-table .label { font-weight: bold; width: 100px; }
-  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-  .results-table th { background: #1b6b1b; color: #fff; padding: 3px 4px; font-size: 8px; text-align: center; }
+  body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 0; color: #222; font-size: 8.5px; line-height: 1.2; }
+  .header { text-align: center; border-bottom: 1px solid #1b6b1b; padding-bottom: 2px; margin-bottom: 2px; }
+  .header h1 { color: #1b6b1b; margin: 0; font-size: 11px; }
+  .header p { margin: 0.5px 0; font-size: 7.5px; color: #555; }
+  .title { text-align: center; font-size: 10px; font-weight: bold; margin: 2px 0; text-decoration: underline; }
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
+  .info-table td { padding: 1px 4px; font-size: 8px; }
+  .info-table .label { font-weight: bold; width: 80px; }
+  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
+  .results-table th { background: #1b6b1b; color: #fff; padding: 2px 3px; font-size: 7.5px; text-align: center; }
   .results-table th:first-child { text-align: center; }
   .results-table th:nth-child(2) { text-align: left; }
   .results-table td:nth-child(2) { text-align: left; }
-  .summary { text-align: center; font-size: 9px; font-weight: bold; margin: 4px 0; padding: 3px; border: 1px solid #1b6b1b; background: #f0f7f0; }
-  .domains-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .summary { text-align: center; font-size: 8px; font-weight: bold; margin: 2px 0; padding: 2px; border: 1px solid #1b6b1b; background: #f0f7f0; }
+  .domains-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
   .domains-table td { border: 1px solid #ddd; }
-  .remarks { margin-top: 4px; font-size: 9px; }
+  .remarks { margin-top: 2px; font-size: 8px; }
+  .remarks p { margin: 1.5px 0; }
   .remarks .line { border-bottom: 1px solid #222; display: inline-block; width: 200px; margin-left: 5px; }
-  .footer { text-align: center; font-size: 8px; color: #888; margin-top: 6px; border-top: 1px solid #ccc; padding-top: 4px; }
+  .footer { text-align: center; font-size: 7px; color: #888; margin-top: 3px; border-top: 1px solid #ccc; padding-top: 2px; }
 </style></head><body>
 <div class="header">
   <h1>FREPPA GROUP OF SCHOOLS</h1>
@@ -394,12 +395,12 @@ exports.getReportPDF = async (req, res) => {
   &nbsp;|&nbsp; Position: ${meta.class_position || '-'}/${meta.total_students || '-'}
 </div>
 
-<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin:6px 0;font-style:italic;color:#333;border-bottom:1px solid #eee;padding-bottom:4px;">
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:8.5px;margin:3px 0;font-style:italic;color:#333;border-bottom:1px solid #eee;padding-bottom:2px;">
   <div><strong>Teacher's Remark:</strong> ${teacherRemark}</div>
   <div><strong>Promotion Status:</strong> ${promotionStatus}</div>
 </div>
 
-<h3 style="font-size:12px;margin:8px 0 4px;">Affective & Psychomotor Domain</h3>
+<h3 style="font-size:9px;margin:4px 0 2px;">Affective & Psychomotor Domain</h3>
 <table class="domains-table">${domainRows}</table>
 
 <div class="remarks">
@@ -409,7 +410,7 @@ exports.getReportPDF = async (req, res) => {
   <p><strong>Next Term Begins:</strong> ${meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________'}</p>
 </div>
 
-<div style="margin-top:15px;font-size:11px;">
+<div style="margin-top:6px;font-size:8px;">
   <div style="float:left;width:45%;">
     Class Teacher's Signature: ___________________<br>
     Date: ___________________
@@ -434,7 +435,7 @@ exports.getReportPDF = async (req, res) => {
       await page.setContent(html, { waitUntil: 'networkidle0' });
       const pdf = await page.pdf({
         format: 'A4',
-        margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' },
+        margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' },
         printBackground: true,
       });
       await browser.close();
