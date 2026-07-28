@@ -315,41 +315,41 @@ exports.getReportPDF = async (req, res) => {
     let rows = '';
     results.forEach((r, i) => {
       rows += `<tr>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${i + 1}</td>
-        <td style="padding:6px 8px;font-size:11px;border-bottom:1px solid #ddd;">${r.subject_name}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.test1 ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.test2 ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.test3 ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.ca_score ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
-        <td style="padding:6px 8px;text-align:center;font-size:11px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
-        <td style="padding:6px 8px;font-size:11px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${i + 1}</td>
+        <td style="padding:2px 4px;font-size:9px;border-bottom:1px solid #ddd;">${r.subject_name}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test1 ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test2 ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.test3 ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.ca_score ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
+        <td style="padding:2px 4px;text-align:center;font-size:9px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
+        <td style="padding:2px 4px;font-size:9px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
       </tr>`;
     });
 
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
-<style>
-  body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 0; color: #222; }
-  .header { text-align: center; border-bottom: 2px solid #1b6b1b; padding-bottom: 10px; margin-bottom: 10px; }
-  .header h1 { color: #1b6b1b; margin: 0; font-size: 20px; }
-  .header p { margin: 2px 0; font-size: 11px; color: #555; }
-  .title { text-align: center; font-size: 16px; font-weight: bold; margin: 10px 0; text-decoration: underline; }
-  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-  .info-table td { padding: 3px 8px; font-size: 12px; }
-  .info-table .label { font-weight: bold; width: 120px; }
-  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-  .results-table th { background: #1b6b1b; color: #fff; padding: 6px 8px; font-size: 11px; text-align: center; }
+ <style>
+  body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 0; color: #222; font-size: 10px; }
+  .header { text-align: center; border-bottom: 1px solid #1b6b1b; padding-bottom: 4px; margin-bottom: 4px; }
+  .header h1 { color: #1b6b1b; margin: 0; font-size: 14px; }
+  .header p { margin: 1px 0; font-size: 8px; color: #555; }
+  .title { text-align: center; font-size: 12px; font-weight: bold; margin: 4px 0; text-decoration: underline; }
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .info-table td { padding: 1px 6px; font-size: 9px; }
+  .info-table .label { font-weight: bold; width: 100px; }
+  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .results-table th { background: #1b6b1b; color: #fff; padding: 3px 4px; font-size: 8px; text-align: center; }
   .results-table th:first-child { text-align: center; }
   .results-table th:nth-child(2) { text-align: left; }
   .results-table td:nth-child(2) { text-align: left; }
-  .summary { text-align: center; font-size: 12px; font-weight: bold; margin: 8px 0; padding: 6px; border: 1px solid #1b6b1b; background: #f0f7f0; }
-  .domains-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  .summary { text-align: center; font-size: 9px; font-weight: bold; margin: 4px 0; padding: 3px; border: 1px solid #1b6b1b; background: #f0f7f0; }
+  .domains-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
   .domains-table td { border: 1px solid #ddd; }
-  .remarks { margin-top: 10px; font-size: 12px; }
-  .remarks .line { border-bottom: 1px solid #222; display: inline-block; width: 300px; margin-left: 5px; }
-  .footer { text-align: center; font-size: 10px; color: #888; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px; }
+  .remarks { margin-top: 4px; font-size: 9px; }
+  .remarks .line { border-bottom: 1px solid #222; display: inline-block; width: 200px; margin-left: 5px; }
+  .footer { text-align: center; font-size: 8px; color: #888; margin-top: 6px; border-top: 1px solid #ccc; padding-top: 4px; }
 </style></head><body>
 <div class="header">
   <h1>FREPPA GROUP OF SCHOOLS</h1>
