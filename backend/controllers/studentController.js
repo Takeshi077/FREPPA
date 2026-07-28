@@ -92,10 +92,12 @@ exports.getResults = async (req, res) => {
     if (results.length > 0) {
       const totalScore = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
       const count = results.filter(r => r.total_score !== null).length;
+      const average = count > 0 ? (totalScore / count) : 0;
       summary = {
         total_subjects: count,
         total_score: totalScore.toFixed(2),
-        average: count > 0 ? (totalScore / count).toFixed(2) : '0.00'
+        average: average.toFixed(2),
+        promotion_status: getPromotionStatus(average)
       };
     }
 
@@ -182,10 +184,12 @@ exports.getChildResults = async (req, res) => {
     if (results.length > 0) {
       const totalScore = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
       const count = results.filter(r => r.total_score !== null).length;
+      const average = count > 0 ? (totalScore / count) : 0;
       summary = {
         total_subjects: count,
         total_score: totalScore.toFixed(2),
-        average: count > 0 ? (totalScore / count).toFixed(2) : '0.00'
+        average: average.toFixed(2),
+        promotion_status: getPromotionStatus(average)
       };
     }
 
