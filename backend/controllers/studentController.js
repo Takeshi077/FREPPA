@@ -12,6 +12,16 @@ function getPromotionStatus(average) {
   return 'Advised to Repeat';
 }
 
+function getTeacherRemark(average) {
+  const avg = parseFloat(average);
+  if (avg >= 90) return 'Excellent result. Keep up the great work.';
+  if (avg >= 75) return 'Very good result. You are doing well.';
+  if (avg >= 60) return 'Good result. You can put in more effort.';
+  if (avg >= 45) return 'Fair result. You need to work harder.';
+  if (avg >= 40) return 'Average result. Put in more effort to improve.';
+  return 'Unsatisfactory result. You need to work much harder.';
+}
+
 exports.getProfile = async (req, res) => {
   try {
     const [students] = await pool.query(
@@ -97,7 +107,8 @@ exports.getResults = async (req, res) => {
         total_subjects: count,
         total_score: totalScore.toFixed(2),
         average: average.toFixed(2),
-        promotion_status: getPromotionStatus(average)
+        promotion_status: getPromotionStatus(average),
+        teacher_remark: getTeacherRemark(average)
       };
     }
 
@@ -189,7 +200,8 @@ exports.getChildResults = async (req, res) => {
         total_subjects: count,
         total_score: totalScore.toFixed(2),
         average: average.toFixed(2),
-        promotion_status: getPromotionStatus(average)
+        promotion_status: getPromotionStatus(average),
+        teacher_remark: getTeacherRemark(average)
       };
     }
 
