@@ -229,6 +229,28 @@ CREATE TABLE contact_inquiries (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
+-- 14. QUESTIONS TABLE
+-- MCQ question pool per subject. 50 are drawn at random
+-- per quiz attempt, so each subject holds a larger pool.
+-- =============================================
+CREATE TABLE questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_id INT NOT NULL,
+    question_text TEXT NOT NULL,
+    option_a VARCHAR(255) NOT NULL,
+    option_b VARCHAR(255) NOT NULL,
+    option_c VARCHAR(255) NOT NULL,
+    option_d VARCHAR(255) NOT NULL,
+    correct_option ENUM('A','B','C','D') NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_questions_subject (subject_id, is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
 -- INDEXES FOR PERFORMANCE
 -- =============================================
 CREATE INDEX idx_results_student ON results(student_id);

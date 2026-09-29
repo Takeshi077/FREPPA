@@ -46,6 +46,9 @@
             <a href="#attendance-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
                 <i class="fa-solid fa-calendar-check w-5"></i><span>Attendance</span>
             </a>
+            <a href="#questions-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fa-solid fa-pen-to-square w-5"></i><span>Quiz Questions</span>
+            </a>
             <a href="#bulk-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
                 <i class="fa-solid fa-upload w-5"></i><span>Bulk Upload</span>
             </a>
@@ -292,6 +295,102 @@
                     </button>
                 </form>
                 <div id="bulk-results" class="mt-4"></div>
+            </div>
+        </section>
+
+        <!-- Quiz Questions Section -->
+        <section id="questions-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-pen-to-square text-amber-500 mr-2"></i> Quiz Questions
+            </h2>
+
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 mb-4">
+                <p class="text-sm text-slate-600 mb-4">
+                    Build the question pool students draw from. Each quiz serves 50 questions at random,
+                    so aim for at least 100 per subject.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 sm:items-end">
+                    <div class="flex-grow">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Subject</label>
+                        <select id="q-subject-select" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                            <option value="">-- Select a subject --</option>
+                        </select>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 shrink-0">
+                        <p class="text-xs text-slate-500">Questions in pool</p>
+                        <p class="text-lg font-bold text-slate-900" id="q-pool-count">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="q-form-wrap" class="hidden bg-white rounded-2xl shadow-md border border-slate-100 p-6 mb-4">
+                <h3 class="font-bold text-slate-900 mb-4" id="q-form-title">Add Question</h3>
+                <form id="q-form" class="space-y-3">
+                    <input type="hidden" id="q-id">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Question</label>
+                        <textarea id="q-text" rows="2" required
+                                  class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm"></textarea>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-semibold text-slate-700 mb-1">Option A</label>
+                            <input type="text" id="q-a" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-semibold text-slate-700 mb-1">Option B</label>
+                            <input type="text" id="q-b" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-semibold text-slate-700 mb-1">Option C</label>
+                            <input type="text" id="q-c" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm"></div>
+                        <div><label class="block text-xs font-semibold text-slate-700 mb-1">Option D</label>
+                            <input type="text" id="q-d" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Correct Option</label>
+                        <div class="flex gap-2">
+                            <label class="cursor-pointer"><input type="radio" name="q-correct" value="A" class="peer sr-only" checked><span class="block w-10 h-10 border-2 border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-600 peer-checked:bg-amber-500 peer-checked:border-amber-500 peer-checked:text-slate-950">A</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="q-correct" value="B" class="peer sr-only"><span class="block w-10 h-10 border-2 border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-600 peer-checked:bg-amber-500 peer-checked:border-amber-500 peer-checked:text-slate-950">B</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="q-correct" value="C" class="peer sr-only"><span class="block w-10 h-10 border-2 border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-600 peer-checked:bg-amber-500 peer-checked:border-amber-500 peer-checked:text-slate-950">C</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="q-correct" value="D" class="peer sr-only"><span class="block w-10 h-10 border-2 border-slate-300 rounded-lg flex items-center justify-center font-bold text-slate-600 peer-checked:bg-amber-500 peer-checked:border-amber-500 peer-checked:text-slate-950">D</span></label>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-6 py-2 rounded-lg transition-all text-sm">
+                            <i class="fa-solid fa-save mr-1"></i> <span id="q-submit-label">Add Question</span>
+                        </button>
+                        <button type="button" id="q-cancel" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-900 font-bold px-6 py-2 rounded-lg transition-all text-sm">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="q-list-wrap" class="hidden bg-white rounded-2xl shadow-md border border-slate-100">
+                <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900">Questions</h3>
+                    <span class="text-xs text-slate-500" id="q-list-count"></span>
+                </div>
+                <div id="q-list" class="divide-y divide-slate-100 max-h-[32rem] overflow-y-auto"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 mt-4">
+                <h3 class="font-bold text-slate-900 mb-2">Bulk Upload Questions</h3>
+                <p class="text-sm text-slate-600 mb-4">
+                    Upload an Excel or CSV file with columns:
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Subject Code</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Question</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Option A</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Option B</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Option C</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Option D</code>,
+                    <code class="bg-slate-100 px-2 py-0.5 rounded text-xs">Correct Option</code>.
+                </p>
+                <button onclick="downloadQuestionTemplate()" class="mb-4 bg-slate-200 hover:bg-slate-300 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm transition-all">
+                    <i class="fa-solid fa-download mr-1"></i> Download Template
+                </button>
+                <form id="q-bulk-form" class="space-y-4">
+                    <input type="file" id="q-bulk-file" accept=".xlsx,.xls,.csv" required
+                           class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-600 cursor-pointer">
+                    <button type="submit" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-6 py-2 rounded-lg transition-all text-sm">
+                        <i class="fa-solid fa-upload mr-1"></i> Upload Questions
+                    </button>
+                </form>
+                <div id="q-bulk-results" class="mt-4"></div>
             </div>
         </section>
 
@@ -819,9 +918,205 @@
         // Attendance subject select
         document.getElementById('load-attendance').addEventListener('click', loadAttendance);
 
+        // =====================================================
+        // Quiz Questions
+        // =====================================================
+        let qSubjectId = null;
+        let qQuestions = [];
+
+        function qEscape(str) {
+            return String(str).replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        async function loadQuestionSubjects() {
+            const select = document.getElementById('q-subject-select');
+            try {
+                const data = await apiFetch('/api/teacher/question-subjects');
+                select.innerHTML = '<option value="">-- Select a subject --</option>' +
+                    data.subjects.map(s =>
+                        `<option value="${s.id}">${qEscape(s.class_name)} &middot; ${qEscape(s.subject_name)} (${qEscape(s.subject_code)}) - ${s.question_count}</option>`
+                    ).join('');
+            } catch (e) {
+                showError(e.message, document.getElementById('global-error'));
+            }
+        }
+
+        document.getElementById('q-subject-select').addEventListener('change', function() {
+            qSubjectId = this.value;
+            resetQuestionForm();
+            if (qSubjectId) {
+                loadQuestions();
+            } else {
+                document.getElementById('q-form-wrap').classList.add('hidden');
+                document.getElementById('q-list-wrap').classList.add('hidden');
+                document.getElementById('q-pool-count').textContent = '-';
+            }
+        });
+
+        async function loadQuestions() {
+            const list = document.getElementById('q-list');
+            list.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm">Loading questions...</div>';
+            try {
+                const data = await apiFetch(`/api/teacher/questions?subject_id=${qSubjectId}`);
+                qQuestions = data.questions;
+                document.getElementById('q-pool-count').textContent = qQuestions.length;
+                document.getElementById('q-list-count').textContent = qQuestions.length + ' total';
+                renderQuestionList();
+            } catch (e) {
+                showError(e.message, document.getElementById('global-error'));
+            }
+        }
+
+        function renderQuestionList() {
+            const list = document.getElementById('q-list');
+            document.getElementById('q-form-wrap').classList.remove('hidden');
+            document.getElementById('q-list-wrap').classList.remove('hidden');
+
+            if (!qQuestions.length) {
+                list.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm">No questions yet. Add the first one using the form above.</div>';
+                return;
+            }
+
+            list.innerHTML = qQuestions.map(q => `
+                <div class="p-4 flex gap-3">
+                    <span class="shrink-0 w-8 h-8 rounded-lg bg-green-700 text-white flex items-center justify-center text-xs font-bold">${qEscape(q.correct_option)}</span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-medium text-slate-900">${qEscape(q.question_text)}</p>
+                        <p class="text-xs text-slate-500 mt-1">A. ${qEscape(q.option_a)} &nbsp;|&nbsp; B. ${qEscape(q.option_b)} &nbsp;|&nbsp; C. ${qEscape(q.option_c)} &nbsp;|&nbsp; D. ${qEscape(q.option_d)}</p>
+                    </div>
+                    <div class="shrink-0 flex gap-1">
+                        <button onclick="editQuestion(${q.id})" class="text-slate-400 hover:text-amber-500 transition-colors p-1" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteQuestion(${q.id})" class="text-slate-400 hover:text-red-500 transition-colors p-1" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetQuestionForm() {
+            document.getElementById('q-form').reset();
+            document.getElementById('q-id').value = '';
+            document.getElementById('q-form-title').textContent = 'Add Question';
+            document.getElementById('q-submit-label').textContent = 'Add Question';
+            document.getElementById('q-cancel').classList.add('hidden');
+        }
+
+        function editQuestion(id) {
+            const q = qQuestions.find(x => x.id === id);
+            if (!q) return;
+            document.getElementById('q-id').value = q.id;
+            document.getElementById('q-text').value = q.question_text;
+            document.getElementById('q-a').value = q.option_a;
+            document.getElementById('q-b').value = q.option_b;
+            document.getElementById('q-c').value = q.option_c;
+            document.getElementById('q-d').value = q.option_d;
+            document.querySelector(`input[name="q-correct"][value="${q.correct_option}"]`).checked = true;
+            document.getElementById('q-form-title').textContent = 'Edit Question';
+            document.getElementById('q-submit-label').textContent = 'Update Question';
+            document.getElementById('q-cancel').classList.remove('hidden');
+            document.getElementById('q-form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        document.getElementById('q-cancel').addEventListener('click', resetQuestionForm);
+
+        document.getElementById('q-form').addEventListener('submit', async function() {
+            if (!qSubjectId) { showError('Select a subject first.', document.getElementById('global-error')); return; }
+            const id = document.getElementById('q-id').value;
+            const body = {
+                subject_id: Number(qSubjectId),
+                question_text: document.getElementById('q-text').value,
+                option_a: document.getElementById('q-a').value,
+                option_b: document.getElementById('q-b').value,
+                option_c: document.getElementById('q-c').value,
+                option_d: document.getElementById('q-d').value,
+                correct_option: document.querySelector('input[name="q-correct"]:checked').value
+            };
+            try {
+                if (id) {
+                    await apiFetch(`/api/teacher/questions/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+                    showSuccess('Question updated.', document.getElementById('global-success'));
+                } else {
+                    await apiFetch('/api/teacher/questions', { method: 'POST', body: JSON.stringify(body) });
+                    showSuccess('Question added.', document.getElementById('global-success'));
+                }
+                resetQuestionForm();
+                await loadQuestions();
+                await loadQuestionSubjects();
+                document.getElementById('q-subject-select').value = qSubjectId;
+                setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+            } catch (e) {
+                showError(e.message, document.getElementById('global-error'));
+            }
+        });
+
+        async function deleteQuestion(id) {
+            if (!confirm('Delete this question? This cannot be undone.')) return;
+            try {
+                await apiFetch(`/api/teacher/questions/${id}`, { method: 'DELETE' });
+                showSuccess('Question deleted.', document.getElementById('global-success'));
+                await loadQuestions();
+                await loadQuestionSubjects();
+                document.getElementById('q-subject-select').value = qSubjectId;
+                setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+            } catch (e) {
+                showError(e.message, document.getElementById('global-error'));
+            }
+        }
+
+        async function downloadQuestionTemplate() {
+            const token = getToken();
+            const res = await fetch(`${API_BASE}/api/teacher/questions/template`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'question-upload-template.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('q-bulk-form').addEventListener('submit', async function() {
+            const file = document.getElementById('q-bulk-file').files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            const box = document.getElementById('q-bulk-results');
+            this.querySelector('button').disabled = true;
+            this.querySelector('button').innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Uploading...';
+            try {
+                const res = await fetch(`${API_BASE}/api/teacher/questions/bulk-upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Upload failed.');
+
+                let html = `<div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+                    <i class="fa-solid fa-check mr-1"></i> Imported ${data.imported} question(s)${data.failed ? `, ${data.failed} failed` : ''}.</div>`;
+                if (data.errors && data.errors.length) {
+                    html += '<ul class="mt-2 text-xs text-red-600 space-y-1">' +
+                        data.errors.map(e => `<li>Row ${e.row}: ${qEscape(e.error)}</li>`).join('') + '</ul>';
+                }
+                box.innerHTML = html;
+                this.reset();
+                await loadQuestionSubjects();
+                if (qSubjectId) await loadQuestions();
+            } catch (e) {
+                box.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">${qEscape(e.message)}</div>`;
+            } finally {
+                this.querySelector('button').disabled = false;
+                this.querySelector('button').innerHTML = '<i class="fa-solid fa-upload mr-1"></i> Upload Questions';
+            }
+        });
+
         // Init
         loadSessionsTerms();
         loadSubjects();
+        loadQuestionSubjects();
     </script>
 </body>
 </html>

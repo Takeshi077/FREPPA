@@ -116,6 +116,19 @@
             </div>
         </div>
 
+        <!-- Quizzes (students only) -->
+        <div id="quiz-card" class="hidden bg-white rounded-2xl shadow-md border border-slate-100 mb-4 print-hide">
+            <div class="p-4 bg-slate-50 border-b border-slate-100 flex flex-wrap justify-between items-center gap-2">
+                <h2 class="font-bold text-slate-900"><i class="fa-solid fa-pen-to-square mr-2 text-amber-500"></i>Quizzes</h2>
+                <span class="text-xs text-slate-500">
+                    <span id="quiz-questions-label">50</span> questions &middot; <span id="quiz-time-label">60</span> minutes
+                </span>
+            </div>
+            <div id="quiz-list" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="col-span-full p-6 text-center text-slate-400 text-sm">Loading subjects...</div>
+            </div>
+        </div>
+
         <!-- Filters -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-100 px-4 py-3 mb-4">
             <div class="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 items-stretch sm:items-end">
@@ -327,6 +340,43 @@
         document.getElementById('print-btn')?.addEventListener('click', () => window.print());
 
         // Init
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        async function loadQuizzes() {
+            const card = document.getElementById('quiz-card');
+            const list = document.getElementById('quiz-list');
+            card.classList.remove('hidden');
+
+            try {
+                const data = await apiFetch('/api/quiz/subjects');
+                document.getElementById('quiz-questions-label').textContent = data.config.questions_per_quiz;
+                document.getElementById('quiz-time-label').textContent = data.config.time_limit_minutes;
+
+                if (!data.subjects.length) {
+                    list.innerHTML = '<div class="col-span-full p-6 text-center text-slate-400 text-sm">' +
+                        'No quizzes are available yet. Your teachers are still preparing questions.</div>';
+                    return;
+                }
+
+                list.innerHTML = data.subjects.map(s => `
+                    <a href="quiz.html?subject=${s.id}" class="group border-2 border-slate-200 hover:border-amber-500 rounded-xl p-4 transition-all bg-white">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-bold text-slate-900 text-sm leading-tight">${escapeHtml(s.subject_name)}</p>
+                            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-amber-500 transition-colors mt-0.5"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">${escapeHtml(s.subject_code)}</p>
+                        <p class="text-xs text-slate-400 mt-2">${s.question_count} questions in pool</p>
+                    </a>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = `<div class="col-span-full p-6 text-center text-red-500 text-sm">${escapeHtml(e.message)}</div>`;
+            }
+        }
+
         async function init() {
             if (isParent) {
                 try {
@@ -362,6 +412,7 @@
                 await loadProfile();
                 await loadFilters();
                 await loadResults();
+                loadQuizzes();
             }
         }
 

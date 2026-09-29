@@ -11,6 +11,7 @@ const parentRoutes = require('./routes/parent');
 const adminRoutes = require('./routes/admin');
 const reportRoutes = require('./routes/report');
 const attendanceRoutes = require('./routes/attendance');
+const quizRoutes = require('./routes/quiz');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ app.use('/api/parent', parentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/quiz', quizRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'FREPPA API is running.' });
