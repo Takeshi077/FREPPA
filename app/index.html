@@ -53,6 +53,7 @@
                 <a href="news.html" class="hover:text-amber-400 transition-colors pb-1">News & Events</a>
                 <a href="gallery.html" class="hover:text-amber-400 transition-colors pb-1">Gallery</a>
                 <a href="contact.html" class="hover:text-amber-400 transition-colors pb-1">Contact Us</a>
+                <a href="quiz.html" class="quiz-entry-link hover:text-amber-400 transition-colors pb-1">Quiz</a>
                 <a href="login.html" class="nav-login-link hover:text-amber-400 transition-colors pb-1">Login</a>
                 <a href="student-dashboard.html" class="nav-dashboard-link hidden hover:text-amber-400 transition-colors pb-1"><i class="fa-solid fa-gauge-high mr-1"></i>Dashboard</a>
                 <a href="#" class="nav-logout-link hidden hover:text-amber-400 transition-colors pb-1" data-auth-action="logout">Logout</a>
@@ -75,6 +76,7 @@
             <a href="news.html" class="block hover:text-amber-400 transition-colors">News & Events</a>
             <a href="gallery.html" class="block hover:text-amber-400 transition-colors">Gallery</a>
             <a href="contact.html" class="block hover:text-amber-400 transition-colors">Contact Us</a>
+            <a href="quiz.html" class="quiz-entry-link block hover:text-amber-400 transition-colors">Quiz</a>
             <a href="login.html" class="nav-login-link block hover:text-amber-400 transition-colors">Login</a>
             <a href="student-dashboard.html" class="nav-dashboard-link hidden block hover:text-amber-400 transition-colors">Dashboard</a>
             <a href="#" class="nav-logout-link hidden block hover:text-amber-400 transition-colors" data-auth-action="logout">Logout</a>
@@ -152,6 +154,47 @@
             </div>
         </section>
 
+        <!-- Quiz Feature Section -->
+        <section class="py-16 bg-slate-50">
+            <div class="container mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 md:p-12">
+                        <span class="text-amber-600 text-xs font-bold tracking-widest uppercase">Online Practice</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-3">Test Your Knowledge with <span class="text-amber-500">Quizzes</span></h2>
+                        <p class="mt-4 text-slate-600">Students can take timed practice quizzes in their subjects and get instant results. Sign in with the same details you use for the student portal.</p>
+                        <ul class="mt-6 space-y-2 text-sm text-slate-600">
+                            <li><i class="fa-solid fa-circle-check text-amber-500 mr-2"></i>50 questions per quiz, 60 minutes</li>
+                            <li><i class="fa-solid fa-circle-check text-amber-500 mr-2"></i>Instant scoring with correct and wrong totals</li>
+                            <li><i class="fa-solid fa-circle-check text-amber-500 mr-2"></i>Subjects matched to the student's class</li>
+                        </ul>
+                        <a href="quiz.html" class="quiz-entry-link inline-flex items-center bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-lg transition-all mt-8">
+                            <i class="fa-solid fa-pen-to-square mr-2"></i>Take a Quiz
+                        </a>
+                        <p class="text-xs text-slate-400 mt-3">You will be asked to sign in if you are not already logged in.</p>
+                    </div>
+                    <div class="bg-slate-900 text-white p-8 md:p-12 flex items-center relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div class="relative z-10 w-full">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                                <div>
+                                    <p class="text-xs uppercase tracking-widest text-slate-300">Chemistry Quiz</p>
+                                    <p class="font-bold">Question 12 of 50</p>
+                                </div>
+                                <p class="text-2xl font-bold text-amber-400 tabular-nums">42:18</p>
+                            </div>
+                            <p class="font-semibold mb-3">Which gas is produced when zinc reacts with dilute hydrochloric acid?</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="border border-white/15 rounded-lg px-3 py-2">A. Oxygen</div>
+                                <div class="border-2 border-amber-500 bg-amber-500 text-slate-950 font-semibold rounded-lg px-3 py-2">B. Hydrogen</div>
+                                <div class="border border-white/15 rounded-lg px-3 py-2">C. Chlorine</div>
+                                <div class="border border-white/15 rounded-lg px-3 py-2">D. Carbon dioxide</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section class="py-16 bg-slate-900 text-white text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -177,6 +220,7 @@
                     <li><a href="about.html" class="hover:text-amber-400 transition-colors">About Us</a></li>
                     <li><a href="academics.html" class="hover:text-amber-400 transition-colors">Academics</a></li>
                     <li><a href="admissions.html" class="hover:text-amber-400 transition-colors">Admissions</a></li>
+                    <li><a href="quiz.html" class="quiz-entry-link hover:text-amber-400 transition-colors">Take a Quiz</a></li>
                 </ul>
             </div>
             <div>
@@ -201,8 +245,12 @@
         </div>
     </footer>
 
+    <!-- Quiz entry notice -->
+    <div id="quiz-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-md bg-slate-900 text-white text-sm px-5 py-3 rounded-lg shadow-xl"></div>
+
     <!-- Custom JS -->
     <script src="script.js"></script>
+    <script src="js/quiz-entry.js"></script>
     <script src="js/auth-nav.js"></script>
 </body>
 </html>

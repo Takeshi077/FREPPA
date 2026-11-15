@@ -48,7 +48,7 @@
                 <div class="text-center mb-8">
                     <img src="freppa logo.svg.png" alt="Logo" class="w-16 h-16 mx-auto mb-4">
                     <h1 class="text-2xl font-bold text-slate-900">Welcome Back</h1>
-                    <p class="text-slate-500 text-sm mt-1">Sign in to your dashboard</p>
+                    <p id="login-subtitle" class="text-slate-500 text-sm mt-1">Sign in to your dashboard</p>
                 </div>
 
                 <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6"></div>
@@ -96,6 +96,17 @@
     <script>
         const API_BASE = 'https://freppa-production.up.railway.app';
 
+        function safeRedirect(target) {
+            if (!target) return null;
+            return /^[A-Za-z0-9_.-]+\.html(?:\?[A-Za-z0-9_.=&%-]*)?$/.test(target) ? target : null;
+        }
+
+        const redirectTarget = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
+        if (redirectTarget) {
+            document.getElementById('login-subtitle').textContent =
+                'Sign in with the same details you use for your portal to continue';
+        }
+
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -141,8 +152,11 @@
                     'student': 'student-dashboard.html',
                     'parent': 'student-dashboard.html'
                 };
+                const destination = (redirectTarget && role === 'student')
+                    ? redirectTarget
+                    : (dashboardMap[role] || 'index.html');
                 setTimeout(() => {
-                    window.location.href = dashboardMap[role] || 'index.html';
+                    window.location.href = destination;
                 }, 500);
 
             } catch (err) {
