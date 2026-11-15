@@ -63,6 +63,11 @@ exports.getSubjects = async (req, res) => {
     });
   } catch (err) {
     console.error('getSubjects error:', err);
+    if (err.code === 'ER_NO_SUCH_TABLE' || err.code === 'ER_BAD_FIELD_ERROR') {
+      return res.status(503).json({
+        error: 'Quiz setup is incomplete on this server. Run backend/seed_questions/migrate_production_quiz.sql, then try again.'
+      });
+    }
     res.status(500).json({ error: 'Failed to load quiz subjects.' });
   }
 };

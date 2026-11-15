@@ -1,5 +1,39 @@
 const API_BASE = localStorage.getItem('api_base') || window.location.origin;
 
+let resolvedApiBase = null;
+
+async function getApiBase() {
+    if (resolvedApiBase) return resolvedApiBase;
+
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+        || window.location.protocol === 'file:';
+
+    if (isLocal) {
+        const host = window.location.hostname || 'localhost';
+        const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+        const candidate = window.location.port === '3000'
+            ? window.location.origin
+            : `${protocol}//${host}:3000`;
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2500);
+        try {
+            const res = await fetch(candidate + '/api/health', { signal: controller.signal });
+            if (res.ok) {
+                resolvedApiBase = candidate;
+                return candidate;
+            }
+        } catch (e) {
+            // local backend not running - keep using the stored base
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    resolvedApiBase = API_BASE;
+    return resolvedApiBase;
+}
+
 function getToken() {
     return localStorage.getItem('token');
 }
@@ -42,7 +76,8 @@ async function apiFetch(path, options = {}) {
         ...options.headers
     };
 
-    const res = await fetch(`${API_BASE}${path}`, {
+    const base = await getApiBase();
+    const res = await fetch(`${base}${path}`, {
         ...options,
         headers
     });

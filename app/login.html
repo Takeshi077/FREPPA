@@ -94,7 +94,32 @@
     </footer>
 
     <script>
-        const API_BASE = 'https://freppa-production.up.railway.app';
+        const PROD_API_BASE = 'https://freppa-production.up.railway.app';
+
+        function localApiBase() {
+            const host = window.location.hostname || 'localhost';
+            if (window.location.port === '3000') return window.location.origin;
+            const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+            return `${protocol}//${host}:3000`;
+        }
+
+        async function resolveApiBase() {
+            const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+                || window.location.protocol === 'file:';
+            if (!isLocal) return localStorage.getItem('api_base') || PROD_API_BASE;
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 3000);
+            try {
+                const res = await fetch(localApiBase() + '/api/health', { signal: controller.signal });
+                if (res.ok) return localApiBase();
+            } catch (e) {
+                // backend not running locally - fall back to production
+            } finally {
+                clearTimeout(timer);
+            }
+            return PROD_API_BASE;
+        }
 
         function safeRedirect(target) {
             if (!target) return null;
@@ -124,7 +149,8 @@
             spinner.classList.remove('hidden');
 
             try {
-                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                const apiBase = await resolveApiBase();
+                const res = await fetch(`${apiBase}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -140,7 +166,7 @@
 
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('api_base', API_BASE);
+                localStorage.setItem('api_base', apiBase);
 
                 successEl.textContent = 'Login successful! Redirecting...';
                 successEl.classList.remove('hidden');
