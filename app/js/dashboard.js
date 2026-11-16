@@ -1,41 +1,45 @@
+const PROD_API_BASE = 'https://freppa-production.up.railway.app';
 const API_BASE = localStorage.getItem('api_base') || window.location.origin;
 
 let resolvedApiBase = null;
 
+async function probeApiBase(base) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    try {
+        const res = await fetch(base + '/api/health', { signal: controller.signal });
+        if (!res.ok) return false;
+        const data = await res.json();
+        return !!data && data.status === 'OK' && /FREPPA/i.test(data.message || '');
+    } catch (e) {
+        return false;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 async function getApiBase() {
     if (resolvedApiBase) return resolvedApiBase;
 
-    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-        || window.location.protocol === 'file:';
+    const isFile = window.location.protocol === 'file:';
+    const host = window.location.hostname || 'localhost';
+    const protocol = isFile ? 'http:' : window.location.protocol;
+    const stored = (API_BASE && API_BASE !== 'null') ? API_BASE.replace(/\/$/, '') : '';
 
-    if (!isLocal) {
-        resolvedApiBase = window.location.origin;
-        return resolvedApiBase;
-    }
+    const candidates = [];
+    if (!isFile) candidates.push(window.location.origin);
+    candidates.push(`${protocol}//${host}:3000`);
+    if (stored) candidates.push(stored);
+    candidates.push(PROD_API_BASE);
 
-    if (isLocal) {
-        const host = window.location.hostname || 'localhost';
-        const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
-        const candidate = window.location.port === '3000'
-            ? window.location.origin
-            : `${protocol}//${host}:3000`;
-
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 2500);
-        try {
-            const res = await fetch(candidate + '/api/health', { signal: controller.signal });
-            if (res.ok) {
-                resolvedApiBase = candidate;
-                return candidate;
-            }
-        } catch (e) {
-            // local backend not running - keep using the stored base
-        } finally {
-            clearTimeout(timer);
+    for (const base of [...new Set(candidates.filter(Boolean))]) {
+        if (await probeApiBase(base)) {
+            resolvedApiBase = base;
+            return base;
         }
     }
 
-    resolvedApiBase = API_BASE;
+    resolvedApiBase = stored || (isFile ? PROD_API_BASE : window.location.origin);
     return resolvedApiBase;
 }
 

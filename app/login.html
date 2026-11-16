@@ -88,25 +88,36 @@
 
         function localApiBase() {
             const host = window.location.hostname || 'localhost';
-            if (window.location.port === '3000') return window.location.origin;
             const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
             return `${protocol}//${host}:3000`;
         }
 
-        async function resolveApiBase() {
-            const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
-                || window.location.protocol === 'file:';
-            if (!isLocal) return window.location.origin;
-
+        async function isApiBase(base) {
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 3000);
+            const timer = setTimeout(() => controller.abort(), 2500);
             try {
-                const res = await fetch(localApiBase() + '/api/health', { signal: controller.signal });
-                if (res.ok) return localApiBase();
+                const res = await fetch(base + '/api/health', { signal: controller.signal });
+                if (!res.ok) return false;
+                const data = await res.json();
+                return !!data && data.status === 'OK' && /FREPPA/i.test(data.message || '');
             } catch (e) {
-                // backend not running locally - fall back to production
+                return false;
             } finally {
                 clearTimeout(timer);
+            }
+        }
+
+        async function resolveApiBase() {
+            const stored = (localStorage.getItem('api_base') || '').replace(/\/$/, '');
+            const candidates = [];
+
+            if (window.location.protocol !== 'file:') candidates.push(window.location.origin);
+            candidates.push(localApiBase());
+            if (stored && stored !== 'null') candidates.push(stored);
+            candidates.push(PROD_API_BASE);
+
+            for (const base of [...new Set(candidates.filter(Boolean))]) {
+                if (await isApiBase(base)) return base;
             }
             return PROD_API_BASE;
         }
@@ -146,7 +157,16 @@
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    console.error('Unexpected login response:', res.status, text.substring(0, 300));
+                    errorEl.textContent = `The server returned an unexpected response (${res.status}). Please try again.`;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
 
                 if (!res.ok) {
                     errorEl.textContent = data.error || 'Login failed. Please try again.';
