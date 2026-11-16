@@ -41,6 +41,7 @@ function isAllowedOrigin(origin) {
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return true;
     if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname)) return true;
     if (hostname === 'up.railway.app' || hostname.endsWith('.up.railway.app')) return true;
+    if (hostname === 'vercel.app' || hostname.endsWith('.vercel.app')) return true;
     if (hostname === 'freppa.schportal.net') return true;
 
     return false;
