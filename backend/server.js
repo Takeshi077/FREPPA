@@ -66,10 +66,16 @@ app.use((err, req, res, next) => {
 
 // Test database connection before starting
 const pool = require('./config/db');
+const ensureSchema = require('./config/ensureSchema');
 pool.getConnection()
-  .then(conn => {
+  .then(async conn => {
     conn.release();
     console.log('✓ Database connected successfully');
+    try {
+      await ensureSchema();
+    } catch (err) {
+      console.error('✗ Schema upgrade failed:', err.message);
+    }
     startServer();
   })
   .catch(err => {
