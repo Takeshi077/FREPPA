@@ -96,7 +96,7 @@
         async function resolveApiBase() {
             const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
                 || window.location.protocol === 'file:';
-            if (!isLocal) return localStorage.getItem('api_base') || PROD_API_BASE;
+            if (!isLocal) return window.location.origin;
 
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), 3000);
@@ -176,7 +176,11 @@
                 }, 500);
 
             } catch (err) {
-                errorEl.textContent = 'Network error. Is the server running?';
+                console.error('Login request failed:', err);
+                const unreachable = /Failed to fetch|NetworkError|Load failed/i.test(err.message || '');
+                errorEl.textContent = unreachable
+                    ? 'Unable to reach the server. If you are using a custom domain, it must be allowed by the API.'
+                    : (err.message || 'Login failed. Please try again.');
                 errorEl.classList.remove('hidden');
             } finally {
                 btn.disabled = false;

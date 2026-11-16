@@ -16,11 +16,38 @@ const quizRoutes = require('./routes/quiz');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = (process.env.CORS_ORIGINS
-  || 'https://freppa-production.up.railway.app,http://localhost:3000,http://localhost:3999')
+const defaultOrigins = [
+  'https://freppa-production.up.railway.app',
+  'http://freppa.schportal.net',
+  'https://freppa.schportal.net',
+  'http://localhost:3000',
+  'http://localhost:3999'
+];
+const envOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+const loggedBlockedOrigins = new Set();
+
+function isAllowedOrigin(origin) {
+  if (allowedOrigins.includes(origin)) return true;
+
+  try {
+    const { protocol, hostname } = new URL(origin);
+    if (protocol !== 'http:' && protocol !== 'https:') return false;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return true;
+    if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname)) return true;
+    if (hostname === 'up.railway.app' || hostname.endsWith('.up.railway.app')) return true;
+    if (hostname === 'freppa.schportal.net') return true;
+
+    return false;
+  } catch (err) {
+    return false;
+  }
+}
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -38,8 +65,14 @@ app.use((req, res, next) => {
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin) return callback(null, true);
-    return callback(null, allowedOrigins.includes(origin));
+    if (!origin || origin === 'null') return callback(null, true);
+    if (isAllowedOrigin(origin)) return callback(null, true);
+
+    if (!loggedBlockedOrigins.has(origin)) {
+      loggedBlockedOrigins.add(origin);
+      console.warn(`Blocked CORS origin: ${origin}`);
+    }
+    return callback(null, false);
   },
   credentials: true
 }));

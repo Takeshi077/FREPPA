@@ -8,6 +8,11 @@ async function getApiBase() {
     const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
         || window.location.protocol === 'file:';
 
+    if (!isLocal) {
+        resolvedApiBase = window.location.origin;
+        return resolvedApiBase;
+    }
+
     if (isLocal) {
         const host = window.location.hostname || 'localhost';
         const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
