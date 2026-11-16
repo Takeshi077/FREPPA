@@ -5,6 +5,7 @@ const {
   createUser,
   getUsers,
   toggleUserStatus,
+  resetUserPassword,
   getClasses,
   createClass,
   getSubjects,
@@ -38,6 +39,7 @@ router.use(authenticateToken, requireRole('admin'));
 router.post('/users', createUser);
 router.get('/users', getUsers);
 router.put('/users/:id/toggle-status', toggleUserStatus);
+router.put('/users/:id/password', resetUserPassword);
 
 router.get('/teachers', getTeachers);
 router.put('/teachers/:id', updateTeacher);

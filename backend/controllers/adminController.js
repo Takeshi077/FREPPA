@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
+const { validatePassword } = require('../utils/password');
 
 exports.createUser = async (req, res) => {
   try {
@@ -110,6 +111,31 @@ exports.toggleUserStatus = async (req, res) => {
     res.json({ message: `User ${newStatus ? 'activated' : 'deactivated'} successfully.` });
   } catch (err) {
     console.error('Toggle user error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.resetUserPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { new_password } = req.body || {};
+
+    const validationError = validatePassword(new_password);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
+    }
+
+    const [users] = await pool.query('SELECT id FROM users WHERE id = ?', [id]);
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const password_hash = await bcrypt.hash(new_password, 10);
+    await pool.query('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash, id]);
+
+    res.json({ message: 'Password reset successfully.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 };

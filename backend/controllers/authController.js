@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const { recordFailedLogin, clearLoginAttempts } = require('../middleware/rateLimit');
+const { validatePassword } = require('../utils/password');
 require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.env') });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-do-not-use-in-prod';
@@ -20,6 +22,7 @@ exports.login = async (req, res) => {
     );
 
     if (users.length === 0) {
+      recordFailedLogin(req);
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
@@ -27,8 +30,11 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
+      recordFailedLogin(req);
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
+
+    clearLoginAttempts(req);
 
     const tokenPayload = {
       id: user.id,
@@ -107,6 +113,47 @@ exports.verify = async (req, res) => {
     res.json({ user: { ...user, ...extra } });
   } catch (err) {
     console.error('Verify error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body || {};
+
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'Current password and new password are required.' });
+    }
+
+    const validationError = validatePassword(new_password);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
+    }
+
+    if (current_password === new_password) {
+      return res.status(400).json({ error: 'New password must be different from the current password.' });
+    }
+
+    const [users] = await pool.query(
+      'SELECT password_hash FROM users WHERE id = ? AND is_active = 1',
+      [req.user.id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const isMatch = await bcrypt.compare(current_password, users[0].password_hash);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Current password is incorrect.' });
+    }
+
+    const password_hash = await bcrypt.hash(new_password, 10);
+    await pool.query('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash, req.user.id]);
+
+    res.json({ message: 'Password updated successfully.' });
+  } catch (err) {
+    console.error('Change password error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 };

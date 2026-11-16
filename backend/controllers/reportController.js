@@ -1,5 +1,15 @@
 const pool = require('../config/db');
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
 function calculateGrade(total) {
   if (total >= 70) return 'A';
   if (total >= 60) return 'B';
@@ -311,7 +321,7 @@ exports.getReportPDF = async (req, res) => {
     let count = 0;
     let rowHtml = '<tr>';
     domainFields.forEach(f => {
-      const val = domain[f.key] || '-';
+      const val = escapeHtml(domain[f.key] || '-');
       rowHtml += `<td style="padding:2.5px 5px;font-size:7.5px;">${f.label}: <strong>${val}</strong></td>`;
       count++;
       if (count % 3 === 0) {
@@ -331,15 +341,15 @@ exports.getReportPDF = async (req, res) => {
     results.forEach((r, i) => {
       rows += `<tr>
         <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${i + 1}</td>
-        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${r.subject_name}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test1 ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test2 ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.test3 ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.ca_score ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${r.exam_score ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${r.total_score ?? '-'}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${r.grade || '-'}</td>
-        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${r.remarks || '-'}</td>
+        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.subject_name)}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test1 ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test2 ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test3 ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.ca_score ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.exam_score ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${escapeHtml(r.total_score ?? '-')}</td>
+        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${escapeHtml(r.grade || '-')}</td>
+        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.remarks || '-')}</td>
       </tr>`;
     });
 
@@ -374,12 +384,12 @@ exports.getReportPDF = async (req, res) => {
 </div>
 
 <table class="info-table">
-  <tr><td class="label">Student Name:</td><td>${student?.full_name || ''}</td>
-      <td class="label">Admission No:</td><td>${student?.admission_number || ''}</td></tr>
-  <tr><td class="label">Class:</td><td>${student?.class_name || ''} - ${student?.section || ''}</td>
-      <td class="label">Gender:</td><td>${student?.gender || '-'}</td></tr>
-  <tr><td class="label">Term:</td><td>${term?.term_name || ''}</td>
-      <td class="label">Session:</td><td>${session?.session_name || ''}</td></tr>
+  <tr><td class="label">Student Name:</td><td>${escapeHtml(student?.full_name || '')}</td>
+      <td class="label">Admission No:</td><td>${escapeHtml(student?.admission_number || '')}</td></tr>
+  <tr><td class="label">Class:</td><td>${escapeHtml(student?.class_name || '')} - ${escapeHtml(student?.section || '')}</td>
+      <td class="label">Gender:</td><td>${escapeHtml(student?.gender || '-')}</td></tr>
+  <tr><td class="label">Term:</td><td>${escapeHtml(term?.term_name || '')}</td>
+      <td class="label">Session:</td><td>${escapeHtml(session?.session_name || '')}</td></tr>
 </table>
 
 <table class="results-table">
@@ -392,22 +402,22 @@ exports.getReportPDF = async (req, res) => {
 
     <div class="summary">
   Grand Total: ${grandTotal.toFixed(2)} &nbsp;|&nbsp; Subjects: ${results.length} &nbsp;|&nbsp; Average: ${average.toFixed(2)}
-  &nbsp;|&nbsp; Position: ${meta.class_position || '-'}/${meta.total_students || '-'}
+  &nbsp;|&nbsp; Position: ${escapeHtml(meta.class_position || '-')}/${escapeHtml(meta.total_students || '-')}
 </div>
 
 <div style="display:flex;justify-content:space-between;align-items:center;font-size:8.5px;margin:3px 0;font-style:italic;color:#333;border-bottom:1px solid #eee;padding-bottom:2px;">
-  <div><strong>Teacher's Remark:</strong> ${teacherRemark}</div>
-  <div><strong>Promotion Status:</strong> ${promotionStatus}</div>
+  <div><strong>Teacher's Remark:</strong> ${escapeHtml(teacherRemark)}</div>
+  <div><strong>Promotion Status:</strong> ${escapeHtml(promotionStatus)}</div>
 </div>
 
 <h3 style="font-size:9px;margin:4px 0 2px;">Affective & Psychomotor Domain</h3>
 <table class="domains-table">${domainRows}</table>
 
 <div class="remarks">
-  <p><strong>Attendance:</strong> Present: ${att.present} &nbsp; Absent: ${att.absent} &nbsp; Excused: ${att.excused}</p>
-  <p><strong>Class Teacher's Remark:</strong> ${meta.teacher_remark || '________________________'}</p>
-  <p><strong>Principal's Remark:</strong> ${meta.principal_remark || '________________________'}</p>
-  <p><strong>Next Term Begins:</strong> ${meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________'}</p>
+  <p><strong>Attendance:</strong> Present: ${escapeHtml(att.present)} &nbsp; Absent: ${escapeHtml(att.absent)} &nbsp; Excused: ${escapeHtml(att.excused)}</p>
+  <p><strong>Class Teacher's Remark:</strong> ${escapeHtml(meta.teacher_remark || '________________________')}</p>
+  <p><strong>Principal's Remark:</strong> ${escapeHtml(meta.principal_remark || '________________________')}</p>
+  <p><strong>Next Term Begins:</strong> ${escapeHtml(meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________')}</p>
 </div>
 
 <div style="margin-top:6px;font-size:8px;">
@@ -440,7 +450,8 @@ exports.getReportPDF = async (req, res) => {
       });
       await browser.close();
 
-      const filename = `report-card-${student?.admission_number || 'student'}-term${termId}.pdf`;
+      const safeAdmission = String(student?.admission_number || 'student').replace(/[^A-Za-z0-9_-]/g, '');
+      const filename = `report-card-${safeAdmission}-term${termId}.pdf`;
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.send(pdf);

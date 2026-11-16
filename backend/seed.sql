@@ -1,5 +1,7 @@
--- FREPPA GROUP OF SCHOOLS Sample Data
--- Password for all demo users: password123
+-- FREPPA GROUP OF SCHOOLS Sample Data (LOCAL DEVELOPMENT ONLY)
+-- WARNING: every demo account below uses the same known password ("password123").
+-- Never load this file into a production database. If these accounts already
+-- exist in production, change their passwords or deactivate them immediately.
 -- bcrypt hash: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
 
 USE freppa_school;

@@ -154,6 +154,15 @@ function hideElement(el) {
 function showElement(el) {
     if (el) el.classList.remove('hidden');
 }
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[ch]));
+}
 
 async function loadSidebarData() {
     try {
