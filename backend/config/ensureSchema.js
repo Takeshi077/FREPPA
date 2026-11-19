@@ -1,6 +1,23 @@
 const pool = require('./db');
 
 const statements = [
+  `CREATE TABLE IF NOT EXISTS questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_id INT NOT NULL,
+    question_text TEXT NOT NULL,
+    option_a VARCHAR(255) NOT NULL,
+    option_b VARCHAR(255) NOT NULL,
+    option_c VARCHAR(255) NOT NULL,
+    option_d VARCHAR(255) NOT NULL,
+    correct_option ENUM('A','B','C','D') NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_questions_subject (subject_id, is_active)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
   `CREATE TABLE IF NOT EXISTS result_domains (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
@@ -69,7 +86,9 @@ const statements = [
     INDEX idx_attendance_class_term (class_id, term_id, session_id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-  `CREATE INDEX idx_report_cards_student ON report_cards(student_id, term_id, session_id)`
+  `CREATE INDEX idx_report_cards_student ON report_cards(student_id, term_id, session_id)`,
+
+  `CREATE INDEX idx_questions_subject ON questions(subject_id, is_active)`
 ];
 
 async function ensureSchema() {
@@ -81,7 +100,7 @@ async function ensureSchema() {
       throw err;
     }
   }
-  console.log('✓ Report card tables ready');
+  console.log('✓ Quiz and report card tables ready');
 }
 
 module.exports = ensureSchema;

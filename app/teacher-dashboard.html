@@ -475,10 +475,14 @@
 
                 data.subjects.forEach(sub => {
                     grid.innerHTML += `
-                        <div class="bg-white rounded-xl shadow-md border border-slate-100 p-5 hover:shadow-lg transition-all cursor-pointer subject-card"
+                        <div class="bg-white rounded-xl shadow-md border border-slate-100 p-5 hover:shadow-lg transition-all cursor-pointer subject-card relative"
                              data-id="${sub.id}">
+                            <button type="button" class="absolute top-3 right-3 text-slate-300 hover:text-red-600 transition-colors delete-subject"
+                                    data-id="${sub.id}" data-name="${qEscape(sub.subject_name)}" title="Delete subject">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                             <div class="text-amber-500 text-2xl mb-2"><i class="fa-solid fa-book"></i></div>
-                            <h3 class="font-bold text-slate-900">${sub.subject_name}</h3>
+                            <h3 class="font-bold text-slate-900 pr-6">${sub.subject_name}</h3>
                             <p class="text-xs text-slate-500">${sub.subject_code}</p>
                             <p class="text-xs text-slate-400 mt-1">${sub.class_name} - ${sub.section}</p>
                         </div>`;
@@ -493,6 +497,36 @@
                         document.getElementById('subject-select').value = card.dataset.id;
                         loadStudents(card.dataset.id);
                         document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+
+                document.querySelectorAll('.delete-subject').forEach(button => {
+                    button.addEventListener('click', async (event) => {
+                        event.stopPropagation();
+                        if (!confirm(`Delete ${button.dataset.name}? Its question bank will also be removed. This cannot be undone.`)) return;
+
+                        button.disabled = true;
+                        try {
+                            await apiFetch(`/api/teacher/subjects/${button.dataset.id}`, { method: 'DELETE' });
+                            if (String(currentSubjectId) === button.dataset.id) {
+                                currentSubjectId = null;
+                                currentStudents = [];
+                                document.getElementById('results-table-container').classList.add('hidden');
+                            }
+                            if (String(qSubjectId) === button.dataset.id) {
+                                qSubjectId = null;
+                                document.getElementById('q-form-wrap').classList.add('hidden');
+                                document.getElementById('q-list-wrap').classList.add('hidden');
+                                document.getElementById('q-pool-count').textContent = '-';
+                            }
+                            document.getElementById('global-error').classList.add('hidden');
+                            showSuccess('Subject deleted.', document.getElementById('global-success'));
+                            await loadSubjects();
+                            if (typeof loadQuestionSubjects === 'function') await loadQuestionSubjects();
+                        } catch (e) {
+                            showError(e.message, document.getElementById('global-error'));
+                            button.disabled = false;
+                        }
                     });
                 });
 

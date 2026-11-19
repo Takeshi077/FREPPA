@@ -39,6 +39,37 @@ exports.getSubjects = async (req, res) => {
   }
 };
 
+exports.deleteSubject = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ error: 'Teacher profile not found.' });
+    }
+    const teacherId = teacherRows[0].id;
+
+    const [subjects] = await pool.query(
+      'SELECT id FROM subjects WHERE id = ? AND teacher_id = ? AND is_active = 1',
+      [id, teacherId]
+    );
+    if (subjects.length === 0) {
+      return res.status(403).json({ error: 'That subject is not assigned to you.' });
+    }
+
+    const [results] = await pool.query('SELECT COUNT(*) AS count FROM results WHERE subject_id = ?', [id]);
+    if (results[0].count > 0) {
+      return res.status(409).json({ error: 'Cannot delete subject with existing results. Remove the results first.' });
+    }
+
+    await pool.query('DELETE FROM subjects WHERE id = ?', [id]);
+    res.json({ message: 'Subject deleted.' });
+  } catch (err) {
+    console.error('Delete subject error:', err);
+    res.status(500).json({ error: 'Failed to delete subject.' });
+  }
+};
+
 exports.getSessionsTerms = async (req, res) => {
   try {
     const [sessions] = await pool.query('SELECT id, session_name, is_current FROM sessions ORDER BY id DESC');

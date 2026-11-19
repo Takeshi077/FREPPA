@@ -5,6 +5,7 @@ const path = require('path');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const {
   getSubjects,
+  deleteSubject,
   getStudentsBySubject,
   updateResult,
   bulkUpload,
@@ -48,6 +49,7 @@ router.use(authenticateToken, requireRole('teacher'));
 
 router.get('/sessions-terms', getSessionsTerms);
 router.get('/subjects', getSubjects);
+router.delete('/subjects/:id', deleteSubject);
 router.get('/subject/:subjectId/students', getStudentsBySubject);
 router.post('/result/update', updateResult);
 router.post('/result/bulk-upload', upload.single('file'), bulkUpload);
