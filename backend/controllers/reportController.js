@@ -476,7 +476,7 @@ exports.getReportPDF = async (req, res) => {
         await page.evaluate(s => {
           const sheet = document.querySelector('.sheet');
           sheet.style.zoom = String(s);
-          sheet.style.width = (100 / s) + '%';
+          sheet.style.width = (210 / s) + 'mm';
         }, scale);
       }
       const pdf = await page.pdf({
