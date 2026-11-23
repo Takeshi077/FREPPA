@@ -11,19 +11,18 @@
       }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
     <style>
         :root {
             --rc-green: #1b6b1b;
             --rc-green-dark: #145014;
             --rc-green-soft: #eef7ee;
-            --rc-line: #c9d9c9;
-            --rc-ink: #1f2937;
-            --rc-muted: #475569;
+            --rc-line: #b9ccb9;
+            --rc-ink: #111827;
+            --rc-muted: #334155;
             --rc-gold: #a16207;
         }
 
-        body { font-family: 'Outfit', sans-serif; }
+        body { font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; }
 
         .report-shell {
             width: 210mm;
@@ -42,10 +41,10 @@
             border-radius: 10px;
             box-shadow: 0 12px 34px rgba(20, 70, 20, .14);
             color: var(--rc-ink);
-            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
-            font-size: 11px;
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: 11.5px;
             font-weight: 500;
-            line-height: 1.28;
+            line-height: 1.18;
             text-rendering: optimizeLegibility;
             font-kerning: normal;
         }
@@ -62,7 +61,7 @@
         .rc-head-text { flex: 1; text-align: center; }
         .rc-head h1 {
             margin: 0;
-            font-size: 21px;
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: .8px;
             line-height: 1.1;
@@ -90,10 +89,10 @@
             padding: 7px 12px;
             margin-bottom: 10px;
             border-radius: 6px;
-            background: linear-gradient(90deg, var(--rc-green-dark), #2f8f2f);
+            background: #1b6b1b;
             color: #fff;
         }
-        .rc-title strong { font-size: 15px; letter-spacing: 3px; font-weight: 700; }
+        .rc-title strong { font-size: 16px; letter-spacing: 3px; font-weight: 700; }
         .rc-title span { font-size: 10.5px; letter-spacing: .3px; opacity: .95; }
 
         .rc-info {
@@ -116,7 +115,7 @@
             color: var(--rc-muted);
         }
         .rc-info-item strong {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--rc-ink);
             overflow-wrap: anywhere;
@@ -127,20 +126,20 @@
             padding: 7px 4px;
             background: var(--rc-green);
             color: #fff;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 700;
-            line-height: 1.25;
+            line-height: 1.2;
             text-align: center;
         }
         .rc-table th:nth-child(2), .rc-table td:nth-child(2) { text-align: left; }
         .rc-table td {
             padding: 6.5px 4px;
             border-bottom: 1px solid #e6ede6;
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 500;
             text-align: center;
         }
-        .rc-table tbody tr:nth-child(even) { background: #f7faf7; }
+        .rc-table tbody tr:nth-child(even) { background: #f1f7f1; }
         .rc-table .rc-subject { font-weight: 600; color: #143214; }
         .rc-empty { padding: 16px !important; text-align: center !important; color: var(--rc-muted); }
 
@@ -149,7 +148,7 @@
             min-width: 21px;
             padding: 1.5px 4px;
             border-radius: 3px;
-            font-size: 9.5px;
+            font-size: 10px;
             font-weight: 700;
             line-height: 1.3;
         }
@@ -173,7 +172,7 @@
             background: #fffaf0;
             text-align: center;
         }
-        .rc-stat b { display: block; font-size: 18px; line-height: 1.15; color: var(--rc-gold); }
+        .rc-stat b { display: block; font-size: 19px; line-height: 1.15; color: var(--rc-gold); }
         .rc-stat b small { font-size: 10px; font-weight: 500; color: var(--rc-muted); }
         .rc-stat span {
             display: block;
@@ -217,7 +216,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 5px;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 500;
             white-space: nowrap;
         }
@@ -237,8 +236,8 @@
             display: flex;
             gap: 8px;
             padding: 5.5px 0;
-            border-bottom: 1px dashed #e2e8e2;
-            font-size: 10.5px;
+            border-bottom: 1px dashed #cbd5cb;
+            font-size: 11px;
         }
         .rc-remark-row:last-child { border-bottom: 0; }
         .rc-remark-row span {
@@ -259,7 +258,7 @@
             margin: 0 0 16px;
             padding-bottom: 3px;
             border-bottom: 1px solid #94a394;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 600;
             color: var(--rc-muted);
         }
@@ -270,10 +269,30 @@
             margin-top: 13px;
             padding-top: 9px;
             border-top: 1px solid var(--rc-line);
-            font-size: 9px;
+            font-size: 9.5px;
             text-align: center;
-            color: #94a394;
+            color: #64748b;
         }
+
+        .rc--dense { line-height: 1.12; }
+        .rc--dense .rc-head { padding-bottom: 6px; margin-bottom: 6px; }
+        .rc--dense .rc-logo { width: 48px; height: 48px; }
+        .rc--dense .rc-title { padding: 5px 10px; margin-bottom: 6px; }
+        .rc--dense .rc-info { padding: 6px 10px; gap: 3px 10px; margin-bottom: 6px; }
+        .rc--dense .rc-table th { padding: 4px 3px; }
+        .rc--dense .rc-table td { padding: 3.5px 3px; }
+        .rc--dense .rc-summary { margin: 6px 0; }
+        .rc--dense .rc-stat { padding: 5px 4px; }
+        .rc--dense .rc-stat b { font-size: 16px; }
+        .rc--dense .rc-panel { padding: 7px 9px; }
+        .rc--dense .rc-panel + .rc-panel { margin-top: 6px; }
+        .rc--dense .rc-panel h2 { margin-bottom: 5px; padding-bottom: 2px; }
+        .rc--dense .rc-domain-grid { gap: 3px 7px; }
+        .rc--dense .rc-legend { margin-top: 4px; }
+        .rc--dense .rc-remark-row { padding: 3px 0; }
+        .rc--dense .rc-sign { margin-top: 7px; }
+        .rc--dense .rc-sign p { margin-bottom: 9px; }
+        .rc--dense .rc-foot { margin-top: 7px; padding-top: 5px; }
 
         @page { size: A4 portrait; margin: 0; }
 
@@ -557,10 +576,15 @@
         function fitReportToPage() {
             const paper = document.querySelector('#report-inner .rc');
             if (!paper) return;
+            paper.classList.remove('rc--dense');
             paper.style.zoom = '';
             paper.style.width = '';
-            const availableHeight = 1115;
-            const contentHeight = paper.getBoundingClientRect().height;
+            const availableHeight = 1112;
+            let contentHeight = paper.getBoundingClientRect().height;
+            if (contentHeight > availableHeight) {
+                paper.classList.add('rc--dense');
+                contentHeight = paper.getBoundingClientRect().height;
+            }
             if (contentHeight > availableHeight) {
                 const scale = Math.max(0.5, availableHeight / contentHeight);
                 paper.style.zoom = String(scale);
@@ -571,6 +595,7 @@
         function resetReportFit() {
             const paper = document.querySelector('#report-inner .rc');
             if (!paper) return;
+            paper.classList.remove('rc--dense');
             paper.style.zoom = '';
             paper.style.width = '';
         }
