@@ -360,42 +360,42 @@ exports.getReportPDF = async (req, res) => {
  <style>
   @page { size: A4 portrait; margin: 0; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: 'Times New Roman', Times, serif; color: #1f2937; font-size: 8.5px; line-height: 1.2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .sheet { box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 10mm 11mm 8mm; }
-  .head { display: flex; align-items: center; gap: 9px; padding-bottom: 5px; margin-bottom: 6px; border-bottom: 2px solid #1b6b1b; }
+  body { font-family: 'Times New Roman', Times, serif; color: #1f2937; font-size: 10.5px; line-height: 1.28; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 12mm 12mm 10mm; }
+  .head { display: flex; align-items: center; gap: 12px; padding-bottom: 8px; margin-bottom: 9px; border-bottom: 2.5px solid #1b6b1b; }
   .head-text { flex: 1; text-align: center; }
-  .head h1 { margin: 0; font-size: 15px; letter-spacing: .5px; color: #1b6b1b; }
-  .head p { margin: 1px 0 0; font-size: 7.5px; color: #64748b; }
-  .tag { padding: 3px 5px; border: 1px solid #1b6b1b; border-radius: 3px; color: #1b6b1b; font-size: 6.5px; font-weight: bold; text-align: center; line-height: 1.3; }
-  .title { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; margin-bottom: 6px; border-radius: 4px; background: linear-gradient(90deg, #145014, #2f8f2f); color: #fff; font-size: 10px; font-weight: bold; letter-spacing: 2px; }
-  .title span { font-size: 7.5px; font-weight: normal; letter-spacing: 0; }
-  .info { width: 100%; border-collapse: collapse; margin-bottom: 6px; background: #eef7ee; border: 1px solid #d7e4d7; }
-  .info td { padding: 2.5px 5px; font-size: 8px; }
-  .info .label { width: 78px; font-size: 7px; font-weight: bold; text-transform: uppercase; color: #64748b; }
+  .head h1 { margin: 0; font-size: 20px; letter-spacing: .8px; color: #1b6b1b; }
+  .head p { margin: 2px 0 0; font-size: 10px; color: #64748b; }
+  .tag { padding: 5px 8px; border: 1px solid #1b6b1b; border-radius: 5px; color: #1b6b1b; font-size: 9px; font-weight: bold; text-align: center; line-height: 1.35; }
+  .title { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; margin-bottom: 9px; border-radius: 6px; background: linear-gradient(90deg, #145014, #2f8f2f); color: #fff; font-size: 14px; font-weight: bold; letter-spacing: 3px; }
+  .title span { font-size: 10px; font-weight: normal; letter-spacing: 0; }
+  .info { width: 100%; border-collapse: collapse; margin-bottom: 9px; background: #eef7ee; border: 1px solid #d7e4d7; }
+  .info td { padding: 5px 8px; font-size: 10.5px; }
+  .info .label { width: 100px; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #64748b; }
   .results { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .results th { padding: 3px 2px; background: #1b6b1b; color: #fff; font-size: 7.5px; text-align: center; }
-  .results td { padding: 2px 3px; border-bottom: 1px solid #e6ede6; font-size: 7.8px; text-align: center; }
+  .results th { padding: 6px 4px; background: #1b6b1b; color: #fff; font-size: 9.5px; text-align: center; }
+  .results td { padding: 5px 4px; border-bottom: 1px solid #e6ede6; font-size: 10px; text-align: center; }
   .results tr:nth-child(even) td { background: #f7faf7; }
   .results th:nth-child(2), .results td:nth-child(2) { text-align: left; }
-  .summary { display: flex; gap: 5px; margin: 6px 0; }
-  .summary div { flex: 1; padding: 4px 2px; border: 1px solid #f0d9a8; border-radius: 4px; background: #fffaf0; text-align: center; }
-  .summary b { display: block; font-size: 12px; color: #a16207; }
-  .summary span { font-size: 6.8px; text-transform: uppercase; color: #64748b; }
-  .lower { width: 100%; border-collapse: separate; border-spacing: 5px 0; }
-  .lower td { width: 50%; vertical-align: top; padding: 5px 7px; border: 1px solid #d7e4d7; border-radius: 4px; }
-  .lower h2 { margin: 0 0 4px; padding-bottom: 2px; border-bottom: 1px solid #d7e4d7; color: #145014; font-size: 8.5px; text-transform: uppercase; letter-spacing: .6px; }
+  .summary { display: flex; gap: 7px; margin: 9px 0; }
+  .summary div { flex: 1; padding: 7px 3px; border: 1px solid #f0d9a8; border-radius: 6px; background: #fffaf0; text-align: center; }
+  .summary b { display: block; font-size: 17px; color: #a16207; }
+  .summary span { font-size: 9px; text-transform: uppercase; color: #64748b; }
+  .lower { width: 100%; border-collapse: separate; border-spacing: 7px 0; }
+  .lower td { width: 50%; vertical-align: top; padding: 9px 11px; border: 1px solid #d7e4d7; border-radius: 6px; }
+  .lower h2 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid #d7e4d7; color: #145014; font-size: 10.5px; text-transform: uppercase; letter-spacing: .8px; }
   .domains { width: 100%; border-collapse: collapse; }
-  .domains td { padding: 1.5px 2px; border-bottom: 1px solid #eef2ee; font-size: 7.5px; }
+  .domains td { padding: 3px 4px; border-bottom: 1px solid #eef2ee; font-size: 9.5px; }
   .domains strong { color: #145014; }
-  .legend { margin-top: 3px; font-size: 6.8px; color: #64748b; }
-  .attendance { margin-top: 5px; padding-top: 3px; border-top: 1px solid #eef2ee; font-size: 7.8px; }
-  .remark { padding: 2px 0; border-bottom: 1px dashed #e2e8e2; font-size: 7.8px; }
+  .legend { margin-top: 5px; font-size: 8.5px; color: #64748b; }
+  .attendance { margin-top: 7px; padding-top: 4px; border-top: 1px solid #eef2ee; font-size: 10px; }
+  .remark { padding: 4px 0; border-bottom: 1px dashed #e2e8e2; font-size: 10px; }
   .remark:last-child { border-bottom: 0; }
-  .remark b { display: inline-block; width: 90px; color: #64748b; }
-  .sign { display: flex; justify-content: space-between; margin-top: 8px; font-size: 7.5px; }
-  .sign div { width: 46%; padding-bottom: 9px; border-bottom: 1px solid #94a394; }
+  .remark b { display: inline-block; width: 108px; color: #64748b; }
+  .sign { display: flex; justify-content: space-between; margin-top: 11px; font-size: 9.5px; }
+  .sign div { width: 46%; padding-bottom: 13px; border-bottom: 1px solid #94a394; }
   .sign div:last-child { text-align: right; }
-  .foot { margin-top: 7px; padding-top: 4px; border-top: 1px solid #d7e4d7; font-size: 6.8px; text-align: center; color: #94a394; }
+  .foot { margin-top: 10px; padding-top: 6px; border-top: 1px solid #d7e4d7; font-size: 8.5px; text-align: center; color: #94a394; }
  </style></head><body>
  <div class="sheet">
   <div class="head">
