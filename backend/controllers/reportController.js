@@ -322,7 +322,7 @@ exports.getReportPDF = async (req, res) => {
     let rowHtml = '<tr>';
     domainFields.forEach(f => {
       const val = escapeHtml(domain[f.key] || '-');
-      rowHtml += `<td style="padding:2.5px 5px;font-size:7.5px;">${f.label}: <strong>${val}</strong></td>`;
+      rowHtml += `<td>${f.label}: <strong>${val}</strong></td>`;
       count++;
       if (count % 3 === 0) {
         domainRows += rowHtml + '</tr>';
@@ -331,7 +331,7 @@ exports.getReportPDF = async (req, res) => {
     });
     if (count % 3 !== 0) {
       while (count % 3 !== 0) {
-        rowHtml += '<td style="padding:2.5px 5px;font-size:7.5px;"></td>';
+        rowHtml += '<td></td>';
         count++;
       }
       domainRows += rowHtml + '</tr>';
@@ -340,99 +340,126 @@ exports.getReportPDF = async (req, res) => {
     let rows = '';
     results.forEach((r, i) => {
       rows += `<tr>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${i + 1}</td>
-        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.subject_name)}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test1 ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test2 ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.test3 ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.ca_score ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.exam_score ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${escapeHtml(r.total_score ?? '-')}</td>
-        <td style="padding:1.5px 3px;text-align:center;font-size:8px;font-weight:bold;border-bottom:1px solid #ddd;">${escapeHtml(r.grade || '-')}</td>
-        <td style="padding:1.5px 3px;font-size:8px;border-bottom:1px solid #ddd;">${escapeHtml(r.remarks || '-')}</td>
+        <td>${i + 1}</td>
+        <td><strong>${escapeHtml(r.subject_name)}</strong></td>
+        <td>${escapeHtml(r.test1 ?? '-')}</td>
+        <td>${escapeHtml(r.test2 ?? '-')}</td>
+        <td>${escapeHtml(r.test3 ?? '-')}</td>
+        <td>${escapeHtml(r.ca_score ?? '-')}</td>
+        <td>${escapeHtml(r.exam_score ?? '-')}</td>
+        <td><strong>${escapeHtml(r.total_score ?? '-')}</strong></td>
+        <td><strong>${escapeHtml(r.grade || '-')}</strong></td>
+        <td>${escapeHtml(r.remarks || '-')}</td>
       </tr>`;
     });
+
+    const nextTerm = meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________';
 
     const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
  <style>
-  body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 0; color: #222; font-size: 8.5px; line-height: 1.2; }
-  .header { text-align: center; border-bottom: 1px solid #1b6b1b; padding-bottom: 2px; margin-bottom: 2px; }
-  .header h1 { color: #1b6b1b; margin: 0; font-size: 11px; }
-  .header p { margin: 0.5px 0; font-size: 7.5px; color: #555; }
-  .title { text-align: center; font-size: 10px; font-weight: bold; margin: 2px 0; text-decoration: underline; }
-  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
-  .info-table td { padding: 1px 4px; font-size: 8px; }
-  .info-table .label { font-weight: bold; width: 80px; }
-  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
-  .results-table th { background: #1b6b1b; color: #fff; padding: 2px 3px; font-size: 7.5px; text-align: center; }
-  .results-table th:first-child { text-align: center; }
-  .results-table th:nth-child(2) { text-align: left; }
-  .results-table td:nth-child(2) { text-align: left; }
-  .summary { text-align: center; font-size: 8px; font-weight: bold; margin: 2px 0; padding: 2px; border: 1px solid #1b6b1b; background: #f0f7f0; }
-  .domains-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
-  .domains-table td { border: 1px solid #ddd; }
-  .remarks { margin-top: 2px; font-size: 8px; }
-  .remarks p { margin: 1.5px 0; }
-  .remarks .line { border-bottom: 1px solid #222; display: inline-block; width: 200px; margin-left: 5px; }
-  .footer { text-align: center; font-size: 7px; color: #888; margin-top: 3px; border-top: 1px solid #ccc; padding-top: 2px; }
-</style></head><body>
-<div class="header">
-  <h1>FREPPA GROUP OF SCHOOLS</h1>
-  <p>Plot 4, Freppa Avenue, Off Lagos Road, Ibadan, Oyo State</p>
-  <p>Phone: 08012345678 | Email: info@freppagroupofschools.edu</p>
-</div>
-
-<table class="info-table">
-  <tr><td class="label">Student Name:</td><td>${escapeHtml(student?.full_name || '')}</td>
-      <td class="label">Admission No:</td><td>${escapeHtml(student?.admission_number || '')}</td></tr>
-  <tr><td class="label">Class:</td><td>${escapeHtml(student?.class_name || '')} - ${escapeHtml(student?.section || '')}</td>
-      <td class="label">Gender:</td><td>${escapeHtml(student?.gender || '-')}</td></tr>
-  <tr><td class="label">Term:</td><td>${escapeHtml(term?.term_name || '')}</td>
-      <td class="label">Session:</td><td>${escapeHtml(session?.session_name || '')}</td></tr>
-</table>
-
-<table class="results-table">
-  <thead><tr>
-    <th>S/N</th><th style="text-align:left;">Subject</th><th>T1<br>(10)</th><th>T2<br>(20)</th><th>T3<br>(20)</th>
-    <th>CA<br>(50)</th><th>Exam<br>(50)</th><th>Total<br>(100)</th><th>Grade</th><th>Remarks</th>
-  </tr></thead>
-  <tbody>${rows}</tbody>
-</table>
-
-    <div class="summary">
-  Grand Total: ${grandTotal.toFixed(2)} &nbsp;|&nbsp; Subjects: ${results.length} &nbsp;|&nbsp; Average: ${average.toFixed(2)}
-  &nbsp;|&nbsp; Position: ${escapeHtml(meta.class_position || '-')}/${escapeHtml(meta.total_students || '-')}
-</div>
-
-<div style="display:flex;justify-content:space-between;align-items:center;font-size:8.5px;margin:3px 0;font-style:italic;color:#333;border-bottom:1px solid #eee;padding-bottom:2px;">
-  <div><strong>Teacher's Remark:</strong> ${escapeHtml(teacherRemark)}</div>
-  <div><strong>Promotion Status:</strong> ${escapeHtml(promotionStatus)}</div>
-</div>
-
-<h3 style="font-size:9px;margin:4px 0 2px;">Affective & Psychomotor Domain</h3>
-<table class="domains-table">${domainRows}</table>
-
-<div class="remarks">
-  <p><strong>Attendance:</strong> Present: ${escapeHtml(att.present)} &nbsp; Absent: ${escapeHtml(att.absent)} &nbsp; Excused: ${escapeHtml(att.excused)}</p>
-  <p><strong>Class Teacher's Remark:</strong> ${escapeHtml(meta.teacher_remark || '________________________')}</p>
-  <p><strong>Principal's Remark:</strong> ${escapeHtml(meta.principal_remark || '________________________')}</p>
-  <p><strong>Next Term Begins:</strong> ${escapeHtml(meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________')}</p>
-</div>
-
-<div style="margin-top:6px;font-size:8px;">
-  <div style="float:left;width:45%;">
-    Class Teacher's Signature: ___________________<br>
-    Date: ___________________
+  @page { size: A4 portrait; margin: 0; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Times New Roman', Times, serif; color: #1f2937; font-size: 8.5px; line-height: 1.2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 10mm 11mm 8mm; }
+  .head { display: flex; align-items: center; gap: 9px; padding-bottom: 5px; margin-bottom: 6px; border-bottom: 2px solid #1b6b1b; }
+  .head-text { flex: 1; text-align: center; }
+  .head h1 { margin: 0; font-size: 15px; letter-spacing: .5px; color: #1b6b1b; }
+  .head p { margin: 1px 0 0; font-size: 7.5px; color: #64748b; }
+  .tag { padding: 3px 5px; border: 1px solid #1b6b1b; border-radius: 3px; color: #1b6b1b; font-size: 6.5px; font-weight: bold; text-align: center; line-height: 1.3; }
+  .title { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; margin-bottom: 6px; border-radius: 4px; background: linear-gradient(90deg, #145014, #2f8f2f); color: #fff; font-size: 10px; font-weight: bold; letter-spacing: 2px; }
+  .title span { font-size: 7.5px; font-weight: normal; letter-spacing: 0; }
+  .info { width: 100%; border-collapse: collapse; margin-bottom: 6px; background: #eef7ee; border: 1px solid #d7e4d7; }
+  .info td { padding: 2.5px 5px; font-size: 8px; }
+  .info .label { width: 78px; font-size: 7px; font-weight: bold; text-transform: uppercase; color: #64748b; }
+  .results { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .results th { padding: 3px 2px; background: #1b6b1b; color: #fff; font-size: 7.5px; text-align: center; }
+  .results td { padding: 2px 3px; border-bottom: 1px solid #e6ede6; font-size: 7.8px; text-align: center; }
+  .results tr:nth-child(even) td { background: #f7faf7; }
+  .results th:nth-child(2), .results td:nth-child(2) { text-align: left; }
+  .summary { display: flex; gap: 5px; margin: 6px 0; }
+  .summary div { flex: 1; padding: 4px 2px; border: 1px solid #f0d9a8; border-radius: 4px; background: #fffaf0; text-align: center; }
+  .summary b { display: block; font-size: 12px; color: #a16207; }
+  .summary span { font-size: 6.8px; text-transform: uppercase; color: #64748b; }
+  .lower { width: 100%; border-collapse: separate; border-spacing: 5px 0; }
+  .lower td { width: 50%; vertical-align: top; padding: 5px 7px; border: 1px solid #d7e4d7; border-radius: 4px; }
+  .lower h2 { margin: 0 0 4px; padding-bottom: 2px; border-bottom: 1px solid #d7e4d7; color: #145014; font-size: 8.5px; text-transform: uppercase; letter-spacing: .6px; }
+  .domains { width: 100%; border-collapse: collapse; }
+  .domains td { padding: 1.5px 2px; border-bottom: 1px solid #eef2ee; font-size: 7.5px; }
+  .domains strong { color: #145014; }
+  .legend { margin-top: 3px; font-size: 6.8px; color: #64748b; }
+  .attendance { margin-top: 5px; padding-top: 3px; border-top: 1px solid #eef2ee; font-size: 7.8px; }
+  .remark { padding: 2px 0; border-bottom: 1px dashed #e2e8e2; font-size: 7.8px; }
+  .remark:last-child { border-bottom: 0; }
+  .remark b { display: inline-block; width: 90px; color: #64748b; }
+  .sign { display: flex; justify-content: space-between; margin-top: 8px; font-size: 7.5px; }
+  .sign div { width: 46%; padding-bottom: 9px; border-bottom: 1px solid #94a394; }
+  .sign div:last-child { text-align: right; }
+  .foot { margin-top: 7px; padding-top: 4px; border-top: 1px solid #d7e4d7; font-size: 6.8px; text-align: center; color: #94a394; }
+ </style></head><body>
+ <div class="sheet">
+  <div class="head">
+    <div class="head-text">
+      <h1>FREPPA GROUP OF SCHOOLS</h1>
+      <p>19, Bethel Street, Aule Rd, Akure, Ondo</p>
+      <p>Phone: +234 806 905 2278 &nbsp;|&nbsp; Email: info@freppagroupofschools.edu</p>
+    </div>
+    <div class="tag">OFFICIAL<br>REPORT</div>
   </div>
-  <div style="float:right;width:45%;text-align:right;">
-    Principal's Signature: ___________________<br>
-    Date: ___________________
-  </div>
-  <div style="clear:both;"></div>
-</div>
 
-<div class="footer">This is a computer-generated report card from FREPPA Group of Schools Portal</div>
+  <div class="title"><strong>REPORT CARD</strong><span>${escapeHtml(term?.term_name || '-')} &nbsp;&bull;&nbsp; ${escapeHtml(session?.session_name || '-')}</span></div>
+
+  <table class="info">
+    <tr><td class="label">Student</td><td>${escapeHtml(student?.full_name || '-')}</td>
+        <td class="label">Admission No.</td><td>${escapeHtml(student?.admission_number || '-')}</td></tr>
+    <tr><td class="label">Class</td><td>${escapeHtml(student?.class_name || '-')} - ${escapeHtml(student?.section || '-')}</td>
+        <td class="label">Gender</td><td>${escapeHtml(student?.gender || '-')}</td></tr>
+    <tr><td class="label">Term</td><td>${escapeHtml(term?.term_name || '-')}</td>
+        <td class="label">Session</td><td>${escapeHtml(session?.session_name || '-')}</td></tr>
+  </table>
+
+  <table class="results">
+    <colgroup>
+      <col style="width:4%"><col style="width:22%"><col style="width:7%"><col style="width:7%"><col style="width:7%">
+      <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:6%"><col style="width:23%">
+    </colgroup>
+    <thead><tr>
+      <th>#</th><th>Subject</th><th>T1<br>(10)</th><th>T2<br>(20)</th><th>T3<br>(20)</th>
+      <th>CA<br>(50)</th><th>Exam<br>(50)</th><th>Total<br>(100)</th><th>Grade</th><th>Remarks</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+
+  <div class="summary">
+    <div><b>${results.length}</b><span>Subjects</span></div>
+    <div><b>${grandTotal.toFixed(2)}</b><span>Grand Total</span></div>
+    <div><b>${average.toFixed(2)}</b><span>Average</span></div>
+    <div><b>${escapeHtml(meta.class_position || '-')}/${escapeHtml(meta.total_students || '-')}</b><span>Position</span></div>
+  </div>
+
+  <table class="lower"><tr>
+    <td>
+      <h2>Affective &amp; Psychomotor Domains</h2>
+      <table class="domains">${domainRows}</table>
+      <div class="legend">A = Excellent &nbsp; B = Very Good &nbsp; C = Good &nbsp; D = Fair &nbsp; E = Needs Improvement</div>
+      <div class="attendance"><strong>Attendance:</strong> Present: ${escapeHtml(att.present)} &nbsp; Absent: ${escapeHtml(att.absent)} &nbsp; Excused: ${escapeHtml(att.excused)}</div>
+    </td>
+    <td>
+      <h2>Remarks &amp; Promotion</h2>
+      <div class="remark"><b>Teacher's Remark</b>${escapeHtml(teacherRemark)}</div>
+      <div class="remark"><b>Promotion Status</b>${escapeHtml(promotionStatus)}</div>
+      <div class="remark"><b>Class Teacher</b>${escapeHtml(meta.teacher_remark || '____________________')}</div>
+      <div class="remark"><b>Principal's Remark</b>${escapeHtml(meta.principal_remark || '____________________')}</div>
+      <div class="remark"><b>Next Term Begins</b>${escapeHtml(nextTerm)}</div>
+      <div class="sign">
+        <div>Class Teacher's Signature<br>Date: ______________</div>
+        <div>Principal's Signature<br>Date: ______________</div>
+      </div>
+    </td>
+  </tr></table>
+
+  <div class="foot">This is a computer-generated report card from FREPPA Group of Schools Portal</div>
+ </div>
 </body></html>`;
 
     try {
@@ -443,10 +470,20 @@ exports.getReportPDF = async (req, res) => {
       });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
+      const sheetHeight = await page.evaluate(() => document.querySelector('.sheet').getBoundingClientRect().height);
+      if (sheetHeight > 1120) {
+        const scale = Math.max(0.5, 1120 / sheetHeight);
+        await page.evaluate(s => {
+          const sheet = document.querySelector('.sheet');
+          sheet.style.zoom = String(s);
+          sheet.style.width = (100 / s) + '%';
+        }, scale);
+      }
       const pdf = await page.pdf({
         format: 'A4',
-        margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' },
+        preferCSSPageSize: true,
         printBackground: true,
+        pageRanges: '1',
       });
       await browser.close();
 

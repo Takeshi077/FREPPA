@@ -13,48 +13,307 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
     <style>
+        :root {
+            --rc-green: #1b6b1b;
+            --rc-green-dark: #145014;
+            --rc-green-soft: #eef7ee;
+            --rc-line: #d7e4d7;
+            --rc-ink: #1f2937;
+            --rc-muted: #64748b;
+            --rc-gold: #a16207;
+        }
+
         body { font-family: 'Outfit', sans-serif; }
+
+        .report-shell {
+            width: 210mm;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px 0 36px;
+        }
+
+        .rc {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 10mm 11mm 8mm;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 12px 34px rgba(20, 70, 20, .14);
+            color: var(--rc-ink);
+            font-size: 9px;
+            line-height: 1.22;
+        }
+
+        .rc-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 7px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--rc-green);
+        }
+        .rc-logo { width: 44px; height: 44px; object-fit: contain; flex: none; }
+        .rc-head-text { flex: 1; text-align: center; }
+        .rc-head h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .6px;
+            line-height: 1.1;
+            color: var(--rc-green);
+        }
+        .rc-head p { margin: 1.5px 0 0; font-size: 8px; color: var(--rc-muted); }
+        .rc-tag {
+            flex: none;
+            padding: 4px 7px;
+            border: 1px solid var(--rc-green);
+            border-radius: 4px;
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            line-height: 1.35;
+            text-align: center;
+            color: var(--rc-green);
+        }
+
+        .rc-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--rc-green-dark), #2f8f2f);
+            color: #fff;
+        }
+        .rc-title strong { font-size: 11px; letter-spacing: 2.4px; font-weight: 700; }
+        .rc-title span { font-size: 8px; letter-spacing: .3px; opacity: .95; }
+
+        .rc-info {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 4px 10px;
+            padding: 6px 9px;
+            margin-bottom: 8px;
+            border: 1px solid var(--rc-line);
+            border-radius: 5px;
+            background: var(--rc-green-soft);
+        }
+        .rc-info-item { display: flex; align-items: baseline; gap: 5px; min-width: 0; }
+        .rc-info-item span {
+            flex: none;
+            font-size: 7px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--rc-muted);
+        }
+        .rc-info-item strong {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--rc-ink);
+            overflow-wrap: anywhere;
+        }
+
+        .rc-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .rc-table th {
+            padding: 4px 3px;
+            background: var(--rc-green);
+            color: #fff;
+            font-size: 7.5px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .rc-table th:nth-child(2), .rc-table td:nth-child(2) { text-align: left; }
+        .rc-table td {
+            padding: 3px;
+            border-bottom: 1px solid #e6ede6;
+            font-size: 8px;
+            text-align: center;
+        }
+        .rc-table tbody tr:nth-child(even) { background: #f7faf7; }
+        .rc-table .rc-subject { font-weight: 600; color: #143214; }
+        .rc-empty { padding: 12px !important; text-align: center !important; color: var(--rc-muted); }
+
+        .rc-badge {
+            display: inline-block;
+            min-width: 16px;
+            padding: 1px 3px;
+            border-radius: 3px;
+            font-size: 7.5px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .rc-badge--a { background: #dcfce7; color: #166534; }
+        .rc-badge--b { background: #dbeafe; color: #1e40af; }
+        .rc-badge--c { background: #fef3c7; color: #92400e; }
+        .rc-badge--d { background: #ffedd5; color: #9a3412; }
+        .rc-badge--e { background: #fee2e2; color: #991b1b; }
+        .rc-badge--f { background: #fecaca; color: #7f1d1d; }
+
+        .rc-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            margin: 8px 0;
+        }
+        .rc-stat {
+            padding: 5px 4px;
+            border: 1px solid #f0d9a8;
+            border-radius: 5px;
+            background: #fffaf0;
+            text-align: center;
+        }
+        .rc-stat b { display: block; font-size: 13px; line-height: 1.15; color: var(--rc-gold); }
+        .rc-stat b small { font-size: 8px; font-weight: 500; color: var(--rc-muted); }
+        .rc-stat span {
+            display: block;
+            margin-top: 1px;
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--rc-muted);
+        }
+
+        .rc-lower {
+            display: grid;
+            grid-template-columns: 1.06fr 1fr;
+            gap: 8px;
+            align-items: start;
+        }
+        .rc-panel {
+            padding: 6px 8px;
+            border: 1px solid var(--rc-line);
+            border-radius: 5px;
+        }
+        .rc-panel + .rc-panel { margin-top: 6px; }
+        .rc-panel h2 {
+            margin: 0 0 5px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid var(--rc-line);
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            color: var(--rc-green-dark);
+        }
+        .rc-domain-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 3px 7px;
+        }
+        .rc-domain {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            font-size: 7.8px;
+            white-space: nowrap;
+        }
+        .rc-domain span { overflow: hidden; text-overflow: ellipsis; }
+        .rc-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px 8px;
+            margin-top: 5px;
+            font-size: 7px;
+            color: var(--rc-muted);
+        }
+        .rc-attendance { display: flex; gap: 12px; font-size: 8px; }
+        .rc-attendance strong { color: var(--rc-green-dark); }
+
+        .rc-remark-row {
+            display: flex;
+            gap: 6px;
+            padding: 2.5px 0;
+            border-bottom: 1px dashed #e2e8e2;
+            font-size: 8px;
+        }
+        .rc-remark-row:last-child { border-bottom: 0; }
+        .rc-remark-row span {
+            flex: none;
+            width: 92px;
+            font-weight: 600;
+            color: var(--rc-muted);
+        }
+        .rc-remark-row strong { font-weight: 500; overflow-wrap: anywhere; }
+
+        .rc-sign {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .rc-sign p {
+            margin: 0 0 11px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #94a394;
+            font-size: 7.5px;
+            font-weight: 600;
+            color: var(--rc-muted);
+        }
+        .rc-sign div:last-child { text-align: right; }
+        .rc-sign span { font-size: 7px; color: var(--rc-muted); }
+
+        .rc-foot {
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px solid var(--rc-line);
+            font-size: 7px;
+            text-align: center;
+            color: #94a394;
+        }
+
+        @page { size: A4 portrait; margin: 0; }
+
         @media print {
+            html, body {
+                display: block !important;
+                width: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                overflow: visible !important;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
             .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            .print-hide { display: none !important; }
-            body { background: white; font-size: 10px !important; line-height: 1.25 !important; }
-            .page-break { page-break-before: always; }
-            
-            /* Squeeze spacing for A4 single-page fit */
-            main { padding-top: 0 !important; padding-bottom: 0 !important; }
-            #report-content { padding: 0.5rem !important; border: none !important; box-shadow: none !important; }
-            .mb-6 { margin-bottom: 0.4rem !important; }
-            .mb-4 { margin-bottom: 0.25rem !important; }
-            .mt-8 { margin-top: 0.5rem !important; }
-            .mt-6 { margin-top: 0.25rem !important; }
-            .mt-4 { margin-top: 0.2rem !important; }
-            .py-6 { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
-            .py-8 { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
-            .p-4 { padding: 0.4rem !important; }
-            .p-3 { padding: 0.2rem !important; }
-            .p-8 { padding: 0.5rem !important; }
-            .pb-4 { padding-bottom: 0.2rem !important; }
-            .pt-4 { padding-top: 0.2rem !important; }
-            .gap-x-6 { column-gap: 1rem !important; }
-            .gap-y-1 { row-gap: 2px !important; }
-            
-            /* Text sizing */
-            h1 { font-size: 1.2rem !important; margin-bottom: 2px !important; }
-            h2 { font-size: 1rem !important; margin-bottom: 2px !important; }
-            h3 { font-size: 0.85rem !important; margin-bottom: 2px !important; }
-            
-            /* Table padding reduction */
-            table th { padding: 3px 4px !important; font-size: 8px !important; }
-            table td { padding: 3px 4px !important; font-size: 8px !important; }
-            
-            /* Affective domains 3-column layout override */
-            .grid-cols-2 { grid-template-cols: repeat(3, minmax(0, 1fr)) !important; }
-            .gap-2 { gap: 4px !important; }
-        }
-        }
-        @media screen {
-            .print-only { display: none; }
+            main {
+                display: block !important;
+                width: auto !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .report-shell {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .rc {
+                width: 100% !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 10mm 11mm 8mm !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            .rc-head, .rc-title, .rc-info, .rc-summary,
+            .rc-lower, .rc-panel, .rc-sign, .rc-foot {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .rc-table thead { display: table-header-group; }
+            .rc-table tr { break-inside: avoid; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -81,7 +340,6 @@
         <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6 no-print"></div>
         <div id="loading-message" class="text-center py-12 text-slate-400"><i class="fa-solid fa-spinner fa-spin text-2xl"></i><p class="mt-2">Loading report card...</p></div>
 
-        <!-- Controls -->
         <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-6 no-print">
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Session</label>
@@ -102,9 +360,8 @@
             </button>
         </div>
 
-        <!-- Report Card -->
-        <div id="report-content" class="hidden max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-slate-100 p-4 md:p-8">
-            <div id="report-inner" class="overflow-x-auto"></div>
+        <div id="report-content" class="report-shell hidden">
+            <div id="report-inner"></div>
         </div>
     </main>
 
@@ -117,12 +374,12 @@
         document.getElementById('nav-username').textContent = user.full_name;
         document.getElementById('nav-username').classList.remove('hidden');
 
+        let currentChildId = null;
+
         function getRemark(grade) {
             const map = { A: 'Distinction', B: 'Very Good', C: 'Good', D: 'Average', E: 'Pass', F: 'Fail' };
             return map[grade] || '-';
         }
-
-        let currentChildId = null;
 
         function getDomainLabel(val) {
             if (!val) return '-';
@@ -130,16 +387,10 @@
             return labels[val.toUpperCase()] || val;
         }
 
-        function getGradeColor(grade) {
-            if (!grade) return 'text-slate-400';
-            const g = grade.toUpperCase();
-            if (g === 'A') return 'text-green-700';
-            if (g === 'B') return 'text-blue-700';
-            if (g === 'C') return 'text-amber-700';
-            if (g === 'D') return 'text-orange-700';
-            if (g === 'E') return 'text-red-600';
-            if (g === 'F') return 'text-red-900';
-            return 'text-slate-400';
+        function rcBadgeClass(grade) {
+            if (!grade) return '';
+            const g = String(grade).trim().toUpperCase();
+            return ['A', 'B', 'C', 'D', 'E', 'F'].includes(g) ? ' rc-badge--' + g.toLowerCase() : '';
         }
 
         function renderReport(data) {
@@ -168,172 +419,158 @@
                 { label: 'Social Skills', key: 'social_skills' },
             ];
 
-            let domainHtml = '';
-            domainFields.forEach((f, i) => {
+            const domainHtml = domainFields.map(f => {
                 const rawVal = domain[f.key] || '-';
-                const val = escapeHtml(rawVal);
-                const label = escapeHtml(getDomainLabel(domain[f.key]));
-                domainHtml += `<div class="flex items-center justify-between px-3 py-1.5 bg-slate-50 rounded-lg">
-                    <span class="text-sm text-slate-700">${f.label}</span>
-                    <span class="font-bold text-sm ${getGradeColor(rawVal)}" title="${label}">${val}</span>
+                return `<div class="rc-domain" title="${escapeHtml(getDomainLabel(rawVal))}">
+                    <span>${f.label}</span>
+                    <strong class="rc-badge${rcBadgeClass(rawVal)}">${escapeHtml(rawVal)}</strong>
                 </div>`;
-            });
+            }).join('');
 
-            let rows = '';
-            results.forEach((r, i) => {
-                rows += `<tr class="hover:bg-slate-50 border-t border-slate-100">
-                    <td class="p-3 text-center text-slate-500">${i + 1}</td>
-                    <td class="p-3 font-medium text-slate-900">${escapeHtml(r.subject_name)}</td>
-                    <td class="p-3 text-center">${escapeHtml(r.test1 ?? '-')}</td>
-                    <td class="p-3 text-center">${escapeHtml(r.test2 ?? '-')}</td>
-                    <td class="p-3 text-center">${escapeHtml(r.test3 ?? '-')}</td>
-                    <td class="p-3 text-center font-medium">${escapeHtml(r.ca_score ?? '-')}</td>
-                    <td class="p-3 text-center">${escapeHtml(r.exam_score ?? '-')}</td>
-                    <td class="p-3 text-center font-bold text-slate-900">${escapeHtml(r.total_score ?? '-')}</td>
-                    <td class="p-3 text-center"><span class="inline-block px-2 py-0.5 rounded text-xs font-bold ${getGradeClass(r.grade)}">${escapeHtml(r.grade || '-')}</span></td>
-                    <td class="p-3 text-center text-slate-600">${escapeHtml(r.remarks || getRemark(r.grade))}</td>
-                </tr>`;
-            });
+            const rows = results.map((r, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td class="rc-subject">${escapeHtml(r.subject_name)}</td>
+                    <td>${escapeHtml(r.test1 ?? '-')}</td>
+                    <td>${escapeHtml(r.test2 ?? '-')}</td>
+                    <td>${escapeHtml(r.test3 ?? '-')}</td>
+                    <td>${escapeHtml(r.ca_score ?? '-')}</td>
+                    <td>${escapeHtml(r.exam_score ?? '-')}</td>
+                    <td><strong>${escapeHtml(r.total_score ?? '-')}</strong></td>
+                    <td><span class="rc-badge${rcBadgeClass(r.grade)}">${escapeHtml(r.grade || '-')}</span></td>
+                    <td>${escapeHtml(r.remarks || getRemark(r.grade))}</td>
+                </tr>`).join('');
 
             const grandTotal = results.reduce((sum, r) => sum + parseFloat(r.total_score || 0), 0);
             const avg = results.length > 0 ? (grandTotal / results.length) : 0;
+            const nextTerm = meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________';
 
             document.getElementById('report-inner').innerHTML = `
-                <!-- School Header -->
-                <div class="text-center border-b-2 border-green-700 pb-4 mb-6">
-                    <div class="flex justify-center mb-2">
-                        <img src="freppa logo.svg.png" alt="School Logo" class="h-16 w-16 object-contain">
+                <article class="rc">
+                    <div class="rc-head">
+                        <img src="freppa logo.svg.png" alt="School Logo" class="rc-logo">
+                        <div class="rc-head-text">
+                            <h1>FREPPA GROUP OF SCHOOLS</h1>
+                            <p>19, Bethel Street, Aule Rd, Akure, Ondo</p>
+                            <p>Phone: +234 806 905 2278 &nbsp;|&nbsp; Email: info@freppagroupofschools.edu</p>
+                        </div>
+                        <div class="rc-tag">OFFICIAL<br>REPORT</div>
                     </div>
-                    <h1 class="text-xl md:text-2xl font-bold text-green-700">FREPPA GROUP OF SCHOOLS</h1>
-                    <p class="text-xs text-slate-500">19, Bethel Street, Aule Rd, Akure, Ondo</p>
-                    <p class="text-xs text-slate-500">Phone: +234 806 905 2278 | Email: info@freppagroupofschools.edu</p>
-                </div>
 
-                <h2 class="text-center text-lg font-bold text-slate-900 mb-4 underline underline-offset-4 decoration-amber-500 print-hide">REPORT CARD</h2>
+                    <div class="rc-title">
+                        <strong>REPORT CARD</strong>
+                        <span>${escapeHtml(term?.term_name || '-')} &nbsp;&bull;&nbsp; ${escapeHtml(session?.session_name || '-')}</span>
+                    </div>
 
-                <!-- Student Info -->
-                <div class="grid grid-cols-2 gap-x-6 gap-y-1 mb-6 text-sm bg-slate-50 p-4 rounded-xl">
-                    <div><span class="font-semibold text-slate-700">Student Name:</span> ${escapeHtml(s?.full_name || '-')}</div>
-                    <div><span class="font-semibold text-slate-700">Admission No:</span> ${escapeHtml(s?.admission_number || '-')}</div>
-                    <div><span class="font-semibold text-slate-700">Class:</span> ${escapeHtml(s?.class_name || '-')} ${s?.section ? '- ' + escapeHtml(s.section) : ''}</div>
-                    <div><span class="font-semibold text-slate-700">Gender:</span> ${s?.gender ? escapeHtml(s.gender.charAt(0).toUpperCase() + s.gender.slice(1)) : '-'}</div>
-                    <div><span class="font-semibold text-slate-700">Term:</span> ${escapeHtml(term?.term_name || '-')}</div>
-                    <div><span class="font-semibold text-slate-700">Session:</span> ${escapeHtml(session?.session_name || '-')}</div>
-                </div>
+                    <div class="rc-info">
+                        <div class="rc-info-item"><span>Student</span><strong>${escapeHtml(s?.full_name || '-')}</strong></div>
+                        <div class="rc-info-item"><span>Admission No.</span><strong>${escapeHtml(s?.admission_number || '-')}</strong></div>
+                        <div class="rc-info-item"><span>Class</span><strong>${escapeHtml(s?.class_name || '-')}${s?.section ? ' - ' + escapeHtml(s.section) : ''}</strong></div>
+                        <div class="rc-info-item"><span>Gender</span><strong>${s?.gender ? escapeHtml(s.gender.charAt(0).toUpperCase() + s.gender.slice(1)) : '-'}</strong></div>
+                        <div class="rc-info-item"><span>Term</span><strong>${escapeHtml(term?.term_name || '-')}</strong></div>
+                        <div class="rc-info-item"><span>Session</span><strong>${escapeHtml(session?.session_name || '-')}</strong></div>
+                    </div>
 
-                <!-- Results Table -->
-                <div class="overflow-x-auto mb-6">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="rc-table">
+                        <colgroup>
+                            <col style="width:4%"><col style="width:22%"><col style="width:7%"><col style="width:7%"><col style="width:7%">
+                            <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:6%"><col style="width:23%">
+                        </colgroup>
                         <thead>
-                            <tr class="bg-green-700 text-white">
-                                <th class="p-3 text-center w-10">#</th>
-                                <th class="p-3">Subject</th>
-                                <th class="p-3 text-center w-14">T1<br><span class="text-xs font-normal">(10)</span></th>
-                                <th class="p-3 text-center w-14">T2<br><span class="text-xs font-normal">(20)</span></th>
-                                <th class="p-3 text-center w-14">T3<br><span class="text-xs font-normal">(20)</span></th>
-                                <th class="p-3 text-center w-16">CA<br><span class="text-xs font-normal">(50)</span></th>
-                                <th class="p-3 text-center w-16">Exam<br><span class="text-xs font-normal">(50)</span></th>
-                                <th class="p-3 text-center w-16">Total<br><span class="text-xs font-normal">(100)</span></th>
-                                <th class="p-3 text-center w-14">Grade</th>
-                                <th class="p-3 text-center">Remarks</th>
+                            <tr>
+                                <th>#</th>
+                                <th>Subject</th>
+                                <th>T1<br>(10)</th>
+                                <th>T2<br>(20)</th>
+                                <th>T3<br>(20)</th>
+                                <th>CA<br>(50)</th>
+                                <th>Exam<br>(50)</th>
+                                <th>Total<br>(100)</th>
+                                <th>Grade</th>
+                                <th>Remarks</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            ${rows || '<tr><td colspan="10" class="p-6 text-center text-slate-400">No results found.</td></tr>'}
+                        <tbody>
+                            ${rows || '<tr><td colspan="10" class="rc-empty">No results found.</td></tr>'}
                         </tbody>
                     </table>
-                </div>
 
-                <!-- Summary -->
-                <div class="grid grid-cols-4 gap-3 mb-6 text-center">
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
-                        <p class="text-2xl font-bold text-amber-700">${summary?.subject_count || 0}</p>
-                        <p class="text-xs text-slate-600 font-semibold">Subjects</p>
+                    <div class="rc-summary">
+                        <div class="rc-stat"><b>${summary?.subject_count || 0}</b><span>Subjects</span></div>
+                        <div class="rc-stat"><b>${grandTotal.toFixed(2)}</b><span>Grand Total</span></div>
+                        <div class="rc-stat"><b>${avg.toFixed(2)}</b><span>Average</span></div>
+                        <div class="rc-stat"><b>${escapeHtml(meta.class_position || '-')}<small>/${escapeHtml(meta.total_students || '-')}</small></b><span>Position</span></div>
                     </div>
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
-                        <p class="text-2xl font-bold text-amber-700">${grandTotal.toFixed(2)}</p>
-                        <p class="text-xs text-slate-600 font-semibold">Grand Total</p>
-                    </div>
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
-                        <p class="text-2xl font-bold text-amber-700">${avg.toFixed(2)}</p>
-                        <p class="text-xs text-slate-600 font-semibold">Average</p>
-                    </div>
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
-                        <p class="text-2xl font-bold text-amber-700">${escapeHtml(meta.class_position || '-')}<span class="text-sm font-normal text-slate-500">/${escapeHtml(meta.total_students || '-')}</span></p>
-                        <p class="text-xs text-slate-600 font-semibold">Position</p>
-                    </div>
-                </div>
 
-                <!-- Domains -->
-                <div class="mb-6">
-                    <h3 class="font-bold text-slate-900 mb-3 text-sm uppercase tracking-wider">Affective & Psychomotor Domain</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        ${domainHtml}
-                    </div>
-                    <div class="mt-2 text-xs text-slate-400 flex gap-4">
-                        <span>A = Excellent</span>
-                        <span>B = Very Good</span>
-                        <span>C = Good</span>
-                        <span>D = Fair</span>
-                        <span>E = Needs Improvement</span>
-                    </div>
-                </div>
-
-                <!-- Attendance -->
-                <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-900 mb-2 text-sm uppercase tracking-wider">Attendance</h3>
-                    <div class="flex gap-6 text-sm">
-                        <span><strong>Present:</strong> ${escapeHtml(attendance.present)}</span>
-                        <span><strong>Absent:</strong> ${escapeHtml(attendance.absent)}</span>
-                        <span><strong>Excused:</strong> ${escapeHtml(attendance.excused)}</span>
-                    </div>
-                </div>
-
-                <!-- Remarks -->
-                <div class="space-y-4 mb-6">
-                    <div class="border-t border-slate-200 pt-4 flex flex-row items-center justify-between">
+                    <div class="rc-lower">
                         <div>
-                            <p class="text-sm font-semibold text-slate-700">Teacher's Remark:</p>
-                            <p class="text-sm text-slate-600 mt-1">${escapeHtml(summary?.teacher_remark || '-')}</p>
+                            <div class="rc-panel">
+                                <h2>Affective &amp; Psychomotor Domains</h2>
+                                <div class="rc-domain-grid">${domainHtml}</div>
+                                <div class="rc-legend">
+                                    <span>A = Excellent</span><span>B = Very Good</span><span>C = Good</span>
+                                    <span>D = Fair</span><span>E = Needs Improvement</span>
+                                </div>
+                            </div>
+                            <div class="rc-panel">
+                                <h2>Attendance</h2>
+                                <div class="rc-attendance">
+                                    <span><strong>Present:</strong> ${escapeHtml(attendance.present)}</span>
+                                    <span><strong>Absent:</strong> ${escapeHtml(attendance.absent)}</span>
+                                    <span><strong>Excused:</strong> ${escapeHtml(attendance.excused)}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-semibold text-slate-700">Promotion Status:</p>
-                            <p class="text-sm text-slate-600 mt-1">${escapeHtml(summary?.promotion_status || '-')}</p>
+                        <div>
+                            <div class="rc-panel">
+                                <h2>Remarks &amp; Promotion</h2>
+                                <div class="rc-remark-row"><span>Teacher's Remark</span><strong>${escapeHtml(summary?.teacher_remark || '-')}</strong></div>
+                                <div class="rc-remark-row"><span>Promotion Status</span><strong>${escapeHtml(summary?.promotion_status || '-')}</strong></div>
+                                <div class="rc-remark-row"><span>Class Teacher</span><strong>${escapeHtml(meta.teacher_remark || '____________________')}</strong></div>
+                                <div class="rc-remark-row"><span>Principal's Remark</span><strong>${escapeHtml(meta.principal_remark || '____________________')}</strong></div>
+                                <div class="rc-remark-row"><span>Next Term Begins</span><strong>${escapeHtml(nextTerm)}</strong></div>
+                            </div>
+                            <div class="rc-sign">
+                                <div>
+                                    <p>Class Teacher's Signature</p>
+                                    <span>Date: ______________</span>
+                                </div>
+                                <div>
+                                    <p>Principal's Signature</p>
+                                    <span>Date: ______________</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="border-t border-slate-200 pt-4">
-                        <p class="text-sm font-semibold text-slate-700">Class Teacher's Remark:</p>
-                        <p class="text-sm text-slate-600 mt-1">${escapeHtml(meta.teacher_remark || '_____________________________')}</p>
-                    </div>
-                    <div class="border-t border-slate-200 pt-4">
-                        <p class="text-sm font-semibold text-slate-700">Principal's Remark:</p>
-                        <p class="text-sm text-slate-600 mt-1">${escapeHtml(meta.principal_remark || '_____________________________')}</p>
-                    </div>
-                    <div class="border-t border-slate-200 pt-4">
-                        <p class="text-sm font-semibold text-slate-700">Next Term Begins:</p>
-                        <p class="text-sm text-slate-600 mt-1">${meta.next_term_begins ? new Date(meta.next_term_begins).toDateString() : '________________'}</p>
-                    </div>
-                </div>
 
-                <!-- Signatures -->
-                <div class="grid grid-cols-2 gap-4 mt-8 pt-4 border-t border-slate-200 text-sm">
-                    <div>
-                        <p class="font-semibold text-slate-700">Class Teacher's Signature:</p>
-                        <div class="mt-8 border-b border-slate-300 w-48"></div>
-                        <p class="text-xs text-slate-400 mt-1">Date: _____________</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-semibold text-slate-700">Principal's Signature:</p>
-                        <div class="mt-8 border-b border-slate-300 w-48 ml-auto"></div>
-                        <p class="text-xs text-slate-400 mt-1">Date: _____________</p>
-                    </div>
-                </div>
-
-                <div class="text-center text-xs text-slate-400 mt-8 pt-4 border-t border-slate-200">
-                    This is a computer-generated report card from FREPPA Group of Schools Portal
-                </div>
+                    <div class="rc-foot">This is a computer-generated report card from FREPPA Group of Schools Portal</div>
+                </article>
             `;
         }
+
+        function fitReportToPage() {
+            const paper = document.querySelector('#report-inner .rc');
+            if (!paper) return;
+            paper.style.zoom = '';
+            paper.style.width = '';
+            const availableHeight = 1115;
+            const contentHeight = paper.getBoundingClientRect().height;
+            if (contentHeight > availableHeight) {
+                const scale = Math.max(0.5, availableHeight / contentHeight);
+                paper.style.zoom = String(scale);
+                paper.style.width = (100 / scale) + '%';
+            }
+        }
+
+        function resetReportFit() {
+            const paper = document.querySelector('#report-inner .rc');
+            if (!paper) return;
+            paper.style.zoom = '';
+            paper.style.width = '';
+        }
+
+        window.addEventListener('beforeprint', fitReportToPage);
+        window.addEventListener('afterprint', resetReportFit);
 
         async function loadReport() {
             const sessionId = document.getElementById('filter-session').value;
