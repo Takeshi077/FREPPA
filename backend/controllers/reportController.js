@@ -360,7 +360,7 @@ exports.getReportPDF = async (req, res) => {
  <style>
   @page { size: A4 portrait; margin: 0; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; color: #1f2937; font-size: 10.5px; font-weight: 500; line-height: 1.28; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; color: #1f2937; font-size: 10.5px; font-weight: 500; line-height: 1.28; text-rendering: optimizeLegibility; font-kerning: normal; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .sheet { box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 12mm 12mm; }
   .head { display: flex; align-items: center; gap: 12px; padding-bottom: 8px; margin-bottom: 9px; border-bottom: 2.5px solid #1b6b1b; }
   .head-text { flex: 1; text-align: center; }
