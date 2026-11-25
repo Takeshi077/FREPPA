@@ -24,7 +24,7 @@ exports.getSubjects = async (req, res) => {
     const teacherId = teacherRows[0].id;
 
     const [subjects] = await pool.query(
-      `SELECT s.id, s.subject_name, s.subject_code, c.class_name, c.section
+      `SELECT s.id, s.subject_name, s.subject_code, s.class_id, c.class_name, c.section
        FROM subjects s
        JOIN classes c ON s.class_id = c.id
        WHERE s.teacher_id = ? AND s.is_active = 1
@@ -436,5 +436,134 @@ exports.bulkUpload = async (req, res) => {
   } catch (err) {
     console.error('Bulk upload error:', err);
     res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.getAttendanceSummary = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id } = req.query;
+    if (!class_id) {
+      return res.status(400).json({ error: 'Class is required.' });
+    }
+
+    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ error: 'Teacher profile not found.' });
+    }
+    const teacherId = teacherRows[0].id;
+
+    const [access] = await pool.query(
+      'SELECT id FROM subjects WHERE teacher_id = ? AND class_id = ? AND is_active = 1 LIMIT 1',
+      [teacherId, class_id]
+    );
+    if (access.length === 0) {
+      return res.status(403).json({ error: 'You are not assigned to this class.' });
+    }
+
+    const [selectedTerm] = term_id
+      ? await pool.query('SELECT id, term_name FROM terms WHERE id = ?', [term_id])
+      : await pool.query('SELECT id, term_name FROM terms WHERE is_current = 1 LIMIT 1');
+    const [selectedSession] = session_id
+      ? await pool.query('SELECT id, session_name FROM sessions WHERE id = ?', [session_id])
+      : await pool.query('SELECT id, session_name FROM sessions WHERE is_current = 1 LIMIT 1');
+
+    const termId = selectedTerm[0]?.id || null;
+    const sessionId = selectedSession[0]?.id || null;
+
+    const [students] = await pool.query(
+      `SELECT s.id AS student_id, s.admission_number, u.full_name,
+              COALESCE(a.present, 0) AS present,
+              COALESCE(a.absent, 0) AS absent,
+              COALESCE(a.excused, 0) AS excused
+       FROM students s
+       JOIN users u ON s.user_id = u.id
+       LEFT JOIN attendance_summary a
+         ON a.student_id = s.id AND a.term_id = ? AND a.session_id = ?
+       WHERE s.class_id = ? AND u.is_active = 1
+       ORDER BY u.full_name`,
+      [termId, sessionId, class_id]
+    );
+
+    res.json({
+      class_id: Number(class_id),
+      term: selectedTerm[0] || null,
+      session: selectedSession[0] || null,
+      students
+    });
+  } catch (err) {
+    console.error('Get attendance summary error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.saveAttendanceSummary = async (req, res) => {
+  try {
+    const { class_id, term_id, session_id, records } = req.body;
+    if (!class_id || !term_id || !session_id || !Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({ error: 'Class, term, session, and records are required.' });
+    }
+
+    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE user_id = ?', [req.user.id]);
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ error: 'Teacher profile not found.' });
+    }
+    const teacherId = teacherRows[0].id;
+
+    const [access] = await pool.query(
+      'SELECT id FROM subjects WHERE teacher_id = ? AND class_id = ? AND is_active = 1 LIMIT 1',
+      [teacherId, class_id]
+    );
+    if (access.length === 0) {
+      return res.status(403).json({ error: 'You are not assigned to this class.' });
+    }
+
+    const [termRows] = await pool.query('SELECT id FROM terms WHERE id = ?', [term_id]);
+    const [sessionRows] = await pool.query('SELECT id FROM sessions WHERE id = ?', [session_id]);
+    if (termRows.length === 0 || sessionRows.length === 0) {
+      return res.status(400).json({ error: 'Term or session not found.' });
+    }
+
+    const parsed = records.map(r => {
+      const count = value => {
+        const num = Number(value);
+        return Number.isInteger(num) && num >= 0 && num <= 1000 ? num : null;
+      };
+      return {
+        student_id: Number(r.student_id),
+        present: count(r.present),
+        absent: count(r.absent),
+        excused: count(r.excused)
+      };
+    });
+
+    if (parsed.some(r => !Number.isInteger(r.student_id) || r.present === null || r.absent === null || r.excused === null)) {
+      return res.status(400).json({ error: 'Attendance numbers must be whole numbers between 0 and 1000.' });
+    }
+
+    const studentIds = parsed.map(r => r.student_id);
+    const placeholders = studentIds.map(() => '?').join(',');
+    const [validStudents] = await pool.query(
+      `SELECT id FROM students WHERE class_id = ? AND id IN (${placeholders})`,
+      [class_id, ...studentIds]
+    );
+    if (validStudents.length !== studentIds.length) {
+      return res.status(400).json({ error: 'One or more students do not belong to this class.' });
+    }
+
+    for (const r of parsed) {
+      await pool.query(
+        `INSERT INTO attendance_summary (student_id, class_id, term_id, session_id, present, absent, excused, recorded_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           present = VALUES(present), absent = VALUES(absent), excused = VALUES(excused),
+           class_id = VALUES(class_id), recorded_by = VALUES(recorded_by)`,
+        [r.student_id, class_id, term_id, session_id, r.present, r.absent, r.excused, teacherId]
+      );
+    }
+
+    res.json({ message: `Attendance summary saved for ${parsed.length} students.` });
+  } catch (err) {
+    console.error('Save attendance summary error:', err);
+    res.status(500).json({ error: 'Failed to save attendance summary.' });
   }
 };

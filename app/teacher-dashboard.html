@@ -44,7 +44,10 @@
                 <i class="fa-solid fa-face-smile w-5"></i><span>Domains</span>
             </a>
             <a href="#attendance-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-calendar-check w-5"></i><span>Attendance</span>
+                <i class="fa-solid fa-calendar-day w-5"></i><span>Daily Attendance</span>
+            </a>
+            <a href="#attendance-summary-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fa-solid fa-calendar-check w-5"></i><span>Report Attendance</span>
             </a>
             <a href="#bulk-section" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
                 <i class="fa-solid fa-upload w-5"></i><span>Bulk Upload</span>
@@ -220,7 +223,7 @@
         <!-- Attendance Section -->
         <section id="attendance-section" class="mb-10">
             <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                <i class="fa-solid fa-calendar-check text-amber-500 mr-2"></i> Attendance
+                <i class="fa-solid fa-calendar-day text-amber-500 mr-2"></i> Daily Attendance
             </h2>
             <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
                 <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-4">
@@ -265,6 +268,58 @@
                         </thead>
                         <tbody id="attendance-tbody" class="divide-y divide-slate-200">
                             <tr><td colspan="4" class="p-6 text-center text-slate-400">Select a subject, date, and load.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Report Card Attendance Section -->
+        <section id="attendance-summary-section" class="mb-10">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-calendar-check text-amber-500 mr-2"></i> Report Card Attendance
+            </h2>
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <p class="text-sm text-slate-600 mb-4">Enter the total number of times each student was present, absent, or excused. These numbers appear directly on the report card.</p>
+                <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end mb-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Session</label>
+                        <select id="sum-filter-session" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Session</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Term</label>
+                        <select id="sum-filter-term" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Current Term</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Class</label>
+                        <select id="sum-class-select" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">-- Choose --</option>
+                        </select>
+                    </div>
+                    <button id="load-attendance-summary" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-users mr-1"></i> Load Students
+                    </button>
+                    <button id="save-attendance-summary" class="bg-green-700 text-white hover:bg-green-800 font-bold px-5 py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-save mr-1"></i> Save All
+                    </button>
+                </div>
+                <div id="attendance-summary-container" class="hidden overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-900 text-white">
+                                <th class="p-3">Admission No</th>
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3 w-28">Present</th>
+                                <th class="p-3 w-28">Absent</th>
+                                <th class="p-3 w-28">Excused</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-summary-tbody" class="divide-y divide-slate-200">
+                            <tr><td colspan="5" class="p-6 text-center text-slate-400">Select a class and load students.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -337,17 +392,22 @@
         async function loadSessionsTerms() {
             try {
                 const data = await apiFetch('/api/teacher/sessions-terms');
-                const sessionSelect = document.getElementById('filter-session');
-                const termSelect = document.getElementById('filter-term');
+                const sessionSelects = ['filter-session', 'domain-filter-session', 'att-filter-session', 'sum-filter-session']
+                    .map(id => document.getElementById(id));
+                const termSelects = ['filter-term', 'domain-filter-term', 'att-filter-term', 'sum-filter-term']
+                    .map(id => document.getElementById(id));
 
-                sessionSelect.innerHTML = '<option value="">Current Session</option>';
-                termSelect.innerHTML = '<option value="">Current Term</option>';
-
-                (data.sessions || []).forEach(s => {
-                    sessionSelect.innerHTML += `<option value="${s.id}" ${s.is_current ? 'selected' : ''}>${s.session_name}</option>`;
+                sessionSelects.forEach(select => {
+                    select.innerHTML = '<option value="">Current Session</option>';
+                    (data.sessions || []).forEach(s => {
+                        select.innerHTML += `<option value="${s.id}" ${s.is_current ? 'selected' : ''}>${s.session_name}</option>`;
+                    });
                 });
-                (data.terms || []).forEach(t => {
-                    termSelect.innerHTML += `<option value="${t.id}" ${t.is_current ? 'selected' : ''}>${t.term_name}</option>`;
+                termSelects.forEach(select => {
+                    select.innerHTML = '<option value="">Current Term</option>';
+                    (data.terms || []).forEach(t => {
+                        select.innerHTML += `<option value="${t.id}" ${t.is_current ? 'selected' : ''}>${t.term_name}</option>`;
+                    });
                 });
             } catch (e) {
                 console.error('Failed to load sessions/terms:', e);
@@ -371,8 +431,10 @@
 
                 const domainSelect = document.getElementById('domain-subject-select');
                 const attSelect = document.getElementById('att-subject-select');
+                const sumClassSelect = document.getElementById('sum-class-select');
                 domainSelect.innerHTML = '<option value="">-- Choose --</option>';
                 attSelect.innerHTML = '<option value="">-- Choose --</option>';
+                sumClassSelect.innerHTML = '<option value="">-- Choose --</option>';
 
                 data.subjects.forEach(sub => {
                     grid.innerHTML += `
@@ -391,6 +453,9 @@
                     select.innerHTML += `<option value="${sub.id}">${sub.subject_name} (${sub.subject_code}) - ${sub.class_name}</option>`;
                     domainSelect.innerHTML += `<option value="${sub.id}">${sub.subject_name} - ${sub.class_name}</option>`;
                     attSelect.innerHTML += `<option value="${sub.id}">${sub.subject_name} - ${sub.class_name}</option>`;
+                    if (sub.class_id && !sumClassSelect.querySelector(`option[value="${sub.class_id}"]`)) {
+                        sumClassSelect.innerHTML += `<option value="${sub.class_id}">${sub.class_name}${sub.section ? ` - ${sub.section}` : ''}</option>`;
+                    }
                 });
 
                 document.querySelectorAll('.subject-card').forEach(card => {
@@ -843,11 +908,101 @@
             }
         });
 
+        // ==================== REPORT CARD ATTENDANCE ====================
+        let summaryTermId = null;
+        let summarySessionId = null;
+
+        async function loadAttendanceSummary() {
+            const classId = document.getElementById('sum-class-select').value;
+            if (!classId) { alert('Select a class.'); return; }
+
+            const container = document.getElementById('attendance-summary-container');
+            const tbody = document.getElementById('attendance-summary-tbody');
+            container.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading...</td></tr>';
+
+            try {
+                const params = new URLSearchParams({ class_id: classId });
+                const sessionId = document.getElementById('sum-filter-session').value;
+                const termId = document.getElementById('sum-filter-term').value;
+                if (sessionId) params.append('session_id', sessionId);
+                if (termId) params.append('term_id', termId);
+
+                const data = await apiFetch(`/api/teacher/attendance-summary?${params.toString()}`);
+                const students = data.students || [];
+                summaryTermId = data.term?.id || null;
+                summarySessionId = data.session?.id || null;
+
+                tbody.innerHTML = '';
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No students in this class.</td></tr>';
+                    return;
+                }
+
+                students.forEach(s => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50';
+                    tr.dataset.studentId = s.student_id;
+                    tr.innerHTML = `
+                        <td class="p-3 font-medium text-slate-900">${escapeHtml(s.admission_number)}</td>
+                        <td class="p-3 font-medium text-slate-900">${escapeHtml(s.full_name)}</td>
+                        <td class="p-3"><input type="number" min="0" max="1000" value="${s.present}" data-field="present" class="summary-count w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"></td>
+                        <td class="p-3"><input type="number" min="0" max="1000" value="${s.absent}" data-field="absent" class="summary-count w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"></td>
+                        <td class="p-3"><input type="number" min="0" max="1000" value="${s.excused}" data-field="excused" class="summary-count w-24 px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"></td>`;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        document.getElementById('save-attendance-summary').addEventListener('click', async function() {
+            const classId = document.getElementById('sum-class-select').value;
+            if (!classId) { alert('Select a class.'); return; }
+
+            const termId = document.getElementById('sum-filter-term').value || summaryTermId;
+            const sessionId = document.getElementById('sum-filter-session').value || summarySessionId;
+            if (!termId || !sessionId) { alert('Load students first.'); return; }
+
+            const records = [];
+            document.querySelectorAll('#attendance-summary-tbody tr[data-student-id]').forEach(row => {
+                const value = field => row.querySelector(`[data-field="${field}"]`).value;
+                records.push({
+                    student_id: parseInt(row.dataset.studentId),
+                    present: value('present'),
+                    absent: value('absent'),
+                    excused: value('excused')
+                });
+            });
+            if (records.length === 0) { alert('Load students first.'); return; }
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                await apiFetch('/api/teacher/attendance-summary', {
+                    method: 'POST',
+                    body: JSON.stringify({ class_id: classId, term_id: termId, session_id: sessionId, records })
+                });
+                showSuccess('Attendance numbers saved. They will appear on the report cards.', document.getElementById('global-success'));
+                setTimeout(() => hideElement(document.getElementById('global-success')), 3000);
+            } catch (e) {
+                showError(e.message, document.getElementById('global-error'));
+                setTimeout(() => hideElement(document.getElementById('global-error')), 3000);
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fa-solid fa-save mr-1"></i> Save All';
+            }
+        });
+
         // Domain subject select
         document.getElementById('load-domain-students').addEventListener('click', loadDomainStudents);
 
         // Attendance subject select
         document.getElementById('load-attendance').addEventListener('click', loadAttendance);
+
+        // Report card attendance class select
+        document.getElementById('load-attendance-summary').addEventListener('click', loadAttendanceSummary);
 
         // Init
         loadSessionsTerms();

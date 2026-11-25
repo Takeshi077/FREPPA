@@ -122,6 +122,23 @@ exports.getReportCard = async (req, res) => {
       WHERE student_id = ? AND term_id = ? AND session_id = ?
     `, [studentId, termId, sessionId]);
 
+    const [attendanceSummary] = await pool.query(`
+      SELECT present, absent, excused FROM attendance_summary
+      WHERE student_id = ? AND term_id = ? AND session_id = ?
+    `, [studentId, termId, sessionId]);
+
+    const attendanceData = attendanceSummary.length > 0
+      ? {
+          present: attendanceSummary[0].present || 0,
+          absent: attendanceSummary[0].absent || 0,
+          excused: attendanceSummary[0].excused || 0
+        }
+      : {
+          present: attendance[0]?.present || 0,
+          absent: attendance[0]?.absent || 0,
+          excused: attendance[0]?.excused || 0
+        };
+
     res.json({
       student: studentInfo[0] || null,
       term: termInfo[0] || null,
@@ -137,7 +154,7 @@ exports.getReportCard = async (req, res) => {
         teacher_remark: getTeacherRemark(average),
         promotion_status: getPromotionStatus(average),
       },
-      attendance: attendance[0] || { present: 0, absent: 0, excused: 0 },
+      attendance: attendanceData,
       report_meta: report[0] || null,
     });
   } catch (err) {
@@ -294,11 +311,26 @@ exports.getReportPDF = async (req, res) => {
       WHERE student_id = ? AND term_id = ? AND session_id = ?
     `, [studentId, termId, sessionId]);
 
+    const [attendanceSummary] = await pool.query(`
+      SELECT present, absent, excused FROM attendance_summary
+      WHERE student_id = ? AND term_id = ? AND session_id = ?
+    `, [studentId, termId, sessionId]);
+
     const student = studentInfo[0];
     const term = termInfo[0];
     const session = sessionInfo[0];
     const domain = domains[0] || {};
-    const att = attendance[0] || { present: 0, absent: 0, excused: 0 };
+    const att = attendanceSummary.length > 0
+      ? {
+          present: attendanceSummary[0].present || 0,
+          absent: attendanceSummary[0].absent || 0,
+          excused: attendanceSummary[0].excused || 0
+        }
+      : {
+          present: attendance[0]?.present || 0,
+          absent: attendance[0]?.absent || 0,
+          excused: attendance[0]?.excused || 0
+        };
     const meta = report[0] || {};
 
     const domainFields = [

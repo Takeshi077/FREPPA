@@ -200,6 +200,29 @@ CREATE TABLE attendance (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
+-- 12. ATTENDANCE SUMMARY (REPORT CARD TOTALS)
+-- =============================================
+CREATE TABLE attendance_summary (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    class_id INT NOT NULL,
+    term_id INT NOT NULL,
+    session_id INT NOT NULL,
+    present INT NOT NULL DEFAULT 0,
+    absent INT NOT NULL DEFAULT 0,
+    excused INT NOT NULL DEFAULT 0,
+    recorded_by INT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_attendance_summary (student_id, term_id, session_id),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE RESTRICT,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE RESTRICT,
+    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE RESTRICT,
+    FOREIGN KEY (recorded_by) REFERENCES teachers(id) ON DELETE RESTRICT,
+    INDEX idx_attendance_summary_class (class_id, term_id, session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
 -- 9. RESULT AUDIT LOG
 -- =============================================
 CREATE TABLE result_audit_log (

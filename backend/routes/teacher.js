@@ -11,7 +11,9 @@ const {
   bulkUpload,
   getSessionsTerms,
   getDomainScores,
-  saveDomainScores
+  saveDomainScores,
+  getAttendanceSummary,
+  saveAttendanceSummary
 } = require('../controllers/teacherController');
 const {
   listQuestionSubjects,
@@ -56,6 +58,9 @@ router.post('/result/bulk-upload', upload.single('file'), bulkUpload);
 
 router.get('/domains', getDomainScores);
 router.post('/domains', saveDomainScores);
+
+router.get('/attendance-summary', getAttendanceSummary);
+router.post('/attendance-summary', saveAttendanceSummary);
 
 router.get('/question-subjects', listQuestionSubjects);
 router.get('/questions', listQuestions);
