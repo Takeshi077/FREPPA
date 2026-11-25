@@ -379,7 +379,7 @@
                         <div class="bg-white rounded-xl shadow-md border border-slate-100 p-5 hover:shadow-lg transition-all cursor-pointer subject-card relative"
                              data-id="${sub.id}">
                             <button type="button" class="absolute top-3 right-3 text-slate-300 hover:text-red-600 transition-colors delete-subject"
-                                    data-id="${sub.id}" data-name="${escapeHtml(sub.subject_name)}" title="Delete subject">
+                                    data-id="${sub.id}" data-name="${escapeHtml(sub.subject_name)}" title="Remove subject from your list">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                             <div class="text-amber-500 text-2xl mb-2"><i class="fa-solid fa-book"></i></div>
@@ -404,7 +404,7 @@
                 document.querySelectorAll('.delete-subject').forEach(button => {
                     button.addEventListener('click', async (event) => {
                         event.stopPropagation();
-                        if (!confirm(`Delete ${button.dataset.name}? This cannot be undone.`)) return;
+                        if (!confirm(`Remove ${button.dataset.name} from your subjects? Existing results will be kept.`)) return;
 
                         button.disabled = true;
                         try {
@@ -415,7 +415,7 @@
                                 document.getElementById('results-table-container').classList.add('hidden');
                             }
                             document.getElementById('global-error').classList.add('hidden');
-                            showSuccess('Subject deleted.', document.getElementById('global-success'));
+                            showSuccess('Subject removed from your list. Results were kept.', document.getElementById('global-success'));
                             await loadSubjects();
                         } catch (e) {
                             showError(e.message, document.getElementById('global-error'));

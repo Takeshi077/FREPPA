@@ -57,13 +57,11 @@ exports.deleteSubject = async (req, res) => {
       return res.status(403).json({ error: 'That subject is not assigned to you.' });
     }
 
-    const [results] = await pool.query('SELECT COUNT(*) AS count FROM results WHERE subject_id = ?', [id]);
-    if (results[0].count > 0) {
-      return res.status(409).json({ error: 'Cannot delete subject with existing results. Remove the results first.' });
-    }
-
-    await pool.query('DELETE FROM subjects WHERE id = ?', [id]);
-    res.json({ message: 'Subject deleted.' });
+    await pool.query(
+      'UPDATE subjects SET teacher_id = NULL WHERE id = ? AND teacher_id = ?',
+      [id, teacherId]
+    );
+    res.json({ message: 'Subject removed from your subjects. Existing results were kept.' });
   } catch (err) {
     console.error('Delete subject error:', err);
     res.status(500).json({ error: 'Failed to delete subject.' });
