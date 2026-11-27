@@ -13,11 +13,19 @@ function isValidAdmissionNumber(value) {
 }
 
 async function getAdmissionYear(conn = pool) {
-  const [rows] = await conn.query(
+  const [numbers] = await conn.query(
+    "SELECT admission_number FROM students WHERE admission_number LIKE 'FRP/%/%' ORDER BY admission_number DESC"
+  );
+  for (const row of numbers) {
+    const match = String(row.admission_number || '').match(/^FRP\/(\d{4})\//);
+    if (match) return match[1];
+  }
+
+  const [sessions] = await conn.query(
     'SELECT session_name FROM sessions WHERE is_current = 1 LIMIT 1'
   );
-  const match = rows[0] && String(rows[0].session_name || '').match(/\d{4}/);
-  return match ? match[0] : String(new Date().getFullYear());
+  const years = sessions[0] && String(sessions[0].session_name || '').match(/\d{4}/g);
+  return years ? years[years.length - 1] : String(new Date().getFullYear());
 }
 
 async function nextAdmissionNumber(conn = pool, year) {
