@@ -1,6 +1,13 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { validatePassword } = require('../utils/password');
+const {
+  ADMISSION_FORMAT,
+  normalizeAdmissionNumber,
+  isValidAdmissionNumber,
+  getAdmissionYear,
+  nextAdmissionNumber
+} = require('../utils/admissionNumber');
 
 exports.createUser = async (req, res) => {
   try {
@@ -18,8 +25,13 @@ exports.createUser = async (req, res) => {
       return res.status(400).json({ error: 'Invalid role.' });
     }
 
-    if (role === 'student' && (!admission_number || !class_id)) {
-      return res.status(400).json({ error: 'Admission number and class are required for students.' });
+    if (role === 'student' && !class_id) {
+      return res.status(400).json({ error: 'Class is required for students.' });
+    }
+
+    let studentAdmissionNumber = normalizeAdmissionNumber(admission_number);
+    if (role === 'student' && studentAdmissionNumber && !isValidAdmissionNumber(studentAdmissionNumber)) {
+      return res.status(400).json({ error: `Admission number must follow the format ${ADMISSION_FORMAT} (e.g. FRP/2025/001).` });
     }
 
     const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
@@ -47,9 +59,12 @@ exports.createUser = async (req, res) => {
           [userId, teacherStaffId, department || null, qualification || null]
         );
       } else if (role === 'student') {
+        if (!studentAdmissionNumber) {
+          studentAdmissionNumber = await nextAdmissionNumber(conn);
+        }
         await conn.query(
           'INSERT INTO students (user_id, admission_number, class_id, parent_id, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?)',
-          [userId, admission_number, class_id, parent_id || null, date_of_birth || null, gender || null]
+          [userId, studentAdmissionNumber, class_id, parent_id || null, date_of_birth || null, gender || null]
         );
       }
 
@@ -466,7 +481,15 @@ exports.updateStudent = async (req, res) => {
 
       const sUpdates = [];
       const sParams = [];
-      if (admission_number !== undefined) { sUpdates.push('admission_number = ?'); sParams.push(admission_number); }
+      if (admission_number !== undefined && admission_number !== null && admission_number !== '') {
+        const studentAdmissionNumber = normalizeAdmissionNumber(admission_number);
+        if (!isValidAdmissionNumber(studentAdmissionNumber)) {
+          await conn.rollback();
+          return res.status(400).json({ error: `Admission number must follow the format ${ADMISSION_FORMAT} (e.g. FRP/2025/001). Use "Organize Numbers" in the Admission Numbers tab to standardize existing records.` });
+        }
+        sUpdates.push('admission_number = ?');
+        sParams.push(studentAdmissionNumber);
+      }
       if (class_id) { sUpdates.push('class_id = ?'); sParams.push(class_id); }
       if (parent_id !== undefined) { sUpdates.push('parent_id = ?'); sParams.push(parent_id || null); }
       if (date_of_birth !== undefined) { sUpdates.push('date_of_birth = ?'); sParams.push(date_of_birth || null); }
@@ -579,17 +602,78 @@ exports.getTeachers = async (req, res) => {
 exports.getStudents = async (req, res) => {
   try {
     const [students] = await pool.query(
-      `SELECT s.id, s.admission_number, s.class_id, s.parent_id, s.date_of_birth, s.gender, c.class_name,
+      `SELECT s.id, s.admission_number, s.class_id, s.parent_id, s.date_of_birth, s.gender,
+              c.class_name, c.section, u.is_active,
               u.id AS user_id, u.full_name, u.email, u.phone
        FROM students s
        JOIN users u ON s.user_id = u.id
        JOIN classes c ON s.class_id = c.id
-       ORDER BY u.full_name`
+       ORDER BY s.admission_number, u.full_name`
     );
     res.json({ students });
   } catch (err) {
     console.error('Get students error:', err);
     res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+exports.organizeAdmissionNumbers = async (req, res) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    const [students] = await conn.query(
+      `SELECT s.id FROM students s
+       JOIN classes c ON s.class_id = c.id
+       ORDER BY c.id, s.id`
+    );
+
+    if (students.length === 0) {
+      await conn.rollback();
+      return res.status(400).json({ error: 'No students to organize.' });
+    }
+
+    const year = await getAdmissionYear(conn);
+    const stamp = Date.now();
+
+    for (const student of students) {
+      await conn.query(
+        'UPDATE students SET admission_number = ? WHERE id = ?',
+        [`T${stamp}_${student.id}`, student.id]
+      );
+    }
+
+    const numbers = students.map((student, index) =>
+      `FRP/${year}/${String(index + 1).padStart(3, '0')}`
+    );
+
+    for (let i = 0; i < students.length; i++) {
+      await conn.query(
+        'UPDATE students SET admission_number = ? WHERE id = ?',
+        [numbers[i], students[i].id]
+      );
+    }
+
+    await conn.commit();
+    res.json({
+      message: `Organized ${students.length} admission numbers.`,
+      count: students.length,
+      format: ADMISSION_FORMAT,
+      first: numbers[0],
+      last: numbers[numbers.length - 1]
+    });
+  } catch (err) {
+    if (conn) {
+      try { await conn.rollback(); } catch {}
+    }
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Admission number conflict. Please try again.' });
+    }
+    console.error('Organize admission numbers error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  } finally {
+    if (conn) conn.release();
   }
 };
 

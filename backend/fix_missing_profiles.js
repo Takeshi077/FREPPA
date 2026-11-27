@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const path = require('path');
+const { nextAdmissionNumber } = require('./utils/admissionNumber');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 async function fix() {
@@ -40,7 +41,7 @@ async function fix() {
   `);
 
   for (const u of missingStudents) {
-    const admNo = `ADM${String(u.id).padStart(4, '0')}`;
+    const admNo = await nextAdmissionNumber(pool);
     await pool.query(
       'INSERT INTO students (user_id, admission_number, class_id) VALUES (?, ?, ?)',
       [u.id, admNo, 1]

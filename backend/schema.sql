@@ -39,6 +39,7 @@ CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     admission_number VARCHAR(30) UNIQUE NOT NULL,
+    CONSTRAINT chk_admission_format CHECK (admission_number REGEXP '^FRP/[0-9]{4}/[0-9]{3,}$'),
     class_id INT NOT NULL,
     parent_id INT,
     date_of_birth DATE,

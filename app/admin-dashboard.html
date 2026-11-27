@@ -56,6 +56,7 @@
         <div class="flex flex-row overflow-x-auto flex-nowrap gap-2 pb-2 mb-6 no-print max-w-full no-scrollbar">
             <button class="tab-btn active bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap" data-tab="users">Users</button>
             <button class="tab-btn bg-white text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-slate-200 whitespace-nowrap" data-tab="classes">Classes</button>
+            <button class="tab-btn bg-white text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-slate-200 whitespace-nowrap" data-tab="admission-numbers">Admission Numbers</button>
             <button class="tab-btn bg-white text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-slate-200 whitespace-nowrap" data-tab="subjects">Subjects</button>
             <button class="tab-btn bg-white text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-slate-200 whitespace-nowrap" data-tab="terms">Terms & Sessions</button>
             <button class="tab-btn bg-white text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-slate-200 whitespace-nowrap" data-tab="promote">Promote Students</button>
@@ -108,7 +109,8 @@
 
                         <!-- Student-specific fields -->
                         <div id="cu-student-fields" class="space-y-3 hidden">
-                            <input type="text" id="cu-admission" placeholder="Admission Number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <input type="text" id="cu-admission" placeholder="Admission Number (auto-generated if blank)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <p class="text-xs text-slate-500 -mt-2">Format: FRP/YYYY/NNN, e.g. FRP/2025/001</p>
                             <select id="cu-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
                             <select id="cu-parent" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                                 <option value="">No parent (optional)</option>
@@ -156,7 +158,7 @@
                         <input type="text" id="estd-name" placeholder="Full Name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         <input type="email" id="estd-email" placeholder="Email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         <input type="text" id="estd-phone" placeholder="Phone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
-                        <input type="text" id="estd-admission" placeholder="Admission Number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <input type="text" id="estd-admission" placeholder="Admission Number (FRP/YYYY/NNN)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                         <select id="estd-class" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"></select>
                         <select id="estd-parent" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                             <option value="">No parent</option>
@@ -204,6 +206,39 @@
                             <button type="button" onclick="hideElement(document.getElementById('create-class-modal'))" class="w-full sm:w-auto bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Admission Numbers -->
+        <div id="tab-admission-numbers" class="tab-content hidden">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Admission Numbers</h2>
+                        <p class="text-xs text-slate-500 mt-1">Every student, one pattern: <span class="font-semibold text-slate-700">FRP/YYYY/NNN</span> (e.g. FRP/2025/001)</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadAdmissionNumbers()" class="bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold px-4 py-2 rounded-lg text-sm transition-all">
+                            <i class="fa-solid fa-rotate mr-1"></i> Refresh
+                        </button>
+                        <button onclick="organizeAdmissionNumbers()" class="bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold px-4 py-2 rounded-lg text-sm transition-all">
+                            <i class="fa-solid fa-list-ol mr-1"></i> Organize Numbers
+                        </button>
+                    </div>
+                </div>
+                <div id="admission-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
+                <div class="mb-3 flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="admission-search" oninput="filterAdmissionNumbers()" placeholder="Search by name or admission number..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    <select id="admission-class-filter" onchange="filterAdmissionNumbers()" class="w-full sm:w-auto px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        <option value="">All classes</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead><tr class="bg-slate-900 text-white"><th class="p-3">#</th><th class="p-3">Admission No</th><th class="p-3">Student</th><th class="p-3">Class</th><th class="p-3">Email</th><th class="p-3">Format</th></tr></thead>
+                        <tbody id="admission-tbody" class="divide-y divide-slate-200"><tr><td colspan="6" class="p-4 text-center text-slate-400">Loading...</td></tr></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -439,6 +474,7 @@
                 this.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
                 document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
                 document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+                if (this.dataset.tab === 'admission-numbers') loadAdmissionNumbers();
             });
         });
 
@@ -577,9 +613,14 @@
                 body.department = document.getElementById('cu-department').value || undefined;
                 body.qualification = document.getElementById('cu-qualification').value || undefined;
             } else if (role === 'student') {
-                body.admission_number = document.getElementById('cu-admission').value;
+                body.admission_number = document.getElementById('cu-admission').value.trim().toUpperCase();
                 body.class_id = document.getElementById('cu-class').value;
-                if (!body.admission_number || !body.class_id) { alert('Admission number and class are required for students.'); return; }
+                if (!body.class_id) { alert('Class is required for students.'); return; }
+                if (body.admission_number && !/^FRP\/\d{4}\/\d{3,}$/.test(body.admission_number)) {
+                    alert('Admission number must follow the format FRP/YYYY/NNN (e.g. FRP/2025/001). Leave blank to generate one automatically.');
+                    return;
+                }
+                if (!body.admission_number) delete body.admission_number;
                 body.parent_id = document.getElementById('cu-parent').value || undefined;
                 body.date_of_birth = document.getElementById('cu-dob').value || undefined;
                 body.gender = document.getElementById('cu-gender').value || undefined;
@@ -897,6 +938,100 @@
                 loadClasses();
             } catch (e) { alert(e.message); }
         });
+
+        // ==================== ADMISSION NUMBERS ====================
+        let allAdmissionStudents = [];
+
+        function hasAdmissionPattern(value) {
+            return /^FRP\/\d{4}\/\d{3,}$/.test(String(value || '').trim().toUpperCase());
+        }
+
+        function renderAdmissionNumbers(students) {
+            const tbody = document.getElementById('admission-tbody');
+            tbody.innerHTML = '';
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No students found.</td></tr>';
+                return;
+            }
+
+            students.forEach((s, idx) => {
+                const valid = hasAdmissionPattern(s.admission_number);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 text-slate-400">${idx + 1}</td>
+                        <td class="p-3"><span class="font-mono font-semibold px-2 py-1 rounded text-xs ${valid ? 'bg-slate-100 text-slate-900' : 'bg-amber-100 text-amber-800'}">${escapeHtml(s.admission_number || '-')}</span></td>
+                        <td class="p-3 font-medium text-slate-900">${escapeHtml(s.full_name)}</td>
+                        <td class="p-3 text-slate-600">${escapeHtml(s.class_name || '-')}${s.section ? ` <span class="text-xs text-slate-400">(${escapeHtml(s.section)})</span>` : ''}</td>
+                        <td class="p-3 text-slate-500">${escapeHtml(s.email || '-')}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-semibold ${valid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}">${valid ? 'Standard' : 'Needs organizing'}</span></td>
+                    </tr>`;
+            });
+        }
+
+        window.filterAdmissionNumbers = () => {
+            const q = document.getElementById('admission-search').value.toLowerCase().trim();
+            const classId = document.getElementById('admission-class-filter').value;
+            renderAdmissionNumbers(allAdmissionStudents.filter(s =>
+                (!classId || String(s.class_id) === classId) &&
+                (!q || s.full_name.toLowerCase().includes(q) ||
+                    String(s.admission_number || '').toLowerCase().includes(q) ||
+                    String(s.class_name || '').toLowerCase().includes(q))
+            ));
+        };
+
+        async function loadAdmissionNumbers() {
+            try {
+                const [studentData, classData] = await Promise.all([
+                    apiFetch('/api/admin/students'),
+                    apiFetch('/api/admin/classes')
+                ]);
+                allAdmissionStudents = (studentData.students || []).slice().sort((a, b) =>
+                    String(a.admission_number || '').localeCompare(String(b.admission_number || ''))
+                );
+
+                const organized = allAdmissionStudents.filter(s => hasAdmissionPattern(s.admission_number)).length;
+                const needsAttention = allAdmissionStudents.length - organized;
+                document.getElementById('admission-stats').innerHTML = `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Total Students</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-1">${allAdmissionStudents.length}</p>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                        <p class="text-xs uppercase tracking-wide text-green-700 font-semibold">Following Pattern</p>
+                        <p class="text-2xl font-bold text-green-800 mt-1">${organized}</p>
+                        <p class="text-[11px] text-green-700 mt-1">FRP/YYYY/NNN</p>
+                    </div>
+                    <div class="${needsAttention ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'} rounded-xl p-4">
+                        <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Need Organizing</p>
+                        <p class="text-2xl font-bold ${needsAttention ? 'text-amber-700' : 'text-slate-900'} mt-1">${needsAttention}</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Numbers without the standard format</p>
+                    </div>`;
+
+                const classSel = document.getElementById('admission-class-filter');
+                const selected = classSel.value;
+                classSel.innerHTML = '<option value="">All classes</option>';
+                (classData.classes || []).forEach(c => {
+                    classSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.class_name)}</option>`;
+                });
+                classSel.value = selected;
+
+                filterAdmissionNumbers();
+            } catch (e) {
+                document.getElementById('admission-tbody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">${escapeHtml(e.message)}</td></tr>`;
+            }
+        }
+
+        window.organizeAdmissionNumbers = async () => {
+            if (!confirm('This renumbers every student in order using FRP/YYYY/NNN (e.g. FRP/2025/001). Printed records or spreadsheets using the old numbers must be updated. Continue?')) return;
+            try {
+                const data = await apiFetch('/api/admin/students/admission-numbers/organize', { method: 'POST' });
+                document.getElementById('success-message').textContent = data.message;
+                document.getElementById('success-message').classList.remove('hidden');
+                setTimeout(() => hideElement(document.getElementById('success-message')), 3000);
+                await loadAdmissionNumbers();
+                loadClasses();
+            } catch (e) { alert(e.message); }
+        };
 
         // ==================== SUBJECTS ====================
         let allSubjects = [];
@@ -1328,6 +1463,7 @@
         // Init all tabs
         loadUsers();
         loadClasses();
+        loadAdmissionNumbers();
         loadSubjects();
         loadTermsAndSessions();
         loadAuditLog();

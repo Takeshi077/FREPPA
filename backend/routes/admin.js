@@ -31,7 +31,8 @@ const {
   generateReportCards,
   finalizeReportCards,
   getReportCards,
-  getBestStudents
+  getBestStudents,
+  organizeAdmissionNumbers
 } = require('../controllers/adminController');
 
 router.use(authenticateToken, requireRole('admin'));
@@ -66,6 +67,7 @@ router.put('/sessions/set-current', setCurrentSession);
 router.post('/sessions', createSession);
 
 router.post('/students/promote', promoteStudents);
+router.post('/students/admission-numbers/organize', organizeAdmissionNumbers);
 
 router.get('/audit-log', getAuditLog);
 
